@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>相続関係説明図</title>
+<style>
+:root {
+  --primary: #1a5276;
+  --primary-l: #2980b9;
+  --bg: #eef1f5;
+  --card: #fff;
+  --border: #d5dbe3;
+  --txt: #2c3e50;
+  --txtL: #7f8c8d;
+  --r: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Yu Gothic UI','Meiryo',sans-serif;background:var(--bg);color:var(--txt);font-size:13px}
+button{cursor:pointer;font-family:inherit;font-size:13px}
+
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.header h1{font-size:17px;font-weight:600}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btns button{padding:6px 16px;border:none;border-radius:6px;font-weight:600;font-size:12px;background:rgba(255,255,255,.2);color:#fff}
+.hdr-btns button:hover{background:rgba(255,255,255,.35)}
+
+.wrap{display:flex;height:calc(100vh - 46px)}
+
+.side{width:400px;min-width:400px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.side-head{padding:12px 16px 14px;border-bottom:1px solid var(--border)}
+.side-head label{font-size:11px;color:var(--txtL);font-weight:600;display:block;margin-bottom:3px;margin-top:10px}
+.side-head label:first-child{margin-top:0}
+.side-head input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:2px}
+.side-head input:focus{border-color:var(--primary-l);outline:none}
+
+.plist{flex:1;overflow-y:auto;padding:10px}
+
+.pc{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;border-left:4px solid #bdc3c7}
+.pc.r-被相続人{border-left-color:#e91e63}
+.pc.r-相続人{border-left-color:#27ae60}
+.pc.r-遺産分割{border-left-color:#f39c12}
+.pc.r-先死亡{border-left-color:#95a5a6}
+.pc.r-相続後死亡{border-left-color:#8e44ad}
+
+.pc-hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
+.pc-hd:hover{background:#f8f9fa}
+.pc-nm{font-weight:700;font-size:13px}
+.pc-sub{font-size:11px;color:var(--txtL);margin-left:8px}
+.pc-badge{font-size:10px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:700;margin-left:6px}
+.bg-被相続人{background:#e91e63}
+.bg-相続人{background:#27ae60}
+.bg-遺産分割{background:#f39c12}
+.bg-先死亡{background:#95a5a6}
+.bg-相続後死亡{background:#8e44ad}
+.pc-tgl{font-size:16px;color:#aaa;transition:transform .2s}
+.pc.open .pc-tgl{transform:rotate(180deg)}
+
+.pc-bd{display:none;border-top:1px solid #f0f0f0;background:#fafbfc}
+.pc.open .pc-bd{display:block}
+
+.tabs{display:flex;border-bottom:2px solid #e0e0e0;background:#f5f6f8}
+.tab{flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--txtL);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-body{padding:10px 12px 12px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+.fg{margin-bottom:6px}
+.fg label{font-size:11px;color:var(--txtL);font-weight:600;display:block;margin-bottom:2px}
+.fg input,.fg select{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary-l);outline:none}
+.fg-row{display:flex;gap:8px}
+.fg-row .fg{flex:1}
+
+.date-row{display:flex;gap:4px;align-items:center}
+.date-row select{padding:4px 2px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:#fff}
+.date-row .y-sel{width:120px}
+.date-row .m-sel{width:55px}
+.date-row .d-sel{width:55px}
+.date-row span{font-size:11px;color:var(--txtL)}
+
+.pc-ft{display:flex;justify-content:flex-end;padding:6px 12px 10px;background:#fafbfc}
+.btn-del{background:none;border:1px solid #e74c3c;color:#e74c3c;padding:3px 14px;border-radius:5px;font-size:11px;font-weight:600}
+.btn-del:hover{background:#e74c3c;color:#fff}
+
+.btn-add{display:block;width:100%;padding:11px;margin-top:4px;background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:13px}
+.btn-add:hover{opacity:.85}
+
+.auto-note{font-size:10px;color:#999;padding:4px 12px 8px;background:#fafbfc}
+
+/* 右: 図 */
+.main{flex:1;overflow:auto;background:#eee;position:relative}
+.diagram{position:relative;width:3000px;height:3000px;padding:30px 40px;background:#fff;margin:10px;box-shadow:0 1px 6px rgba(0,0,0,.1);font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;transform-origin:0 0}
+.diagram svg{position:absolute;top:0;left:0;pointer-events:none}
+.dhdr{position:absolute;z-index:1;font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;cursor:grab}
+.dhdr.dragging{cursor:grabbing;opacity:.7}
+.dhdr.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
+.dtitle{font-size:26px;font-weight:700;color:#000;margin-bottom:16px;letter-spacing:2px}
+.dsub{font-size:16px;font-weight:400;color:#000;line-height:2.0}
+.dsub .dlabel{display:inline-block;letter-spacing:0.8em;margin-right:1em}
+
+.dfooter{font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;font-size:18px;text-align:center;color:#000;position:absolute;z-index:1;cursor:grab}
+.dfooter.dragging{cursor:grabbing;opacity:.7}
+.dfooter.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
+
+/* カード */
+.card{position:absolute;width:220px;border:2px solid #bbb;border-radius:var(--r);background:#fff;font-size:14px;z-index:1;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:grab;user-select:none}
+.card.selected{outline:3px solid #2980b9;outline-offset:2px}
+.card.dragging{cursor:grabbing;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:10;opacity:.9}
+.card-h{padding:4px 8px;font-weight:700;font-size:14px;border-bottom:1px solid #ddd;border-radius:6px 6px 0 0;letter-spacing:.5px}
+.card-b{padding:4px 8px;line-height:1.5}
+.card-b .f{display:flex}
+.card-b .l{width:38px;color:var(--txtL);font-weight:700;flex-shrink:0}
+.card-b .v{flex:1}
+.card-d{display:flex;gap:4px;padding:5px 10px;border-top:1px solid #eee;flex-wrap:wrap}
+.tag{padding:2px 7px;border:1px solid #aaa;border-radius:4px;font-size:12px;font-weight:700;background:#f8f9fa}
+
+.c-被相続人{border-color:#e91e63;background:#fce4ec} .c-被相続人 .card-h{background:#e91e63;color:#fff}
+.c-相続人{border-color:#27ae60;background:#e8f5e9} .c-相続人 .card-h{background:#27ae60;color:#fff}
+.c-遺産分割{border-color:#f39c12;background:#fff8e1} .c-遺産分割 .card-h{background:#fef5e7;color:#b7770a}
+.c-先死亡{border-color:#95a5a6;background:#f5f5f5} .c-先死亡 .card-h{background:#f0f0f0;color:#555}
+.c-相続後死亡{border-color:#8e44ad;background:#f3e5f5} .c-相続後死亡 .card-h{background:#f4ecf7;color:#6c3483}
+
+/* 範囲選択 */
+.sel-rect{position:absolute;border:2px dashed #2980b9;background:rgba(41,128,185,.1);z-index:50;pointer-events:none}
+
+/* プレビューモード */
+.preview-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#555;z-index:200;overflow:auto}
+.preview-overlay.active{display:flex;flex-direction:column;align-items:center}
+.preview-a4{position:relative;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.5);width:210mm;height:297mm;margin:20px auto 60px;overflow:hidden;flex-shrink:0}
+.preview-a4 .diagram{position:absolute;top:0;left:0;width:3000px;height:3000px;margin:0;box-shadow:none;transform-origin:0 0;cursor:grab}
+.preview-a4 .diagram.grabbing{cursor:grabbing}
+.preview-ctrl{position:fixed;bottom:0;left:0;right:0;background:rgba(30,30,30,.95);color:#ccc;padding:10px 20px;display:flex;align-items:center;gap:12px;font-size:12px;z-index:201;justify-content:center}
+.preview-ctrl span{min-width:45px;text-align:center;font-weight:600}
+.preview-ctrl button{padding:8px 20px;border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer}
+.preview-ctrl button:hover{opacity:.85}
+.pv-btn-back{background:#fff;color:#333}
+.pv-btn-print{background:#2980b9;color:#fff}
+
+@page{size:A4;margin:0mm}
+@media print{
+  html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important;height:297mm!important}
+  .header,.preview-ctrl,.side,.sel-rect{display:none!important}
+  .wrap{display:none!important}
+  .preview-overlay.active{display:block!important;position:static!important;background:#fff!important;padding:0!important;margin:0!important}
+  .preview-a4{box-shadow:none!important;margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important;position:relative!important}
+  .preview-a4 .diagram{margin:0!important;box-shadow:none!important;padding:0!important}
+  .card{box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card-h{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .c-被相続人,.c-相続人,.c-遺産分割,.c-先死亡,.c-相続後死亡{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dfooter{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>相続関係説明図 作成ツール</h1>
+  <div class="hdr-btns">
+    <button onclick="saveJSON()">保存</button>
+    <button onclick="document.getElementById('fi').click()">読込</button>
+    <button onclick="toggleTags()" id="btnTags">タグ: ON</button>
+    <button onclick="togglePreview()">プレビュー・印刷</button>
+  </div>
+</div>
+<input type="file" id="fi" accept=".json" style="display:none">
+
+<div class="wrap">
+  <div class="side">
+    <div class="side-head">
+      <label>被相続人の最後の本籍</label>
+      <input id="inHonseki" placeholder="東京都..." onchange="draw()">
+      <label>被相続人の最後の住所</label>
+      <input id="inLastAddr" placeholder="東京都..." onchange="draw()">
+      <label>登記上の住所</label>
+      <input id="inRegAddr" placeholder="登記簿上の住所..." onchange="draw()">
+    </div>
+    <div class="plist" id="plist"></div>
+    <div style="padding:10px">
+      <button class="btn-add" onclick="addPerson()">+ 人物を追加</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="diagram" id="diagram"></div>
+  </div>
+</div>
+
+<script>
+let P = [], uid = 1, activeTab = {};
+let cardPositions = {};
+let footerPos = null;
+let hdrPos = null; // ヘッダーのドラッグ位置
+let hdrScale = 1.0; // ヘッダーのスケール
+let footerScale = 1.0; // フッターのスケール
+let showTags = true; // タグ一括表示/非表示
+let currentSvg = null, currentCards = null, currentById = null;
+let previewScale = 50;
+let selectedIds = new Set();
+
+const ZOKUGARA = ['','妻','夫','長男','二男','三男','四男','五男','長女','二女','三女','四女','五女','父','母','養父','養母','兄','姉','弟','妹','孫','甥','姪'];
+const DOCS = {
+  '被相続人': ['生亡','住所'],
+  '相続人': ['現戸','住所','印証','遺分'],
+  '遺産分割': ['現戸','印証','遺分'],
+  '先死亡': ['生亡'],
+  '相続後死亡': ['生亡']
+};
+const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+function makeYears(){
+  let opts = '<option value="">--</option>';
+  for(let y=2026;y>=1868;y--){
+    opts += `<option value="${y}">${warekiYear(y)} (${y})</option>`;
+  }
+  return opts;
+}
+function warekiYear(y){
+  if(y>=2019) return '令和'+(y-2018===1?'元':y-2018)+'年';
+  if(y>=1989) return '平成'+(y-1988===1?'元':y-1988)+'年';
+  if(y>=1926) return '昭和'+(y-1925===1?'元':y-1925)+'年';
+  if(y>=1912) return '大正'+(y-1911===1?'元':y-1911)+'年';
+  return '明治'+(y-1867)+'年';
+}
+function makeMonths(){
+  let o='<option value="">--</option>';
+  for(let m=1;m<=12;m++) o+=`<option value="${m}">${m}月</option>`;
+  return o;
+}
+function makeDays(){
+  let o='<option value="">--</option>';
+  for(let d=1;d<=31;d++) o+=`<option value="${d}">${d}日</option>`;
+  return o;
+}
+const YEAR_OPTS = makeYears(), MONTH_OPTS = makeMonths(), DAY_OPTS = makeDays();
+
+function dateToObj(p, prefix){
+  return { y: p[prefix+'Y']||'', m: p[prefix+'M']||'', d: p[prefix+'D']||'' };
+}
+function dateToStr(p, prefix){
+  const o = dateToObj(p, prefix);
+  if(!o.y) return '';
+  return warekiYear(+o.y).replace('年','') + '年' + (o.m?o.m+'月':'') + (o.d?o.d+'日':'');
+}
+function dateToNum(p, prefix){
+  const o = dateToObj(p, prefix);
+  if(!o.y) return 0;
+  return (+o.y)*10000 + (+o.m||0)*100 + (+o.d||0);
+}
+
+const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡'];
+
+function toggleTags(){
+  showTags=!showTags;
+  document.getElementById('btnTags').textContent='タグ: '+(showTags?'ON':'OFF');
+  draw();
+}
+
+function autoRoles(){
+  const hisou = P.find(p => p.isBSZ);
+  if(!hisou) return;
+  const deathNum = dateToNum(hisou, 'death');
+  P.forEach(p => {
+    if(p.isBSZ){ p.role = '被相続人'; return; }
+    if(p.roleOverride){ p.role = p.roleOverride; return; }
+    const pDeath = dateToNum(p, 'death');
+    if(pDeath === 0){
+      p.role = '相続人';
+    } else if(deathNum && pDeath < deathNum){
+      p.role = '先死亡';
+    } else if(deathNum && pDeath >= deathNum){
+      p.role = '相続後死亡';
+    } else {
+      p.role = '相続人';
+    }
+  });
+}
+
+// === UI ===
+function addPerson(){
+  P.push({ id:uid++, name:'', relation:'', role:'', roleOverride:'', isBSZ:false,
+    birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
+    father:'', mother:'', spouse:'' });
+  autoRoles();
+  renderList(P.length-1);
+  draw();
+}
+
+function renderList(openIdx){
+  const ct = document.getElementById('plist');
+  ct.innerHTML = '';
+  P.forEach((p,i) => {
+    const rc = p.role ? 'r-'+p.role : '';
+    const isOpen = i===openIdx;
+    const div = document.createElement('div');
+    div.className = `pc ${rc} ${isOpen?'open':''}`;
+
+    const dn = p.name||'(未入力)';
+    const dr = ROLE_DISP[p.role]||p.role||'';
+    const badgeCls = p.role ? 'bg-'+p.role : '';
+
+    const otherOpts = P.filter(x=>x.id!==p.id).map(x=>`<option value="${x.id}">${x.name||'(未入力)'}</option>`).join('');
+
+    const curTab = activeTab[i] || 0;
+    div.innerHTML = `
+      <div class="pc-hd" onclick="toggle(${i})">
+        <div>
+          <span class="pc-nm">${esc(dn)}</span>
+          ${dr?`<span class="pc-badge ${badgeCls}">${dr}</span>`:''}
+          <span class="pc-sub">${p.relation?'('+esc(p.relation)+')':''}</span>
+        </div>
+        <span class="pc-tgl">&#9662;</span>
+      </div>
+      <div class="pc-bd">
+        <div class="tabs">
+          <button class="tab ${curTab===0?'active':''}" onclick="switchTab(this,${i},0)">基本情報</button>
+          <button class="tab ${curTab===1?'active':''}" onclick="switchTab(this,${i},1)">日付/立場</button>
+        </div>
+        <div class="tab-body">
+          <div class="tab-pane ${curTab===0?'active':''}" data-tab="0">
+            <div class="fg-row">
+              <div class="fg"><label>氏名</label><input value="${esc(p.name)}" data-i="${i}" data-f="name"></div>
+              ${!p.isBSZ?`<div class="fg"><label>続柄</label><select data-i="${i}" data-f="relation">${ZOKUGARA.map(z=>`<option value="${z}" ${z===p.relation?'selected':''}>${z||'-- 選択 --'}</option>`).join('')}<option value="__custom__" ${p.relation&&!ZOKUGARA.includes(p.relation)?'selected':''}>その他（自由入力）</option></select>${(p.relation&&!ZOKUGARA.includes(p.relation))?`<input value="${esc(p.relation)}" data-i="${i}" data-f="relationCustom" placeholder="続柄を入力" style="margin-top:4px">`:''}</div>`:''}
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>父</label><select data-i="${i}" data-f="father"><option value="">-- なし --</option>${otherOpts}</select></div>
+              <div class="fg"><label>母</label><select data-i="${i}" data-f="mother"><option value="">-- なし --</option>${otherOpts}</select></div>
+            </div>
+            <div class="fg"><label>配偶者</label><select data-i="${i}" data-f="spouse"><option value="">-- なし --</option>${otherOpts}</select></div>
+          </div>
+          <div class="tab-pane ${curTab===1?'active':''}" data-tab="1">
+            <div class="fg"><label>生年月日</label>
+              <div class="date-row">
+                <select class="y-sel" data-i="${i}" data-f="birthY">${YEAR_OPTS}</select>
+                <select class="m-sel" data-i="${i}" data-f="birthM">${MONTH_OPTS}</select>
+                <select class="d-sel" data-i="${i}" data-f="birthD">${DAY_OPTS}</select>
+              </div>
+            </div>
+            <div class="fg"><label>死亡年月日</label>
+              <div class="date-row">
+                <select class="y-sel" data-i="${i}" data-f="deathY">${YEAR_OPTS}</select>
+                <select class="m-sel" data-i="${i}" data-f="deathM">${MONTH_OPTS}</select>
+                <select class="d-sel" data-i="${i}" data-f="deathD">${DAY_OPTS}</select>
+              </div>
+            </div>
+            ${!p.isBSZ?`<div class="fg" style="margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0"><label>立場 <span style="font-weight:400;color:#aaa">（自動: ${p.role}）</span></label><select data-i="${i}" data-f="roleOverride">${ROLE_LIST.map(r=>`<option value="${r}" ${r===p.roleOverride?'selected':''}>${r||'自動判定'}</option>`).join('')}</select></div>`:''}
+          </div>
+        </div>
+        <div class="pc-ft">${!p.isBSZ?`<button class="btn-del" onclick="delPerson(${i})">削除</button>`:''}</div>
+      </div>
+    `;
+    ct.appendChild(div);
+
+    div.querySelector('[data-f="birthY"]').value = p.birthY||'';
+    div.querySelector('[data-f="birthM"]').value = p.birthM||'';
+    div.querySelector('[data-f="birthD"]').value = p.birthD||'';
+    div.querySelector('[data-f="deathY"]').value = p.deathY||'';
+    div.querySelector('[data-f="deathM"]').value = p.deathM||'';
+    div.querySelector('[data-f="deathD"]').value = p.deathD||'';
+    div.querySelector('[data-f="father"]').value = p.father||'';
+    div.querySelector('[data-f="mother"]').value = p.mother||'';
+    div.querySelector('[data-f="spouse"]').value = p.spouse||'';
+
+    div.querySelectorAll('input:not([type="checkbox"])').forEach(el=>{
+      el.addEventListener('input', onInput);
+      el.addEventListener('change', onChange);
+    });
+    div.querySelectorAll('select').forEach(el=>el.addEventListener('change', onChange));
+  });
+}
+
+function toggle(idx){
+  const cards = document.querySelectorAll('.pc');
+  cards.forEach((c,i)=>{ if(i===idx) c.classList.toggle('open'); else c.classList.remove('open'); });
+}
+
+function openPersonCard(idx){
+  const cards = document.querySelectorAll('.pc');
+  cards.forEach((c,i)=>{ if(i===idx) c.classList.add('open'); else c.classList.remove('open'); });
+  // スクロールして見えるようにする
+  if(cards[idx]) cards[idx].scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function switchTab(btn, personIdx, tabIdx){
+  activeTab[personIdx] = tabIdx;
+  const body = btn.closest('.pc-bd');
+  body.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  body.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  body.querySelector(`[data-tab="${tabIdx}"]`).classList.add('active');
+}
+
+function onInput(e){
+  const i=+e.target.dataset.i, f=e.target.dataset.f;
+  if(i>=P.length)return;
+  P[i][f]=e.target.value;
+  const card=e.target.closest('.pc');
+  if(f==='name') card.querySelector('.pc-nm').textContent=P[i].name||'(未入力)';
+  if(f==='relationCustom'){
+    P[i].relation=e.target.value;
+    card.querySelector('.pc-sub').textContent=P[i].relation?'('+P[i].relation+')':'';
+  }
+  draw();
+}
+
+function onChange(e){
+  const i=+e.target.dataset.i, f=e.target.dataset.f;
+  if(i>=P.length)return;
+  P[i][f]=e.target.value;
+
+  if(f==='relation' && e.target.value==='__custom__'){
+    P[i].relation='';
+    autoRoles();
+    const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+    renderList(openIdx);
+    draw();
+    return;
+  }
+  if(f==='relationCustom'){
+    P[i].relation=e.target.value;
+    draw();
+    return;
+  }
+
+  if(f==='spouse'){
+    P.forEach((x,j)=>{if(j!==i&&String(x.spouse)===String(P[i].id))x.spouse='';});
+    if(e.target.value){const sp=P.find(x=>String(x.id)===e.target.value);if(sp)sp.spouse=String(P[i].id);}
+  }
+
+  autoRoles();
+  const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+  renderList(openIdx);
+  draw();
+}
+
+function delPerson(i){
+  if(!confirm(P[i].name?`「${P[i].name}」を削除しますか？`:'この人物を削除しますか？'))return;
+  const rm=P.splice(i,1)[0];
+  P.forEach(p=>{
+    if(String(p.father)===String(rm.id))p.father='';
+    if(String(p.mother)===String(rm.id))p.mother='';
+    if(String(p.spouse)===String(rm.id))p.spouse='';
+  });
+  autoRoles();
+  renderList(-1);
+  draw();
+}
+
+// ===== 図 =====
+const CW=220, HGAP=50, VGAP=160;
+const SNAP=20;
+function snap(v){return Math.round(v/SNAP)*SNAP;}
+
+function draw(){
+  const dg=document.getElementById('diagram');
+  dg.innerHTML='';
+
+  const hk=document.getElementById('inHonseki').value;
+  const la=document.getElementById('inLastAddr').value;
+  const ra=document.getElementById('inRegAddr').value;
+  const hisou=P.find(p=>p.isBSZ);
+  const hasData=P.some(p=>p.name);
+
+  if(!hasData) return;
+
+  // ヘッダー
+  const hdr=document.createElement('div');
+  hdr.className='dhdr';
+  let hdrHtml=`<div class="dtitle">被相続人　${esc(hisou?hisou.name:'')}　相続関係説明図</div>`;
+  let subLines=[];
+  if(hk) subLines.push('<span class="dlabel">最後の本籍</span>'+esc(hk));
+  if(la) subLines.push('<span class="dlabel">最後の住所</span>'+esc(la));
+  if(ra) subLines.push('<span class="dlabel">登記簿上の住所</span>'+esc(ra));
+  if(subLines.length) hdrHtml+='<div class="dsub">'+subLines.join('<br>')+'</div>';
+  hdr.innerHTML=hdrHtml;
+  const hx=hdrPos?hdrPos.x:30;
+  const hy=hdrPos?hdrPos.y:20;
+  hdr.style.left=hx+'px';hdr.style.top=hy+'px';
+  hdr.style.transform='scale('+hdrScale+')';
+  hdr.style.transformOrigin='0 0';
+  dg.appendChild(hdr);
+  initHdrDrag(hdr);
+  hdr.addEventListener('wheel',e=>{
+    if(isPreviewActive())return;
+    e.preventDefault();e.stopPropagation();
+    const delta=e.deltaY>0?-0.05:0.05;
+    hdrScale=Math.max(0.3,Math.min(3.0,hdrScale+delta));
+    hdr.style.transform='scale('+hdrScale+')';
+  },{passive:false});
+
+  const headerH=hdr.offsetHeight+hy+30;
+
+  const byId={};P.forEach(p=>byId[p.id]=p);
+  const layout=calcLayout(byId,headerH);
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+  dg.appendChild(svg);
+
+  // レイアウト計算後、全カードの位置を確定保存
+  layout.forEach(L=>{
+    if(!cardPositions[L.p.id]) cardPositions[L.p.id]={x:L.x,y:L.y};
+  });
+
+  const cards={};
+  layout.forEach(L=>{
+    const px=cardPositions[L.p.id].x;
+    const py=cardPositions[L.p.id].y;
+    const el=mkCard(L.p,px,py);
+    dg.appendChild(el);
+    cards[L.p.id]={x:px,y:py,el};
+    initDrag(el,L.p.id);
+    el.addEventListener('wheel',e=>{
+      if(isPreviewActive())return;
+      if(selectedIds.size<2||!selectedIds.has(L.p.id))return;
+      e.preventDefault();e.stopPropagation();
+      const delta=e.deltaY>0?-0.05:0.05;
+      const ids=[...selectedIds];
+      // 中心基準で間隔を拡縮
+      let cx=0,cy=0;
+      ids.forEach(id=>{if(cards[id]){cx+=cards[id].x;cy+=cards[id].y;}});
+      cx/=ids.length; cy/=ids.length;
+      const ratio=1+delta;
+      ids.forEach(id=>{
+        if(!cards[id])return;
+        const c=cards[id];
+        const nx=Math.round(cx+(c.x-cx)*ratio);
+        const ny=Math.round(cy+(c.y-cy)*ratio);
+        c.x=nx; c.y=ny;
+        c.el.style.left=nx+'px'; c.el.style.top=ny+'px';
+        cardPositions[id]={x:nx,y:ny};
+      });
+      if(currentSvg&&currentCards&&currentById) drawLines(currentSvg,currentCards,currentById);
+    },{passive:false});
+  });
+
+  currentSvg=svg; currentCards=cards; currentById=byId;
+
+  // フッター
+  const ftr=document.createElement('div');
+  ftr.className='dfooter';
+  ftr.textContent='戸籍謄抄本及び除籍謄本は還付した';
+  dg.appendChild(ftr);
+
+  requestAnimationFrame(()=>{
+    Object.values(cards).forEach(c=>{c.h=c.el.offsetHeight;c.w=CW;});
+    drawLines(svg,cards,byId);
+    let mx=0,my=0;
+    Object.values(cards).forEach(c=>{mx=Math.max(mx,c.x+c.w+80);my=Math.max(my,c.y+c.h+80);});
+    const fx=footerPos?footerPos.x:(mx-200);
+    const fy=footerPos?footerPos.y:(my+20);
+    ftr.style.left=fx+'px';ftr.style.top=fy+'px';
+    ftr.style.transform='scale('+footerScale+')';
+    ftr.style.transformOrigin='0 0';
+    initFooterDrag(ftr);
+    ftr.addEventListener('wheel',e=>{
+      if(isPreviewActive())return;
+      e.preventDefault();e.stopPropagation();
+      const delta=e.deltaY>0?-0.05:0.05;
+      footerScale=Math.max(0.3,Math.min(3.0,footerScale+delta));
+      ftr.style.transform='scale('+footerScale+')';
+    },{passive:false});
+    svg.setAttribute('width',3000);
+    svg.setAttribute('height',3000);
+  });
+}
+
+function calcLayout(byId,headerH){
+  const root=P.find(p=>p.isBSZ)||P[0];
+  const lvMap={};
+  const visited=new Set();
+
+  function assignLevel(p,lv){
+    if(!p||visited.has(p.id))return;
+    visited.add(p.id);
+    lvMap[p.id]=lv;
+    if(p.spouse&&byId[p.spouse]&&!visited.has(+p.spouse)){
+      visited.add(+p.spouse);
+      lvMap[+p.spouse]=lv;
+    }
+  }
+
+  function goUp(p,lv){
+    [p.father,p.mother].forEach(pid=>{
+      if(!pid||!byId[pid]||visited.has(+pid))return;
+      assignLevel(byId[pid],lv-1);
+      goUp(byId[pid],lv-1);
+    });
+  }
+
+  function goDown(parentId,lv){
+    P.forEach(p=>{
+      if(visited.has(p.id))return;
+      if(String(p.father)===String(parentId)||String(p.mother)===String(parentId)){
+        assignLevel(p,lv);
+        goDown(p.id,lv+1);
+      }
+    });
+  }
+
+  goUp(root,0);
+  assignLevel(root,0);
+  goDown(root.id,1);
+  if(root.spouse&&byId[root.spouse]) goDown(+root.spouse,1);
+
+  let changed=true;
+  while(changed){
+    changed=false;
+    P.forEach(p=>{
+      if(visited.has(p.id))return;
+      const fLv=p.father&&lvMap[+p.father]!==undefined?lvMap[+p.father]:null;
+      const mLv=p.mother&&lvMap[+p.mother]!==undefined?lvMap[+p.mother]:null;
+      const parentLv=fLv!==null?fLv:(mLv!==null?mLv:null);
+      if(parentLv!==null){
+        assignLevel(p,parentLv+1);
+        goDown(p.id,parentLv+2);
+        changed=true;
+      }
+    });
+  }
+
+  const maxLv=Math.max(0,...Object.values(lvMap));
+  P.forEach(p=>{if(!visited.has(p.id)){visited.add(p.id);lvMap[p.id]=maxLv+1;}});
+
+  const levels={};
+  P.forEach(p=>{
+    const lv=lvMap[p.id];
+    if(!levels[lv])levels[lv]=[];
+    levels[lv].push(p);
+  });
+
+  const sorted=Object.keys(levels).map(Number).sort((a,b)=>a-b);
+  const minLv=sorted[0]||0;
+  const result=[];
+  const OX=40,OY=(headerH||80)+40;
+
+  sorted.forEach(lv=>{
+    levels[lv].forEach((p,i)=>{
+      result.push({p,x:OX+i*(CW+HGAP),y:OY+(lv-minLv)*VGAP});
+    });
+  });
+
+  // 配偶者隣接ヘルパー: 配偶者ペアを原子的単位として扱う
+  function enforceSpouseAdjacency(lv){
+    const row=result.filter(r=>lvMap[r.p.id]===lv).sort((a,b)=>a.x-b.x);
+    const done=new Set();
+    row.forEach(r=>{
+      if(done.has(r.p.id))return;
+      const sp=r.p.spouse?result.find(s=>String(s.p.id)===String(r.p.spouse)&&lvMap[s.p.id]===lv):null;
+      if(sp&&!done.has(sp.p.id)){
+        done.add(r.p.id);done.add(sp.p.id);
+        // 左側の人を基準に右隣に配偶者を配置
+        if(r.x<=sp.x) sp.x=r.x+CW+HGAP;
+        else r.x=sp.x+CW+HGAP;
+      }
+    });
+  }
+
+  // 重なり解消ヘルパー（配偶者ペアを原子的に移動）
+  function resolveOverlaps(lv){
+    const row=result.filter(r=>lvMap[r.p.id]===lv).sort((a,b)=>a.x-b.x);
+    for(let i=1;i<row.length;i++){
+      const mn=row[i-1].x+CW+HGAP;
+      if(row[i].x<mn){
+        const shift=mn-row[i].x;
+        // この人が配偶者ペアの一部なら、ペアごと移動
+        const spId=row[i].p.spouse;
+        const sp=spId?row.find(s=>String(s.p.id)===String(spId)):null;
+        for(let j=i;j<row.length;j++) row[j].x+=shift;
+        // 配偶者が左側にいて離れた場合、一緒に移動
+        if(sp && row.indexOf(sp)<i){
+          sp.x=row[i].x-CW-HGAP;
+        }
+      }
+    }
+  }
+
+  // Step 1: 配偶者隣接
+  sorted.forEach(lv=>enforceSpouseAdjacency(lv));
+
+  // Step 2: 子を親中央に寄せる（婚姻線中点と一致させる）
+  sorted.forEach(lv=>{
+    if(!levels[lv-1])return;
+    const used=new Set();
+    const donePairs=new Set();
+    levels[lv-1].forEach(parent=>{
+      const pairId=parent.spouse?Math.min(parent.id,+parent.spouse)+'-'+Math.max(parent.id,+parent.spouse):String(parent.id);
+      if(donePairs.has(pairId))return;
+      donePairs.add(pairId);
+      const kids=(levels[lv]||[]).filter(c=>{
+        if(used.has(c.id))return false;
+        return String(c.father)===String(parent.id)||String(c.mother)===String(parent.id)||
+          (parent.spouse&&(String(c.father)===String(parent.spouse)||String(c.mother)===String(parent.spouse)));
+      });
+      if(!kids.length)return;
+      kids.forEach(c=>used.add(c.id));
+      const pPos=result.find(r=>r.p.id===parent.id);
+      if(!pPos)return;
+
+      // 婚姻線の中点と同じ計算で親中央を求める
+      let pcx;
+      if(parent.spouse){
+        const spPos=result.find(r=>String(r.p.id)===String(parent.spouse));
+        if(spPos){
+          const lid=pPos.x<spPos.x?pPos:spPos;
+          const rid=pPos.x<spPos.x?spPos:pPos;
+          pcx = (lid.x + CW + rid.x) / 2;
+        } else {
+          pcx = pPos.x + CW/2;
+        }
+      } else {
+        pcx = pPos.x + CW/2;
+      }
+
+      const tw=kids.length*CW+(kids.length-1)*HGAP;
+      const sx=pcx-tw/2;
+      kids.forEach((k,ci)=>{
+        const kp=result.find(r=>r.p.id===k.id);
+        if(kp) kp.x=sx+ci*(CW+HGAP);
+      });
+    });
+  });
+
+  // Step 3: 子レベルで配偶者隣接を再適用（子の配置で崩れた場合）
+  sorted.forEach(lv=>enforceSpouseAdjacency(lv));
+
+  // Step 4: 重なり解消
+  sorted.forEach(lv=>resolveOverlaps(lv));
+
+  // Step 5: 重なり解消後に配偶者隣接が崩れていないか最終チェック
+  sorted.forEach(lv=>enforceSpouseAdjacency(lv));
+  // 最終隣接で重なりが生じた場合の再解消
+  sorted.forEach(lv=>resolveOverlaps(lv));
+
+  // 左端修正
+  let mnX=Infinity;result.forEach(r=>{if(r.x<mnX)mnX=r.x;});
+  if(mnX<OX)result.forEach(r=>r.x+=OX-mnX);
+
+
+  // 整数化（サブピクセル防止、SNAPは使わない）
+  result.forEach(r=>{
+    r.x=Math.round(r.x);
+    r.y=Math.round(r.y);
+  });
+
+  return result;
+}
+
+function initDrag(el,pid){
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(isPreviewActive())return;
+    e.preventDefault();
+    e.stopPropagation();
+    const sx=e.clientX, sy=e.clientY;
+    let moved=false;
+
+    // 選択中のカードをまとめてドラッグ、未選択カードなら単体
+    const dragIds=selectedIds.has(pid)?[...selectedIds]:[pid];
+    const starts={};
+    dragIds.forEach(id=>{starts[id]={x:currentCards[id].x,y:currentCards[id].y};});
+
+    function onMove(e2){
+      const dx=e2.clientX-sx, dy=e2.clientY-sy;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return;
+      moved=true;
+      dragIds.forEach(id=>{
+        const c=currentCards[id];
+        const nx=snap(starts[id].x+dx), ny=snap(starts[id].y+dy);
+        c.el.style.left=nx+'px'; c.el.style.top=ny+'px';
+        c.x=nx; c.y=ny;
+        cardPositions[id]={x:nx,y:ny};
+      });
+      if(currentSvg&&currentCards&&currentById) drawLines(currentSvg,currentCards,currentById);
+    }
+    function onUp(){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      // クリック（移動なし）→ 対応する入力欄を開く＆他の選択解除
+      if(!moved){
+        document.querySelectorAll('.dhdr.selected').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.dfooter.selected').forEach(c=>c.classList.remove('selected'));
+        const idx=P.findIndex(p=>p.id===pid);
+        if(idx>=0) openPersonCard(idx);
+      }
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+// diagram上でドラッグ → 範囲選択
+function initRangeSelect(){
+  const dg=document.getElementById('diagram');
+  let rect=null, sx, sy;
+  dg.addEventListener('mousedown',e=>{
+    if(e.button!==0||e.target.closest('.card')||e.target.closest('.dfooter')||isPreviewActive())return;
+    e.preventDefault();
+    const dgRect=dg.getBoundingClientRect();
+    sx=e.clientX-dgRect.left+dg.scrollLeft;
+    sy=e.clientY-dgRect.top+dg.scrollTop;
+    rect=document.createElement('div');
+    rect.className='sel-rect';
+    dg.appendChild(rect);
+
+    function onMove(e2){
+      const cx=e2.clientX-dgRect.left+dg.scrollLeft;
+      const cy=e2.clientY-dgRect.top+dg.scrollTop;
+      const x=Math.min(sx,cx), y=Math.min(sy,cy);
+      const w=Math.abs(cx-sx), h=Math.abs(cy-sy);
+      rect.style.left=x+'px';rect.style.top=y+'px';rect.style.width=w+'px';rect.style.height=h+'px';
+    }
+    function onUp(e2){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!rect)return;
+      const cx=e2.clientX-dgRect.left+dg.scrollLeft;
+      const cy=e2.clientY-dgRect.top+dg.scrollTop;
+      const rx=Math.min(sx,cx), ry=Math.min(sy,cy);
+      const rw=Math.abs(cx-sx), rh=Math.abs(cy-sy);
+      rect.remove(); rect=null;
+
+      // 範囲が小さすぎたら全解除
+      if(rw<10&&rh<10){
+        selectedIds.clear();
+        document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.dhdr.selected').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.dfooter.selected').forEach(c=>c.classList.remove('selected'));
+        return;
+      }
+      // 範囲内のカードを選択
+      selectedIds.clear();
+      document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));
+      if(currentCards){
+        Object.entries(currentCards).forEach(([id,c])=>{
+          const cardR=c.x, cardB=c.y;
+          const cardR2=c.x+c.w, cardB2=c.y+c.h;
+          if(cardR2>rx && cardR<rx+rw && cardB2>ry && cardB<ry+rh){
+            selectedIds.add(+id);
+            c.el.classList.add('selected');
+          }
+        });
+      }
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function initHdrDrag(el){
+  let sx,sy,ox,oy,moved;
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(isPreviewActive())return;
+    e.preventDefault();
+    e.stopPropagation();
+    el.classList.add('dragging');
+    moved=false;
+    sx=e.clientX;sy=e.clientY;
+    ox=parseInt(el.style.left)||0;oy=parseInt(el.style.top)||0;
+    function onMove(e2){
+      const dx=e2.clientX-sx, dy=e2.clientY-sy;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return;
+      moved=true;
+      const nx=snap(ox+dx), ny=snap(oy+dy);
+      el.style.left=nx+'px';el.style.top=ny+'px';
+      hdrPos={x:nx,y:ny};
+    }
+    function onUp(){
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!moved) el.classList.toggle('selected');
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function initFooterDrag(el){
+  let sx,sy,ox,oy,moved;
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(isPreviewActive())return;
+    e.preventDefault();
+    e.stopPropagation();
+    el.classList.add('dragging');
+    moved=false;
+    sx=e.clientX;sy=e.clientY;
+    ox=parseInt(el.style.left)||0;oy=parseInt(el.style.top)||0;
+    function onMove(e2){
+      const dx=e2.clientX-sx, dy=e2.clientY-sy;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return;
+      moved=true;
+      const nx=snap(ox+dx), ny=snap(oy+dy);
+      el.style.left=nx+'px';el.style.top=ny+'px';
+      footerPos={x:nx,y:ny};
+    }
+    function onUp(){
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!moved) el.classList.toggle('selected');
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function mkCard(p,x,y){
+  const d=document.createElement('div');
+  d.className='card'+(p.role?' c-'+p.role:'');
+  d.style.left=x+'px';d.style.top=y+'px';
+  d.dataset.pid=p.id;
+  const rl=ROLE_DISP[p.role]||p.role||'';
+  const docs=DOCS[p.role]||[];
+  let h=`<div class="card-h">立場: ${rl}</div><div class="card-b">`;
+  if(p.relation)h+=`<div class="f"><span class="l">続柄</span><span class="v">${esc(p.relation)}</span></div>`;
+  h+=`<div class="f"><span class="l">氏名</span><span class="v">${esc(p.name)}</span></div>`;
+  const bs=dateToStr(p,'birth');
+  if(bs)h+=`<div class="f"><span class="l">出生</span><span class="v">${bs}</span></div>`;
+  const ds=dateToStr(p,'death');
+  if(ds)h+=`<div class="f"><span class="l">死亡</span><span class="v">${ds}</span></div>`;
+  h+='</div>';
+  if(showTags&&docs.length){h+='<div class="card-d">';docs.forEach(t=>h+=`<span class="tag">${t}</span>`);h+='</div>';}
+  d.innerHTML=h;
+  return d;
+}
+
+function drawLines(svg,cards,byId){
+  const ns='http://www.w3.org/2000/svg';
+  svg.innerHTML='';
+
+  function has(id){return!!cards[id]&&cards[id].w>0}
+  function cx(id){return Math.round(cards[id].x+cards[id].w/2)}
+  function bot(id){return Math.round(cards[id].y+cards[id].h)}
+  function tp(id){return Math.round(cards[id].y)}
+  function rt(id){return Math.round(cards[id].x+cards[id].w)}
+  function lt(id){return Math.round(cards[id].x)}
+  function midY(id){return Math.round(cards[id].y+cards[id].h/2)}
+
+  function mkLine(x1,y1,x2,y2,color,w){
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke',color||'#555');l.setAttribute('stroke-width',w||1.5);
+    svg.appendChild(l);
+  }
+
+  // 1) 配偶者の二重線
+  const spouseMid={};
+  const drawnSp=new Set();
+  P.forEach(p=>{
+    const sid=+p.spouse;
+    if(!sid||!has(p.id)||!has(sid))return;
+    const key=Math.min(p.id,sid)+'-'+Math.max(p.id,sid);
+    if(drawnSp.has(key))return;
+    drawnSp.add(key);
+
+    const lid=lt(p.id)<lt(sid)?p.id:sid;
+    const rid=lid===p.id?sid:p.id;
+    // 両方のカードの中間Y
+    const y=Math.round((midY(lid)+midY(rid))/2);
+    const x1=rt(lid), x2=lt(rid);
+
+    mkLine(x1,y-3,x2,y-3,'#c0392b',2);
+    mkLine(x1,y+3,x2,y+3,'#c0392b',2);
+
+    spouseMid[key]={x:Math.round((x1+x2)/2), y:y};
+  });
+
+  // 2) 親子線
+  const drawnKids=new Set();
+  const donePairs=new Set();
+
+  P.forEach(p=>{
+    if(!has(p.id))return;
+    const fid=+p.father, mid=+p.mother;
+    if(!fid&&!mid)return;
+
+    let pairKey, anchorIds=[];
+    if(fid&&mid&&has(fid)&&has(mid)){
+      pairKey=Math.min(fid,mid)+'-'+Math.max(fid,mid);
+      anchorIds=[fid,mid];
+    } else if(fid&&has(fid)){
+      pairKey='s-'+fid;
+      anchorIds=[fid];
+    } else if(mid&&has(mid)){
+      pairKey='s-'+mid;
+      anchorIds=[mid];
+    } else return;
+
+    if(donePairs.has(pairKey))return;
+    donePairs.add(pairKey);
+
+    const kids=P.filter(c=>{
+      if(!has(c.id)||drawnKids.has(c.id))return false;
+      const cf=+c.father, cm=+c.mother;
+      if(anchorIds.length===2) return anchorIds.includes(cf)||anchorIds.includes(cm);
+      return cf===anchorIds[0]||cm===anchorIds[0];
+    });
+    if(!kids.length)return;
+    kids.forEach(k=>drawnKids.add(k.id));
+
+    // 起点
+    let startX, startY;
+    const spKey=anchorIds.length===2?Math.min(anchorIds[0],anchorIds[1])+'-'+Math.max(anchorIds[0],anchorIds[1]):null;
+
+    if(spKey&&spouseMid[spKey]){
+      startX=spouseMid[spKey].x;
+      startY=spouseMid[spKey].y+4;
+    } else {
+      startX=cx(anchorIds[0]);
+      startY=bot(anchorIds[0]);
+    }
+
+    const parentBot=Math.max(...anchorIds.map(id=>bot(id)));
+    const minKidTop=Math.min(...kids.map(k=>tp(k.id)));
+    const jy=Math.round(parentBot+(minKidTop-parentBot)/2);
+
+    // 縦線: 起点→分岐Y
+    mkLine(startX,startY,startX,jy,'#555',1.5);
+
+    // 横分岐→各子へ
+    const kidXs=kids.map(k=>cx(k.id)).sort((a,b)=>a-b);
+    if(kids.length===1){
+      const kx=cx(kids[0].id), ky=tp(kids[0].id);
+      // startXから横→子の中央→下
+      if(startX!==kx) mkLine(startX,jy,kx,jy,'#555',1.5);
+      mkLine(kx,jy,kx,ky,'#555',1.5);
+    } else {
+      // 起点から横分岐線の範囲にクランク
+      const lx=kidXs[0], rx=kidXs[kidXs.length-1];
+      // startXが範囲内ならそのまま、範囲外なら横に伸ばす
+      if(startX<lx) mkLine(startX,jy,lx,jy,'#555',1.5);
+      else if(startX>rx) mkLine(startX,jy,rx,jy,'#555',1.5);
+      mkLine(lx,jy,rx,jy,'#555',1.5);
+      kids.forEach(k=>{
+        const kx=cx(k.id), ky=tp(k.id);
+        mkLine(kx,jy,kx,ky,'#555',1.5);
+      });
+    }
+  });
+}
+
+let pvOffX=0, pvOffY=0, pvDragActive=false;
+
+function isPreviewActive(){
+  const o=document.getElementById('previewOverlay');
+  return o&&o.classList.contains('active');
+}
+
+function togglePreview(){
+  let overlay=document.getElementById('previewOverlay');
+
+  if(overlay && overlay.classList.contains('active')){
+    // プレビュー終了 — diagramを元に戻す
+    overlay.classList.remove('active');
+    const dg=document.getElementById('diagram');
+    const main=document.querySelector('.main');
+    main.appendChild(dg);
+    dg.style.transform='';
+    dg.classList.remove('grabbing');
+  } else {
+    // プレビュー開始 — diagramをA4枠に移動
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='previewOverlay';
+      overlay.className='preview-overlay';
+      overlay.innerHTML=`
+        <div class="preview-a4" id="pvA4"></div>
+        <div class="preview-ctrl">
+          <button class="pv-btn-back" onclick="togglePreview()">戻る</button>
+          <span id="pvScaleVal">${previewScale}%</span>
+          <span style="color:#999;font-size:11px">（スクロールで拡大縮小 / ドラッグで移動）</span>
+          <button class="pv-btn-print" onclick="window.print()">印刷</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      initPvDrag();
+      initPvWheel();
+    }
+    const a4=document.getElementById('pvA4');
+    const dg=document.getElementById('diagram');
+    a4.appendChild(dg);
+    overlay.classList.add('active');
+    applyPvTransform();
+  }
+}
+
+function setPvScale(v){
+  previewScale=Math.max(5,Math.min(200,+v));
+  const el=document.getElementById('pvScaleVal');
+  if(el) el.textContent=Math.round(previewScale)+'%';
+  applyPvTransform();
+}
+
+function initPvWheel(){
+  document.addEventListener('wheel',e=>{
+    if(!isPreviewActive())return;
+    e.preventDefault();
+    const delta=e.deltaY>0?-3:3;
+    setPvScale(previewScale+delta);
+  },{passive:false});
+}
+
+function applyPvTransform(){
+  const dg=document.getElementById('diagram');
+  if(!dg)return;
+  const s=previewScale/100;
+  dg.style.transform=`translate(${pvOffX}px,${pvOffY}px) scale(${s})`;
+}
+
+function initPvDrag(){
+  let sx, sy, ox, oy;
+  document.addEventListener('mousedown',e=>{
+    const a4=document.getElementById('pvA4');
+    if(!a4||!a4.contains(e.target))return;
+    if(e.button!==0)return;
+    e.preventDefault();
+    pvDragActive=true;
+    sx=e.clientX; sy=e.clientY;
+    ox=pvOffX; oy=pvOffY;
+    document.getElementById('diagram').classList.add('grabbing');
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!pvDragActive)return;
+    pvOffX=ox+(e.clientX-sx);
+    pvOffY=oy+(e.clientY-sy);
+    applyPvTransform();
+  });
+  document.addEventListener('mouseup',()=>{
+    if(!pvDragActive)return;
+    pvDragActive=false;
+    const dg=document.getElementById('diagram');
+    if(dg) dg.classList.remove('grabbing');
+  });
+}
+
+// === 保存/読込 ===
+function saveJSON(){
+  const d={honseki:document.getElementById('inHonseki').value,lastAddr:document.getElementById('inLastAddr').value,regAddr:document.getElementById('inRegAddr').value,people:P,uid,cardPositions,footerPos,hdrPos,hdrScale,footerScale,showTags};
+  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='相続関係図.json';a.click();
+}
+document.getElementById('fi').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      P=d.people||[];uid=d.uid||P.length+1;
+      cardPositions=d.cardPositions||{};
+      footerPos=d.footerPos||null;
+      hdrPos=d.hdrPos||null;
+      hdrScale=d.hdrScale||1.0;
+      footerScale=d.footerScale||1.0;
+      showTags=d.showTags!==undefined?d.showTags:true;
+      document.getElementById('btnTags').textContent='タグ: '+(showTags?'ON':'OFF');
+      document.getElementById('inHonseki').value=d.honseki||'';
+      document.getElementById('inLastAddr').value=d.lastAddr||'';
+      document.getElementById('inRegAddr').value=d.regAddr||'';
+      autoRoles();renderList(-1);draw();
+    }catch(err){alert('読込失敗: '+err.message);}
+  };
+  r.readAsText(f);e.target.value='';
+});
+
+// 初期
+P.push({ id:uid++, name:'', relation:'', role:'被相続人', roleOverride:'', isBSZ:true,
+  birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
+  father:'', mother:'', spouse:'' });
+renderList(0);draw();initRangeSelect();
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "honseki": "愛知県名古屋市中区栄三丁目5番地",
+  "lastAddr": "愛知県名古屋市中区栄三丁目5番12号",
+  "regAddr": "愛知県名古屋市中区栄三丁目5番地",
+  "people": [
+    { "id":1, "name":"田中裕子", "relation":"", "role":"被相続人", "roleOverride":"", "isBSZ":true,
+      "birthY":"1965", "birthM":"10", "birthD":"8", "deathY":"2025", "deathM":"5", "deathD":"20",
+      "father":"2", "mother":"3", "spouse":"" },
+    { "id":2, "name":"田中義男", "relation":"父", "role":"", "roleOverride":"", "isBSZ":false,
+      "birthY":"1935", "birthM":"1", "birthD":"15", "deathY":"2010", "deathM":"9", "deathD":"3",
+      "father":"", "mother":"", "spouse":"3" },
+    { "id":3, "name":"田中節子", "relation":"母", "role":"", "roleOverride":"", "isBSZ":false,
+      "birthY":"1938", "birthM":"8", "birthD":"22", "deathY":"2020", "deathM":"4", "deathD":"11",
+      "father":"", "mother":"", "spouse":"2" },
+    { "id":4, "name":"田中正人", "relation":"兄", "role":"", "roleOverride":"", "isBSZ":false,
+      "birthY":"1960", "birthM":"3", "birthD":"5", "deathY":"", "deathM":"", "deathD":"",
+      "father":"2", "mother":"3", "spouse":"" },
+    { "id":5, "name":"田中明美", "relation":"姉", "role":"", "roleOverride":"", "isBSZ":false,
+      "birthY":"1962", "birthM":"5", "birthD":"30", "deathY":"2022", "deathM":"7", "deathD":"1",
+      "father":"2", "mother":"3", "spouse":"" },
+    { "id":6, "name":"田中和也", "relation":"弟", "role":"", "roleOverride":"", "isBSZ":false,
+      "birthY":"1968", "birthM":"12", "birthD":"25", "deathY":"", "deathM":"", "deathD":"",
+      "father":"2", "mother":"3", "spouse":"" },
+    { "id":7, "name":"田中彩香", "relation":"姪", "role":"", "roleOverride":"", "isBSZ":false,
+      "birthY":"1988", "birthM":"9", "birthD":"7", "deathY":"", "deathM":"", "deathD":"",
+      "father":"5", "mother":"", "spouse":"" }
+  ],
+  "uid": 8
+}
