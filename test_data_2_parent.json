@@ -3,21 +3,15 @@
   "lastAddr": "大阪府大阪市北区梅田一丁目3番1号",
   "regAddr": "大阪府大阪市北区梅田一丁目3番地",
   "people": [
-    { "id":1, "name":"佐藤健一", "relation":"", "role":"被相続人", "roleOverride":"", "isBSZ":true,
+    { "id":1, "name":"見本健一", "relation":"", "role":"被相続人", "roleOverride":"", "isBSZ":true,
       "birthY":"1990", "birthM":"5", "birthD":"10", "deathY":"2025", "deathM":"3", "deathD":"15",
       "father":"2", "mother":"3", "spouse":"" },
-    { "id":2, "name":"佐藤正男", "relation":"父", "role":"", "roleOverride":"", "isBSZ":false,
+    { "id":2, "name":"見本正男", "relation":"父", "role":"", "roleOverride":"", "isBSZ":false,
       "birthY":"1960", "birthM":"8", "birthD":"20", "deathY":"", "deathM":"", "deathD":"",
       "father":"", "mother":"", "spouse":"3" },
-    { "id":3, "name":"佐藤よし子", "relation":"母", "role":"", "roleOverride":"", "isBSZ":false,
+    { "id":3, "name":"見本よし子", "relation":"母", "role":"", "roleOverride":"", "isBSZ":false,
       "birthY":"1963", "birthM":"11", "birthD":"5", "deathY":"", "deathM":"", "deathD":"",
-      "father":"", "mother":"", "spouse":"2" },
-    { "id":4, "name":"佐藤美咲", "relation":"姉", "role":"", "roleOverride":"", "isBSZ":false,
-      "birthY":"1987", "birthM":"2", "birthD":"14", "deathY":"", "deathM":"", "deathD":"",
-      "father":"2", "mother":"3", "spouse":"" },
-    { "id":5, "name":"佐藤翔太", "relation":"弟", "role":"", "roleOverride":"", "isBSZ":false,
-      "birthY":"1993", "birthM":"9", "birthD":"1", "deathY":"", "deathM":"", "deathD":"",
-      "father":"2", "mother":"3", "spouse":"" }
+      "father":"", "mother":"", "spouse":"2" }
   ],
-  "uid": 6
+  "uid": 4
 }
