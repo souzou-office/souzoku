@@ -323,7 +323,7 @@ function renderList(openIdx){
           <div class="tab-pane ${curTab===0?'active':''}" data-tab="0">
             <div class="fg-row">
               <div class="fg"><label>氏名</label><input value="${esc(p.name)}" data-i="${i}" data-f="name"></div>
-              ${!p.isBSZ?`<div class="fg"><label>続柄</label><select data-i="${i}" data-f="relation">${ZOKUGARA.map(z=>`<option value="${z}" ${z===p.relation?'selected':''}>${z||'-- 選択 --'}</option>`).join('')}<option value="__custom__" ${p.relation&&!ZOKUGARA.includes(p.relation)?'selected':''}>その他（自由入力）</option></select>${(p.relation&&!ZOKUGARA.includes(p.relation))?`<input value="${esc(p.relation)}" data-i="${i}" data-f="relationCustom" placeholder="続柄を入力" style="margin-top:4px">`:''}</div>`:''}
+              ${!p.isBSZ?`<div class="fg"><label>続柄</label><select data-i="${i}" data-f="relation">${ZOKUGARA.map(z=>`<option value="${z}" ${z===p.relation?'selected':''}>${z||'-- 選択 --'}</option>`).join('')}<option value="__custom__" ${p.relation&&!ZOKUGARA.includes(p.relation)?'selected':''}>その他（自由入力）</option></select>${(p.relation&&!ZOKUGARA.includes(p.relation))||p._customRel?`<input value="${esc(p.relation)}" data-i="${i}" data-f="relationCustom" placeholder="続柄を入力" style="margin-top:4px">`:''}</div>`:''}
             </div>
             <div class="fg-row">
               <div class="fg"><label>父</label><select data-i="${i}" data-f="father"><option value="">-- なし --</option>${otherOpts}</select></div>
@@ -413,6 +413,7 @@ function onChange(e){
 
   if(f==='relation' && e.target.value==='__custom__'){
     P[i].relation='';
+    P[i]._customRel=true;
     autoRoles();
     const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
     renderList(openIdx);
@@ -421,8 +422,12 @@ function onChange(e){
   }
   if(f==='relationCustom'){
     P[i].relation=e.target.value;
+    if(e.target.value) P[i]._customRel=false;
     draw();
     return;
+  }
+  if(f==='relation' && e.target.value!=='__custom__'){
+    P[i]._customRel=false;
   }
 
   if(f==='spouse'){
