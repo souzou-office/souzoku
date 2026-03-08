@@ -983,13 +983,13 @@ function mkCard(p,x,y){
   const rl=ROLE_DISP[p.role]||p.role||'';
   const docs=DOCS[p.role]||[];
   let h=`<div class="card-h">立場: ${rl}</div><div class="card-b">`;
+  if(!p.isBSZ&&p.address)h+=`<div class="f"><span class="l">住所</span><span class="v">${esc(p.address)}</span></div>`;
   if(p.relation)h+=`<div class="f"><span class="l">続柄</span><span class="v">${esc(p.relation)}</span></div>`;
   h+=`<div class="f"><span class="l">氏名</span><span class="v">${esc(p.name)}</span></div>`;
   const bs=dateToStr(p,'birth');
   if(bs)h+=`<div class="f"><span class="l">出生</span><span class="v">${bs}</span></div>`;
   const ds=dateToStr(p,'death');
   if(ds)h+=`<div class="f"><span class="l">死亡</span><span class="v">${ds}</span></div>`;
-  if(!p.isBSZ&&p.address)h+=`<div class="f"><span class="l">住所</span><span class="v">${esc(p.address)}</span></div>`;
   h+='</div>';
   if(showTags&&docs.length){h+='<div class="card-d">';docs.forEach(t=>h+=`<span class="tag">${t}</span>`);h+='</div>';}
   d.innerHTML=h;
