@@ -301,7 +301,7 @@ function autoRoles(){
 function addPerson(){
   P.push({ id:uid++, name:'', relation:'', role:'', roleOverride:'', isBSZ:false,
     birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
-    father:'', mother:'', spouse:'' });
+    father:'', mother:'', spouse:'', address:'' });
   autoRoles();
   renderList(P.length-1);
   draw();
@@ -348,6 +348,7 @@ function renderList(openIdx){
               <div class="fg"><label>母</label><select data-i="${i}" data-f="mother"><option value="">-- なし --</option>${otherOpts}</select></div>
             </div>
             <div class="fg"><label>配偶者</label><select data-i="${i}" data-f="spouse"><option value="">-- なし --</option>${otherOpts}</select></div>
+            ${!p.isBSZ?`<div class="fg"><label>住所</label><input value="${esc(p.address||'')}" data-i="${i}" data-f="address" placeholder="東京都新宿区..." style="width:100%"></div>`:''}
           </div>
           <div class="tab-pane ${curTab===1?'active':''}" data-tab="1">
             <div class="fg"><label>生年月日</label>
@@ -988,6 +989,7 @@ function mkCard(p,x,y){
   if(bs)h+=`<div class="f"><span class="l">出生</span><span class="v">${bs}</span></div>`;
   const ds=dateToStr(p,'death');
   if(ds)h+=`<div class="f"><span class="l">死亡</span><span class="v">${ds}</span></div>`;
+  if(!p.isBSZ&&p.address)h+=`<div class="f"><span class="l">住所</span><span class="v">${esc(p.address)}</span></div>`;
   h+='</div>';
   if(showTags&&docs.length){h+='<div class="card-d">';docs.forEach(t=>h+=`<span class="tag">${t}</span>`);h+='</div>';}
   d.innerHTML=h;
