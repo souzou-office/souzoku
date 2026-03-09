@@ -106,14 +106,15 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .dfooter.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
 
 /* カード */
-.card{position:absolute;width:220px;border:2px solid #bbb;border-radius:var(--r);background:#fff;font-size:14px;z-index:1;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:grab;user-select:none}
+.card{position:absolute;min-width:220px;width:max-content;max-width:400px;border:2px solid #bbb;border-radius:var(--r);background:#fff;font-size:14px;z-index:1;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:grab;user-select:none}
 .card.selected{outline:3px solid #2980b9;outline-offset:2px}
 .card.dragging{cursor:grabbing;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:10;opacity:.9}
 .card-h{padding:4px 8px;font-weight:700;font-size:14px;border-bottom:1px solid #ddd;border-radius:6px 6px 0 0;letter-spacing:.5px}
 .card-b{padding:4px 8px;line-height:1.5}
 .card-b .f{display:flex}
 .card-b .l{width:38px;color:var(--txtL);font-weight:700;flex-shrink:0}
-.card-b .v{flex:1}
+.card-b .v{flex:1;white-space:nowrap}
+.card-b .v-addr{flex:1;white-space:pre-wrap}
 .card-d{display:flex;gap:4px;padding:5px 10px;border-top:1px solid #eee;flex-wrap:wrap}
 .tag{padding:2px 7px;border:1px solid #aaa;border-radius:4px;font-size:12px;font-weight:700;background:#f8f9fa}
 
@@ -348,7 +349,7 @@ function renderList(openIdx){
               <div class="fg"><label>母</label><select data-i="${i}" data-f="mother"><option value="">-- なし --</option>${otherOpts}</select></div>
             </div>
             <div class="fg"><label>配偶者</label><select data-i="${i}" data-f="spouse"><option value="">-- なし --</option>${otherOpts}</select></div>
-            ${!p.isBSZ?`<div class="fg"><label>住所</label><input value="${esc(p.address||'')}" data-i="${i}" data-f="address" placeholder="東京都新宿区..." style="width:100%"></div>`:''}
+            ${!p.isBSZ?`<div class="fg"><label>住所</label><textarea data-i="${i}" data-f="address" placeholder="東京都新宿区..." rows="2" style="width:100%;resize:vertical">${esc(p.address||'')}</textarea></div>`:''}
           </div>
           <div class="tab-pane ${curTab===1?'active':''}" data-tab="1">
             <div class="fg"><label>生年月日</label>
@@ -383,7 +384,7 @@ function renderList(openIdx){
     div.querySelector('[data-f="mother"]').value = p.mother||'';
     div.querySelector('[data-f="spouse"]').value = p.spouse||'';
 
-    div.querySelectorAll('input:not([type="checkbox"])').forEach(el=>{
+    div.querySelectorAll('input:not([type="checkbox"]),textarea').forEach(el=>{
       el.addEventListener('input', onInput);
       el.addEventListener('change', onChange);
     });
@@ -983,8 +984,8 @@ function mkCard(p,x,y){
   const rl=ROLE_DISP[p.role]||p.role||'';
   const docs=DOCS[p.role]||[];
   let h=`<div class="card-h">立場: ${rl}</div><div class="card-b">`;
-  if(!p.isBSZ&&p.address)h+=`<div class="f"><span class="l">住所</span><span class="v">${esc(p.address)}</span></div>`;
   if(p.relation)h+=`<div class="f"><span class="l">続柄</span><span class="v">${esc(p.relation)}</span></div>`;
+  if(!p.isBSZ&&p.address){const ac=p.address.includes('\n')?'v-addr':'v';h+=`<div class="f"><span class="l">住所</span><span class="${ac}">${esc(p.address).replace(/\n/g,'\n')}</span></div>`;}
   h+=`<div class="f"><span class="l">氏名</span><span class="v">${esc(p.name)}</span></div>`;
   const bs=dateToStr(p,'birth');
   if(bs)h+=`<div class="f"><span class="l">出生</span><span class="v">${bs}</span></div>`;
