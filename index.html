@@ -215,6 +215,7 @@ const DOCS = {
 const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function allSpouses(p){const a=[];if(p.spouse)a.push(String(p.spouse));(p.exSpouses||[]).forEach(id=>{if(id)a.push(String(id))});return a;}
 
 function makeYears(){
   let opts = '<option value="">--</option>';
@@ -302,7 +303,7 @@ function autoRoles(){
 function addPerson(){
   P.push({ id:uid++, name:'', relation:'', role:'', roleOverride:'', isBSZ:false,
     birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
-    father:'', mother:'', spouse:'', address:'' });
+    father:'', mother:'', spouse:'', exSpouses:[], address:'' });
   autoRoles();
   renderList(P.length-1);
   draw();
@@ -349,6 +350,7 @@ function renderList(openIdx){
               <div class="fg"><label>母</label><select data-i="${i}" data-f="mother"><option value="">-- なし --</option>${otherOpts}</select></div>
             </div>
             <div class="fg"><label>配偶者</label><select data-i="${i}" data-f="spouse"><option value="">-- なし --</option>${otherOpts}</select></div>
+            <div class="fg"><label>前配偶者</label><div class="ex-spouses-list" data-i="${i}">${(p.exSpouses||[]).map((eid,ei)=>`<div class="ex-sp-row" style="display:flex;gap:4px;margin-bottom:4px"><select data-i="${i}" data-f="exSpouse" data-ei="${ei}"><option value="">-- なし --</option>${otherOpts}</select><button type="button" onclick="removeExSpouse(${i},${ei})" style="padding:2px 6px;font-size:12px">✕</button></div>`).join('')}</div><button type="button" onclick="addExSpouse(${i})" style="margin-top:4px;padding:2px 8px;font-size:12px">＋ 前配偶者を追加</button></div>
             ${!p.isBSZ?`<div class="fg"><label>住所</label><textarea data-i="${i}" data-f="address" placeholder="東京都新宿区..." rows="2" style="width:100%;resize:vertical">${esc(p.address||'')}</textarea></div>`:''}
           </div>
           <div class="tab-pane ${curTab===1?'active':''}" data-tab="1">
@@ -383,6 +385,9 @@ function renderList(openIdx){
     div.querySelector('[data-f="father"]').value = p.father||'';
     div.querySelector('[data-f="mother"]').value = p.mother||'';
     div.querySelector('[data-f="spouse"]').value = p.spouse||'';
+    div.querySelectorAll('[data-f="exSpouse"]').forEach(el=>{
+      el.value = (p.exSpouses||[])[+el.dataset.ei]||'';
+    });
 
     div.querySelectorAll('input:not([type="checkbox"]),textarea').forEach(el=>{
       el.addEventListener('input', onInput);
@@ -395,6 +400,18 @@ function renderList(openIdx){
 function toggle(idx){
   const cards = document.querySelectorAll('.pc');
   cards.forEach((c,i)=>{ if(i===idx) c.classList.toggle('open'); else c.classList.remove('open'); });
+}
+
+function addExSpouse(i){
+  if(!P[i].exSpouses)P[i].exSpouses=[];
+  P[i].exSpouses.push('');
+  const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+  renderList(openIdx);
+}
+function removeExSpouse(i,ei){
+  P[i].exSpouses.splice(ei,1);
+  const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+  renderList(openIdx);draw();
 }
 
 function openPersonCard(idx){
@@ -429,6 +446,14 @@ function onInput(e){
 function onChange(e){
   const i=+e.target.dataset.i, f=e.target.dataset.f;
   if(i>=P.length)return;
+  if(f==='exSpouse'){
+    const ei=+e.target.dataset.ei;
+    if(!P[i].exSpouses)P[i].exSpouses=[];
+    P[i].exSpouses[ei]=e.target.value;
+    autoRoles();
+    const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+    renderList(openIdx);draw();return;
+  }
   P[i][f]=e.target.value;
 
   if(f==='relation' && e.target.value==='__custom__'){
@@ -468,6 +493,7 @@ function delPerson(i){
     if(String(p.father)===String(rm.id))p.father='';
     if(String(p.mother)===String(rm.id))p.mother='';
     if(String(p.spouse)===String(rm.id))p.spouse='';
+    if(p.exSpouses)p.exSpouses=p.exSpouses.filter(id=>String(id)!==String(rm.id));
   });
   autoRoles();
   renderList(-1);
@@ -602,10 +628,12 @@ function calcLayout(byId,headerH){
     if(!p||visited.has(p.id))return;
     visited.add(p.id);
     lvMap[p.id]=lv;
-    if(p.spouse&&byId[p.spouse]&&!visited.has(+p.spouse)){
-      visited.add(+p.spouse);
-      lvMap[+p.spouse]=lv;
-    }
+    allSpouses(p).forEach(sid=>{
+      if(byId[sid]&&!visited.has(+sid)){
+        visited.add(+sid);
+        lvMap[+sid]=lv;
+      }
+    });
   }
 
   function goUp(p,lv){
@@ -629,7 +657,7 @@ function calcLayout(byId,headerH){
   goUp(root,0);
   assignLevel(root,0);
   goDown(root.id,1);
-  if(root.spouse&&byId[root.spouse]) goDown(+root.spouse,1);
+  allSpouses(root).forEach(sid=>{if(byId[sid]) goDown(+sid,1);});
 
   let changed=true;
   while(changed){
@@ -673,23 +701,40 @@ function calcLayout(byId,headerH){
     });
   });
 
-  // 配偶者隣接ヘルパー: 配偶者ペアを原子的単位として扱う
+  // 配偶者隣接ヘルパー: 前配偶者は左側、現配偶者は右側に配置
   function enforceSpouseAdjacency(lv){
     const row=result.filter(r=>lvMap[r.p.id]===lv);
     if(horiz) row.sort((a,b)=>a.y-b.y); else row.sort((a,b)=>a.x-b.x);
     const done=new Set();
     row.forEach(r=>{
       if(done.has(r.p.id))return;
-      const sp=r.p.spouse?result.find(s=>String(s.p.id)===String(r.p.spouse)&&lvMap[s.p.id]===lv):null;
-      if(sp&&!done.has(sp.p.id)){
-        done.add(r.p.id);done.add(sp.p.id);
-        if(horiz){
-          if(r.y<=sp.y) sp.y=r.y+VGAP;
-          else r.y=sp.y+VGAP;
-          sp.x=r.x;
-        } else {
-          if(r.x<=sp.x) sp.x=r.x+CW+HGAP;
-          else r.x=sp.x+CW+HGAP;
+      const exIds=(r.p.exSpouses||[]).filter(id=>id&&byId[id]&&lvMap[+id]===lv).map(id=>+id);
+      const curId=r.p.spouse&&byId[r.p.spouse]&&lvMap[+r.p.spouse]===lv?+r.p.spouse:null;
+      if(!exIds.length&&!curId)return;
+      done.add(r.p.id);
+      if(horiz){
+        let pos=r.y;
+        exIds.forEach(eid=>{
+          if(done.has(eid))return;done.add(eid);
+          const sp=result.find(s=>s.p.id===eid);
+          if(sp){sp.y=pos-VGAP;sp.x=r.x;pos=sp.y;}
+        });
+        if(curId&&!done.has(curId)){
+          done.add(curId);
+          const sp=result.find(s=>s.p.id===curId);
+          if(sp){sp.y=r.y+VGAP;sp.x=r.x;}
+        }
+      } else {
+        let posLeft=r.x;
+        exIds.forEach(eid=>{
+          if(done.has(eid))return;done.add(eid);
+          const sp=result.find(s=>s.p.id===eid);
+          if(sp){sp.x=posLeft-(CW+HGAP);posLeft=sp.x;sp.y=r.y;}
+        });
+        if(curId&&!done.has(curId)){
+          done.add(curId);
+          const sp=result.find(s=>s.p.id===curId);
+          if(sp){sp.x=r.x+CW+HGAP;sp.y=r.y;}
         }
       }
     });
@@ -727,47 +772,53 @@ function calcLayout(byId,headerH){
   // Step 1: 配偶者隣接
   sorted.forEach(lv=>enforceSpouseAdjacency(lv));
 
-  // Step 2: 子を親中央に寄せる（婚姻線中点と一致させる）
+  // Step 2: 子を親中央に寄せる（配偶者ペアごとにグループ化）
   sorted.forEach(lv=>{
     if(!levels[lv-1])return;
     const used=new Set();
     const donePairs=new Set();
     levels[lv-1].forEach(parent=>{
-      const pairId=parent.spouse?Math.min(parent.id,+parent.spouse)+'-'+Math.max(parent.id,+parent.spouse):String(parent.id);
-      if(donePairs.has(pairId))return;
-      donePairs.add(pairId);
-      const kids=(levels[lv]||[]).filter(c=>{
-        if(used.has(c.id))return false;
-        return String(c.father)===String(parent.id)||String(c.mother)===String(parent.id)||
-          (parent.spouse&&(String(c.father)===String(parent.spouse)||String(c.mother)===String(parent.spouse)));
-      });
-      if(!kids.length)return;
-      kids.forEach(c=>used.add(c.id));
-      const pPos=result.find(r=>r.p.id===parent.id);
-      if(!pPos)return;
+      // 各配偶者ペアごとに子をグループ化して配置
+      const spouseIds=allSpouses(parent);
+      // 配偶者なしの子も含め、全ペアを処理
+      const pairs=[...spouseIds.map(sid=>({sid:+sid})),{sid:null}];
+      pairs.forEach(({sid})=>{
+        const pairId=sid?Math.min(parent.id,sid)+'-'+Math.max(parent.id,sid):'solo-'+parent.id;
+        if(donePairs.has(pairId))return;
+        donePairs.add(pairId);
+        const kids=(levels[lv]||[]).filter(c=>{
+          if(used.has(c.id))return false;
+          const cf=+c.father, cm=+c.mother;
+          if(sid){
+            return (cf===parent.id&&cm===sid)||(cm===parent.id&&cf===sid)||
+              (cf===parent.id&&!cm&&sid)||(cm===parent.id&&!cf&&sid)||
+              (cf===sid&&!cm)||(cm===sid&&!cf);
+          } else {
+            // 配偶者なし: 親だけが指定されている子
+            return (cf===parent.id||cm===parent.id)&&!spouseIds.includes(String(cf))&&!spouseIds.includes(String(cm));
+          }
+        });
+        if(!kids.length)return;
+        kids.forEach(c=>used.add(c.id));
+        const pPos=result.find(r=>r.p.id===parent.id);
+        if(!pPos)return;
+        const spPos=sid?result.find(r=>r.p.id===sid):null;
 
-      if(horiz){
-        // 横モード: 親のY中点に子を揃える
-        let pcy;
-        if(parent.spouse){
-          const spPos=result.find(r=>String(r.p.id)===String(parent.spouse));
+        if(horiz){
+          let pcy;
           if(spPos){
             const tid=pPos.y<spPos.y?pPos:spPos;
             const bid=pPos.y<spPos.y?spPos:pPos;
             pcy=(tid.y+VGAP+bid.y)/2;
           } else { pcy=pPos.y+VGAP/2; }
-        } else { pcy=pPos.y+VGAP/2; }
-        const th=kids.length*VGAP;
-        const sy=pcy-th/2;
-        kids.forEach((k,ci)=>{
-          const kp=result.find(r=>r.p.id===k.id);
-          if(kp) kp.y=sy+ci*VGAP;
-        });
-      } else {
-        // 縦モード: 婚姻線の中点と同じ計算で親中央を求める
-        let pcx;
-        if(parent.spouse){
-          const spPos=result.find(r=>String(r.p.id)===String(parent.spouse));
+          const th=kids.length*VGAP;
+          const sy=pcy-th/2;
+          kids.forEach((k,ci)=>{
+            const kp=result.find(r=>r.p.id===k.id);
+            if(kp) kp.y=sy+ci*VGAP;
+          });
+        } else {
+          let pcx;
           if(spPos){
             const lid=pPos.x<spPos.x?pPos:spPos;
             const rid=pPos.x<spPos.x?spPos:pPos;
@@ -775,16 +826,14 @@ function calcLayout(byId,headerH){
           } else {
             pcx = pPos.x + CW/2;
           }
-        } else {
-          pcx = pPos.x + CW/2;
+          const tw=kids.length*CW+(kids.length-1)*HGAP;
+          const sx=pcx-tw/2;
+          kids.forEach((k,ci)=>{
+            const kp=result.find(r=>r.p.id===k.id);
+            if(kp) kp.x=sx+ci*(CW+HGAP);
+          });
         }
-        const tw=kids.length*CW+(kids.length-1)*HGAP;
-        const sx=pcx-tw/2;
-        kids.forEach((k,ci)=>{
-          const kp=result.find(r=>r.p.id===k.id);
-          if(kp) kp.x=sx+ci*(CW+HGAP);
-        });
-      }
+      });
     });
   });
 
@@ -1016,34 +1065,36 @@ function drawLines(svg,cards,byId){
     svg.appendChild(l);
   }
 
-  // 1) 配偶者の二重線
+  // 1) 配偶者線（現配偶者=二重線、前配偶者=一本線）
   const spouseMid={};
   const drawnSp=new Set();
-  P.forEach(p=>{
-    const sid=+p.spouse;
-    if(!sid||!has(p.id)||!has(sid))return;
-    const key=Math.min(p.id,sid)+'-'+Math.max(p.id,sid);
+  function drawSpouseLine(pid,sid,isEx){
+    if(!has(pid)||!has(sid))return;
+    const key=Math.min(pid,sid)+'-'+Math.max(pid,sid);
     if(drawnSp.has(key))return;
     drawnSp.add(key);
-
+    const color=isEx?'#888':'#c0392b';
     if(layoutDir==='horizontal'){
-      // 横モード: 配偶者が上下に並ぶ → 縦方向の二重線
-      const tid=tp(p.id)<tp(sid)?p.id:sid;
-      const bid=tid===p.id?sid:p.id;
+      const tid=tp(pid)<tp(sid)?pid:sid;
+      const bid=tid===pid?sid:pid;
       const x=Math.round((cx(tid)+cx(bid))/2);
       const y1=bot(tid), y2=tp(bid);
-      mkLine(x-3,y1,x-3,y2,'#c0392b',2);
-      mkLine(x+3,y1,x+3,y2,'#c0392b',2);
+      if(isEx){mkLine(x,y1,x,y2,color,2);}
+      else{mkLine(x-3,y1,x-3,y2,color,2);mkLine(x+3,y1,x+3,y2,color,2);}
       spouseMid[key]={x:x, y:Math.round((y1+y2)/2)};
     } else {
-      const lid=lt(p.id)<lt(sid)?p.id:sid;
-      const rid=lid===p.id?sid:p.id;
+      const lid=lt(pid)<lt(sid)?pid:sid;
+      const rid=lid===pid?sid:pid;
       const y=Math.round((midY(lid)+midY(rid))/2);
       const x1=rt(lid), x2=lt(rid);
-      mkLine(x1,y-3,x2,y-3,'#c0392b',2);
-      mkLine(x1,y+3,x2,y+3,'#c0392b',2);
+      if(isEx){mkLine(x1,y,x2,y,color,2);}
+      else{mkLine(x1,y-3,x2,y-3,color,2);mkLine(x1,y+3,x2,y+3,color,2);}
       spouseMid[key]={x:Math.round((x1+x2)/2), y:y};
     }
+  }
+  P.forEach(p=>{
+    if(p.spouse) drawSpouseLine(p.id,+p.spouse,false);
+    (p.exSpouses||[]).forEach(eid=>{if(eid) drawSpouseLine(p.id,+eid,true);});
   });
 
   // 2) 親子線
@@ -1257,7 +1308,7 @@ document.getElementById('fi').addEventListener('change',e=>{
   r.onload=ev=>{
     try{
       const d=JSON.parse(ev.target.result);
-      P=d.people||[];uid=d.uid||P.length+1;
+      P=(d.people||[]).map(p=>({...p,exSpouses:p.exSpouses||[]}));uid=d.uid||P.length+1;
       cardPositions=d.cardPositions||{};
       footerPos=d.footerPos||null;
       hdrPos=d.hdrPos||null;
@@ -1281,7 +1332,7 @@ document.getElementById('fi').addEventListener('change',e=>{
 // 初期
 P.push({ id:uid++, name:'', relation:'', role:'被相続人', roleOverride:'', isBSZ:true,
   birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
-  father:'', mother:'', spouse:'' });
+  father:'', mother:'', spouse:'', exSpouses:[] });
 renderList(0);draw();initRangeSelect();
 </script>
 </body>
