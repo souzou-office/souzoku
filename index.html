@@ -217,10 +217,26 @@ const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 function allSpouses(p){const a=[];if(p.spouse)a.push(String(p.spouse));(p.exSpouses||[]).forEach(id=>{if(id)a.push(String(id))});return a;}
 
+// 元号が重複する年: 値に"年H"等の接尾辞を付けて旧元号を表す
+// 2019H=平成31年, 1989S=昭和64年, 1926T=大正15年
+const DUAL_ERA_YEARS=[
+  {y:2019,suffix:'H',label:'平成31年'},
+  {y:1989,suffix:'S',label:'昭和64年'},
+  {y:1926,suffix:'T',label:'大正15年'}
+];
+function parseYearVal(v){
+  if(!v)return{y:0,era:''};
+  const s=String(v);
+  const d=DUAL_ERA_YEARS.find(d=>s===d.y+d.suffix);
+  if(d)return{y:d.y,era:d.label.replace('年','')};
+  return{y:+s,era:''};
+}
 function makeYears(){
   let opts = '<option value="">--</option>';
   for(let y=2026;y>=1868;y--){
     opts += `<option value="${y}">${warekiYear(y)} (${y})</option>`;
+    const dual=DUAL_ERA_YEARS.find(d=>d.y===y);
+    if(dual) opts += `<option value="${y}${dual.suffix}">${dual.label} (${y})</option>`;
   }
   return opts;
 }
@@ -249,12 +265,16 @@ function dateToObj(p, prefix){
 function dateToStr(p, prefix){
   const o = dateToObj(p, prefix);
   if(!o.y) return '';
-  return warekiYear(+o.y).replace('年','') + '年' + (o.m?o.m+'月':'') + (o.d?o.d+'日':'');
+  const pv=parseYearVal(o.y);
+  if(!pv.y) return '';
+  const eraStr=pv.era?pv.era:warekiYear(pv.y).replace('年','');
+  return eraStr + '年' + (o.m?o.m+'月':'') + (o.d?o.d+'日':'');
 }
 function dateToNum(p, prefix){
   const o = dateToObj(p, prefix);
   if(!o.y) return 0;
-  return (+o.y)*10000 + (+o.m||0)*100 + (+o.d||0);
+  const pv=parseYearVal(o.y);
+  return pv.y*10000 + (+o.m||0)*100 + (+o.d||0);
 }
 
 const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡'];
