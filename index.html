@@ -1630,7 +1630,7 @@ function wizRender(){
         });
       }
       if(isClientMode){
-        bd.innerHTML='<div class="wiz-q">入力ありがとうございます。内容をご確認ください。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-q" style="font-size:13px;margin-top:16px">よろしければ下のボタンを押して、表示されたコードを担当者にお送りください。</div><button class="wiz-copy-btn" id="wizCopyBtn" onclick="wizCopyCode()">コードをコピーする</button><textarea class="wiz-code-area" id="wizCodeArea" style="display:none" readonly></textarea><div style="margin-top:12px"><button class="wiz-btn" onclick="wizBack()">← 修正する</button></div>';
+        bd.innerHTML='<div class="wiz-q">入力ありがとうございます。内容をご確認ください。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-q" style="font-size:13px;margin-top:16px">よろしければ下のボタンを押して、担当者にデータを送ってください。</div><button class="wiz-copy-btn" id="wizCopyBtn" onclick="wizCopyCode()">データをコピーして送る</button><div style="margin-top:12px"><button class="wiz-btn" onclick="wizBack()">← 修正する</button></div>';
       } else {
         bd.innerHTML='<div class="wiz-q">以下の内容で相続関係説明図を作成します。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-btns"><button class="wiz-btn primary" onclick="wizApply()">図面を作成 →</button><button class="wiz-btn" onclick="wizBack()">修正する</button></div>';
       }
@@ -1834,13 +1834,17 @@ function doClientImport(){
 
 function wizCopyCode(){
   const code=btoa(unescape(encodeURIComponent(JSON.stringify(wiz.data))));
-  const area=document.getElementById('wizCodeArea');
   const btn=document.getElementById('wizCopyBtn');
-  area.value=code;area.style.display='block';
   navigator.clipboard.writeText(code).then(()=>{
-    btn.textContent='✓ コピーしました！担当者にお送りください';btn.classList.add('wiz-copied');
+    btn.textContent='✓ コピーしました！担当者に貼り付けて送ってください';btn.classList.add('wiz-copied');
     setTimeout(()=>{btn.textContent='もう一度コピーする';btn.classList.remove('wiz-copied');},3000);
-  }).catch(()=>{area.select();btn.textContent='上のコードを全選択してコピーしてください';});
+  }).catch(()=>{
+    // フォールバック
+    const t=document.createElement('textarea');t.value=code;t.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    btn.textContent='✓ コピーしました！担当者に貼り付けて送ってください';btn.classList.add('wiz-copied');
+    setTimeout(()=>{btn.textContent='もう一度コピーする';btn.classList.remove('wiz-copied');},3000);
+  });
 }
 
 function wizApply(){
