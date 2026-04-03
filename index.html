@@ -21,6 +21,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 
 .header{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .header h1{font-size:17px;font-weight:600}
+.hdr-btns .btn-undo,.hdr-btns .btn-redo{padding:6px 10px!important;font-size:14px!important;min-width:0}
 .hdr-btns .btn-undo{background:rgba(255,255,255,.85)!important;color:#1a5276!important;font-weight:700}
 .hdr-btns .btn-undo:hover{background:#fff!important}
 .hdr-btns .btn-redo{background:#f0c040!important;color:#1a5276!important;font-weight:700}
@@ -151,7 +152,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 @page{size:A4;margin:0mm}
 @media print{
   html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important;height:297mm!important}
-  .header,.preview-ctrl,.side,.sel-rect{display:none!important}
+  .header,.preview-ctrl,.side,.sel-rect,.share-fab{display:none!important}
   .wrap{display:none!important}
   .preview-overlay.active{display:block!important;position:static!important;background:#fff!important;padding:0!important;margin:0!important}
   .preview-a4{box-shadow:none!important;margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important;position:relative!important}
@@ -190,7 +191,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .wiz-multi .wiz-sub{font-size:11px;color:var(--txtL);margin-top:2px;font-weight:400}
 .wiz-summary{background:#f8f9fa;border-radius:8px;padding:14px;font-size:13px;line-height:2;white-space:pre-line;margin-bottom:16px}
 /* お客様モード */
-body.client-mode .header,body.client-mode .wrap{display:none!important}
+body.client-mode .header,body.client-mode .wrap,body.client-mode .share-fab{display:none!important}
 body.client-mode .wiz-overlay{display:flex!important;background:linear-gradient(135deg,#f5f7fa,#e4e9f0)}
 body.client-mode .wiz-box{width:600px;max-width:95vw;box-shadow:0 12px 60px rgba(0,0,0,.2)}
 body.client-mode .wiz-hd .wiz-close{display:none}
@@ -208,6 +209,8 @@ body.client-mode .wiz-hd .wiz-close{display:none}
 .share-box{background:#fff;border-radius:12px;width:420px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
 .share-box h3{margin:0 0 6px;font-size:16px;color:var(--txt)}
 .share-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.share-fab{position:fixed;bottom:20px;right:20px;z-index:200;padding:12px 20px;border:none;border-radius:10px;background:#27ae60;color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .15s;font-family:inherit}
+.share-fab:hover{background:#219a52;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .share-url-row{display:flex;gap:6px;margin-top:4px}
 .share-url-row input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:monospace}
 .share-url-row button{padding:8px 16px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
@@ -218,20 +221,20 @@ body.client-mode .wiz-hd .wiz-close{display:none}
 <div class="header">
   <h1>相続関係説明図 作成ツール</h1>
   <div class="hdr-btns">
-    <button class="btn-undo" onclick="undo()" title="元に戻す (Ctrl+Z)">↩ 戻る</button>
-    <button class="btn-redo" onclick="redo()" title="やり直す (Ctrl+Y)">↪ 進む</button>
+    <button class="btn-undo" onclick="undo()" title="Ctrl+Z">↩</button>
+    <button class="btn-redo" onclick="redo()" title="Ctrl+Y">↪</button>
     <span class="hdr-sep"></span>
     <button onclick="openWizard()" style="background:rgba(255,255,255,.9);color:#1a5276;font-weight:700">⚡ かんたん入力</button>
     <button onclick="saveJSON()">保存</button>
-    <button onclick="document.getElementById('fi').click()">読込</button>
-    <button onclick="openClientImport()" style="background:rgba(255,200,50,.9);color:#1a5276;font-weight:700">📋 お客様データ読込</button>
-    <button onclick="openShareClient()" style="background:rgba(100,220,120,.9);color:#1a5276;font-weight:700">📤 お客様に送る</button>
+    <button onclick="openLoadDialog()">読込</button>
+    <span class="hdr-sep"></span>
     <button onclick="toggleTags()" id="btnTags">タグ: ON</button>
     <button onclick="toggleLayout()" id="btnLayout">配置: 縦</button>
     <button onclick="togglePreview()">プレビュー・印刷</button>
   </div>
 </div>
 <input type="file" id="fi" accept=".json" style="display:none">
+<button class="share-fab" onclick="openShareClient()">📤 ヒアリングシート送付</button>
 
 <div class="wrap">
   <div class="side">
@@ -1456,7 +1459,7 @@ function openWizard(){
   let ov=document.getElementById('wizOverlay');
   if(!ov){
     ov=document.createElement('div');ov.id='wizOverlay';ov.className='wiz-overlay';
-    ov.innerHTML='<div class="wiz-box"><div class="wiz-hd"><h2>⚖ かんたん入力</h2><button class="wiz-close" onclick="closeWizard()">✕</button></div><div class="wiz-progress"><div class="wiz-progress-bar" id="wizProg"></div></div><div class="wiz-body" id="wizBody"></div><div class="wiz-ft" id="wizFt"></div></div>';
+    ov.innerHTML='<div class="wiz-box"><div class="wiz-hd"><h2>⚖ 相続関係ヒアリングシート</h2><button class="wiz-close" onclick="closeWizard()">✕</button></div><div class="wiz-progress"><div class="wiz-progress-bar" id="wizProg"></div></div><div class="wiz-body" id="wizBody"></div><div class="wiz-ft" id="wizFt"></div></div>';
     document.body.appendChild(ov);
   }
   ov.classList.add('active');
@@ -1804,19 +1807,20 @@ function shareClipboard(){
   }else{btn.textContent='Ctrl+C でコピーしてください';setTimeout(()=>{btn.textContent='コピー';},3000);}
 }
 
-function openClientImport(){
-  let ov=document.getElementById('importOverlay');
+function openLoadDialog(){
+  let ov=document.getElementById('loadOverlay');
   if(!ov){
-    ov=document.createElement('div');ov.id='importOverlay';ov.className='import-overlay';
-    ov.innerHTML='<div class="import-box"><h3>📋 お客様データ読込</h3><p>お客様から受け取ったコードを下に貼り付けてください。</p><textarea class="wiz-code-area" id="importArea" placeholder="コードを貼り付け..."></textarea><div class="wiz-btns"><button class="wiz-btn primary" onclick="doClientImport()">読み込む</button><button class="wiz-btn" onclick="closeClientImport()">キャンセル</button></div><div class="import-err" id="importErr">コードが正しくありません。お客様に再度お送りいただくようお伝えください。</div></div>';
+    ov=document.createElement('div');ov.id='loadOverlay';ov.className='import-overlay';
+    ov.innerHTML='<div class="import-box"><h3>読み込み</h3><div class="wiz-multi" style="margin-bottom:16px"><button class="wiz-btn" onclick="doLoadFile()" style="padding:16px"><div style="font-weight:700">📁 ファイルから読込</div><div class="wiz-sub">保存したJSONファイルを選択</div></button><button class="wiz-btn" onclick="showCodeInput()" style="padding:16px"><div style="font-weight:700">📋 お客様コードを読込</div><div class="wiz-sub">お客様から受け取ったコードを貼り付け</div></button></div><div id="codeInputArea" style="display:none"><textarea class="wiz-code-area" id="importArea" placeholder="お客様から受け取ったコードを貼り付け..."></textarea><div class="wiz-btns"><button class="wiz-btn primary" onclick="doClientImport()">読み込む</button></div><div class="import-err" id="importErr">コードが正しくありません。お客様に再度お送りいただくようお伝えください。</div></div><div style="margin-top:12px;text-align:right"><button class="wiz-btn" onclick="closeLoadDialog()">キャンセル</button></div></div>';
     document.body.appendChild(ov);
   }
-  document.getElementById('importArea').value='';
+  document.getElementById('codeInputArea').style.display='none';
   document.getElementById('importErr').style.display='none';
   ov.classList.add('active');
-  setTimeout(()=>document.getElementById('importArea').focus(),50);
 }
-function closeClientImport(){document.getElementById('importOverlay').classList.remove('active');}
+function closeLoadDialog(){document.getElementById('loadOverlay').classList.remove('active');}
+function doLoadFile(){closeLoadDialog();document.getElementById('fi').click();}
+function showCodeInput(){document.getElementById('codeInputArea').style.display='block';setTimeout(()=>document.getElementById('importArea').focus(),50);}
 function doClientImport(){
   const code=document.getElementById('importArea').value.trim();
   try{
@@ -1825,7 +1829,7 @@ function doClientImport(){
     if(!d.name)throw new Error('invalid');
     wiz.data=Object.assign(wizInitData(),d);
     wiz.step='confirm';wiz.history=[];wiz.forward=[];wiz.childIdx=0;wiz.sibIdx=0;
-    closeClientImport();openWizard();wizRender();
+    closeLoadDialog();openWizard();wizRender();
   }catch(e){document.getElementById('importErr').style.display='block';}
 }
 
