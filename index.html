@@ -21,8 +21,14 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 
 .header{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .header h1{font-size:17px;font-weight:600}
+.hdr-btns .btn-undo,.hdr-btns .btn-redo{padding:6px 10px!important;font-size:14px!important;min-width:0}
+.hdr-btns .btn-undo{background:rgba(255,255,255,.85)!important;color:#1a5276!important;font-weight:700}
+.hdr-btns .btn-undo:hover{background:#fff!important}
+.hdr-btns .btn-redo{background:#f0c040!important;color:#1a5276!important;font-weight:700}
+.hdr-btns .btn-redo:hover{background:#e6b030!important}
+.hdr-sep{width:1px;background:rgba(255,255,255,.3);align-self:stretch;margin:2px 4px}
 .hdr-btns{display:flex;gap:6px}
-.hdr-btns button{padding:6px 16px;border:none;border-radius:6px;font-weight:600;font-size:12px;background:rgba(255,255,255,.2);color:#fff}
+.hdr-btns button{padding:6px 16px;border:none;border-radius:6px;font-weight:600;font-size:12px;background:rgba(255,255,255,.2);color:#fff;cursor:pointer}
 .hdr-btns button:hover{background:rgba(255,255,255,.35)}
 
 .wrap{display:flex;height:calc(100vh - 46px)}
@@ -42,6 +48,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .pc.r-遺産分割{border-left-color:#f39c12}
 .pc.r-先死亡{border-left-color:#95a5a6}
 .pc.r-相続後死亡{border-left-color:#8e44ad}
+.pc.r-数次相続人{border-left-color:#2980b9}
 
 .pc-hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
 .pc-hd:hover{background:#f8f9fa}
@@ -53,6 +60,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .bg-遺産分割{background:#f39c12}
 .bg-先死亡{background:#95a5a6}
 .bg-相続後死亡{background:#8e44ad}
+.bg-数次相続人{background:#2980b9}
 .pc-tgl{font-size:16px;color:#aaa;transition:transform .2s}
 .pc.open .pc-tgl{transform:rotate(180deg)}
 
@@ -123,6 +131,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .c-遺産分割{border-color:#f39c12;background:#fff8e1} .c-遺産分割 .card-h{background:#fef5e7;color:#b7770a}
 .c-先死亡{border-color:#95a5a6;background:#f5f5f5} .c-先死亡 .card-h{background:#f0f0f0;color:#555}
 .c-相続後死亡{border-color:#8e44ad;background:#f3e5f5} .c-相続後死亡 .card-h{background:#f4ecf7;color:#6c3483}
+.c-数次相続人{border-color:#2980b9;background:#e8f4fd} .c-数次相続人 .card-h{background:#2980b9;color:#fff}
 
 /* 範囲選択 */
 .sel-rect{position:absolute;border:2px dashed #2980b9;background:rgba(41,128,185,.1);z-index:50;pointer-events:none}
@@ -143,16 +152,68 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 @page{size:A4;margin:0mm}
 @media print{
   html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important;height:297mm!important}
-  .header,.preview-ctrl,.side,.sel-rect{display:none!important}
+  .header,.preview-ctrl,.side,.sel-rect,.share-fab{display:none!important}
   .wrap{display:none!important}
   .preview-overlay.active{display:block!important;position:static!important;background:#fff!important;padding:0!important;margin:0!important}
   .preview-a4{box-shadow:none!important;margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important;position:relative!important}
   .preview-a4 .diagram{margin:0!important;box-shadow:none!important;padding:0!important}
   .card{box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .card-h{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .c-被相続人,.c-相続人,.c-遺産分割,.c-先死亡,.c-相続後死亡{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .c-被相続人,.c-相続人,.c-遺産分割,.c-先死亡,.c-相続後死亡,.c-数次相続人{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .dfooter{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+/* ウィザード */
+.wiz-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;justify-content:center;align-items:center}
+.wiz-overlay.active{display:flex}
+.wiz-box{background:#fff;border-radius:12px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.wiz-hd{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:16px 24px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
+.wiz-hd h2{font-size:16px;margin:0;font-weight:700}
+.wiz-hd .wiz-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:0 4px}
+.wiz-hd .wiz-close:hover{color:#fff}
+.wiz-progress{height:4px;background:#e0e0e0}.wiz-progress-bar{height:4px;background:var(--primary-l);transition:width .3s}
+.wiz-body{padding:24px}
+.wiz-q{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px;line-height:1.6}
+.wiz-hint{font-size:12px;color:var(--txtL);margin-bottom:16px;line-height:1.5}
+.wiz-btns{display:flex;gap:8px;flex-wrap:wrap}
+.wiz-btn{padding:10px 22px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--txt);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
+.wiz-btn:hover{border-color:var(--primary-l);background:#eaf2f8}
+.wiz-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.wiz-btn.primary:hover{opacity:.85}
+.wiz-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box}
+.wiz-input:focus{border-color:var(--primary-l);outline:none}
+.wiz-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-bottom:8px}
+.wiz-tag-blue{background:#eaf2f8;color:var(--primary)}
+.wiz-ft{padding:12px 24px;border-top:1px solid #eee;display:flex;justify-content:space-between}
+.wiz-back{background:none;border:none;color:var(--txtL);font-size:13px;cursor:pointer;font-family:inherit;padding:6px 0}
+.wiz-back:hover{color:var(--txt)}
+.wiz-multi{display:flex;flex-direction:column;gap:8px}
+.wiz-multi button{text-align:left;padding:12px 16px;line-height:1.5}
+.wiz-multi .wiz-sub{font-size:11px;color:var(--txtL);margin-top:2px;font-weight:400}
+.wiz-summary{background:#f8f9fa;border-radius:8px;padding:14px;font-size:13px;line-height:2;white-space:pre-line;margin-bottom:16px}
+/* お客様モード */
+body.client-mode .header,body.client-mode .wrap,body.client-mode .share-fab{display:none!important}
+body.client-mode .wiz-overlay{display:flex!important;background:linear-gradient(135deg,#f5f7fa,#e4e9f0)}
+body.client-mode .wiz-box{width:600px;max-width:95vw;box-shadow:0 12px 60px rgba(0,0,0,.2)}
+body.client-mode .wiz-hd .wiz-close{display:none}
+.wiz-client-banner{background:#eaf2f8;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#2c3e50;line-height:1.6;border-left:4px solid var(--primary)}
+.wiz-code-area{width:100%;min-height:80px;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:monospace;font-size:11px;word-break:break-all;resize:none;box-sizing:border-box;margin-bottom:12px}
+.wiz-copy-btn{padding:12px 24px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;font-size:14px;cursor:pointer;width:100%;transition:all .15s}
+.wiz-copy-btn:hover{opacity:.85}
+.wiz-copied{background:#27ae60!important}
+.import-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;justify-content:center;align-items:center}
+.import-overlay.active{display:flex}
+.import-box{background:#fff;border-radius:12px;width:480px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.import-box h3{margin:0 0 8px;font-size:16px;color:var(--txt)}
+.import-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.import-err{color:#e74c3c;font-size:12px;margin-top:8px;display:none}
+.share-box{background:#fff;border-radius:12px;width:420px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.share-box h3{margin:0 0 6px;font-size:16px;color:var(--txt)}
+.share-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.share-fab{position:fixed;bottom:20px;right:20px;z-index:200;padding:12px 20px;border:none;border-radius:10px;background:#27ae60;color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .15s;font-family:inherit}
+.share-fab:hover{background:#219a52;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.share-url-row{display:flex;gap:6px;margin-top:4px}
+.share-url-row input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:monospace}
+.share-url-row button{padding:8px 16px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -160,14 +221,20 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 <div class="header">
   <h1>相続関係説明図 作成ツール</h1>
   <div class="hdr-btns">
+    <button class="btn-undo" onclick="undo()" title="Ctrl+Z">↩</button>
+    <button class="btn-redo" onclick="redo()" title="Ctrl+Y">↪</button>
+    <span class="hdr-sep"></span>
+    <button onclick="openWizard()" style="background:rgba(255,255,255,.9);color:#1a5276;font-weight:700">⚡ かんたん入力</button>
     <button onclick="saveJSON()">保存</button>
-    <button onclick="document.getElementById('fi').click()">読込</button>
+    <button onclick="openLoadDialog()">読込</button>
+    <span class="hdr-sep"></span>
     <button onclick="toggleTags()" id="btnTags">タグ: ON</button>
     <button onclick="toggleLayout()" id="btnLayout">配置: 縦</button>
     <button onclick="togglePreview()">プレビュー・印刷</button>
   </div>
 </div>
 <input type="file" id="fi" accept=".json" style="display:none">
+<button class="share-fab" onclick="openShareClient()">📤 ヒアリングシート送付</button>
 
 <div class="wrap">
   <div class="side">
@@ -191,6 +258,12 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 
 <script>
 let P = [], uid = 1, activeTab = {};
+let undoStack = [], redoStack = [], undoLock = false;
+function saveUndo(){if(undoLock)return;undoStack.push(getSnapshot());if(undoStack.length>50)undoStack.shift();redoStack=[];}
+function getSnapshot(){return JSON.stringify({P,uid,h:document.getElementById('inHonseki')?.value||'',l:document.getElementById('inLastAddr')?.value||'',r:document.getElementById('inRegAddr')?.value||''});}
+function applySnapshot(s){const d=JSON.parse(s);P=d.P;uid=d.uid;const hEl=document.getElementById('inHonseki'),lEl=document.getElementById('inLastAddr'),rEl=document.getElementById('inRegAddr');if(hEl)hEl.value=d.h;if(lEl)lEl.value=d.l;if(rEl)rEl.value=d.r;undoLock=true;renderList(-1);draw();undoLock=false;}
+function undo(){if(!undoStack.length)return;redoStack.push(getSnapshot());applySnapshot(undoStack.pop());}
+function redo(){if(!redoStack.length)return;undoStack.push(getSnapshot());applySnapshot(redoStack.pop());}
 let cardPositions = {};
 let footerPos = null;
 let hdrPos = null; // ヘッダーのドラッグ位置
@@ -210,7 +283,8 @@ const DOCS = {
   '相続人': ['現戸','住所','印証','遺分'],
   '遺産分割': ['現戸','印証','遺分'],
   '先死亡': ['生亡'],
-  '相続後死亡': ['生亡']
+  '相続後死亡': ['生亡'],
+  '数次相続人': ['現戸','住所','印証','遺分']
 };
 const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
 
@@ -277,7 +351,7 @@ function dateToNum(p, prefix){
   return pv.y*10000 + (+o.m||0)*100 + (+o.d||0);
 }
 
-const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡'];
+const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡','数次相続人'];
 
 function toggleTags(){
   showTags=!showTags;
@@ -303,6 +377,7 @@ function autoRoles(){
   const hisou = P.find(p => p.isBSZ);
   if(!hisou) return;
   const deathNum = dateToNum(hisou, 'death');
+  // 第1パス: 基本ロール判定
   P.forEach(p => {
     if(p.isBSZ){ p.role = '被相続人'; return; }
     if(p.roleOverride){ p.role = p.roleOverride; return; }
@@ -316,6 +391,14 @@ function autoRoles(){
     } else {
       p.role = '相続人';
     }
+  });
+  // 第2パス: 数次相続人の判定（相続後死亡の配偶者・子）
+  const suujiIds = new Set(P.filter(p => p.role === '相続後死亡').map(p => String(p.id)));
+  P.forEach(p => {
+    if(p.role !== '相続人') return;
+    const isChildOfSuuji = (p.father && suujiIds.has(String(p.father))) || (p.mother && suujiIds.has(String(p.mother)));
+    const isSpouseOfSuuji = p.spouse && suujiIds.has(String(p.spouse));
+    if(isChildOfSuuji || isSpouseOfSuuji) p.role = '数次相続人';
   });
 }
 
@@ -526,6 +609,7 @@ const SNAP=20;
 function snap(v){return Math.round(v/SNAP)*SNAP;}
 
 function draw(){
+  saveUndo();
   const dg=document.getElementById('diagram');
   dg.innerHTML='';
 
@@ -1354,6 +1438,510 @@ P.push({ id:uid++, name:'', relation:'', role:'被相続人', roleOverride:'', i
   birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
   father:'', mother:'', spouse:'', exSpouses:[] });
 renderList(0);draw();initRangeSelect();
+document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo();}});
+const isClientMode=new URLSearchParams(location.search).has('client');
+if(isClientMode){document.body.classList.add('client-mode');openWizard();}
+
+// ===== ウィザード =====
+let wiz={step:'name',data:{},childIdx:0,sibIdx:0,history:[],forward:[]};
+const CHILD_RELS=['長男','二男','三男','四男','五男','長女','二女','三女','四女','五女','子'];
+const CHILD_REL_M=['長男','二男','三男','四男','五男'];
+const CHILD_REL_F=['長女','二女','三女','四女','五女'];
+
+function wizInitData(){
+  return {name:'',deathY:'',deathM:'',deathD:'',honseki:'',lastAddr:'',regAddr:'',
+    spouse:null,children:[],exSpouse:null,exChildren:[],adoptees:[],parents:[],siblings:[],
+    hasChildren:false,specialCircumstances:[]};
+}
+
+function openWizard(){
+  wiz={step:'name',data:wizInitData(),childIdx:0,sibIdx:0,history:[]};
+  let ov=document.getElementById('wizOverlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='wizOverlay';ov.className='wiz-overlay';
+    ov.innerHTML='<div class="wiz-box"><div class="wiz-hd"><h2>⚖ 相続関係ヒアリングシート</h2><button class="wiz-close" onclick="closeWizard()">✕</button></div><div class="wiz-progress"><div class="wiz-progress-bar" id="wizProg"></div></div><div class="wiz-body" id="wizBody"></div><div class="wiz-ft" id="wizFt"></div></div>';
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('active');
+  wizRender();
+}
+function closeWizard(){document.getElementById('wizOverlay').classList.remove('active');}
+function wizPush(){wiz.history.push(JSON.parse(JSON.stringify({step:wiz.step,data:wiz.data,childIdx:wiz.childIdx,sibIdx:wiz.sibIdx})));wiz.forward=[];}
+function wizBack(){if(!wiz.history.length)return;wiz.forward.push(JSON.parse(JSON.stringify({step:wiz.step,data:wiz.data,childIdx:wiz.childIdx,sibIdx:wiz.sibIdx})));const p=wiz.history.pop();wiz.step=p.step;wiz.data=p.data;wiz.childIdx=p.childIdx;wiz.sibIdx=p.sibIdx;wizRender();}
+function wizForward(){if(!wiz.forward.length)return;wiz.history.push(JSON.parse(JSON.stringify({step:wiz.step,data:wiz.data,childIdx:wiz.childIdx,sibIdx:wiz.sibIdx})));const f=wiz.forward.pop();wiz.step=f.step;wiz.data=f.data;wiz.childIdx=f.childIdx;wiz.sibIdx=f.sibIdx;wizRender();}
+function wizProgress(){const map={name:1,death:2,spouse:3,spouse_status:4,spouse_death:4,children:5,child_count:6,child_detail:7,child_before_after:7,child_has_gc:7,child_gc_names:7,child_suuji_spouse:7,child_suuji_spouse_name:7,child_suuji_children:7,child_suuji_child_names:7,special:8,ex_spouse_status:9,ex_spouse_name:9,ex_count:9,ex_names:9,adoptee_count:10,adoptee_names:10,parents:9,parent_names:9,siblings:10,sibling_count:11,sib_detail:11,sib_before_after:11,sib_has_nephew:11,sib_nephew_names:11,confirm:12};return((map[wiz.step]||1)/12)*100;}
+function wizDateRow(idPrefix){return '<div class="date-row" style="margin-bottom:12px"><select class="y-sel" id="'+idPrefix+'Y">'+YEAR_OPTS+'</select><select class="m-sel" id="'+idPrefix+'M">'+MONTH_OPTS+'</select><select class="d-sel" id="'+idPrefix+'D">'+DAY_OPTS+'</select></div>';}
+function wizRelOpts(sel){return CHILD_RELS.map(r=>'<option value="'+r+'"'+(r===sel?' selected':'')+'>'+r+'</option>').join('');}
+
+function wizChildNext(){
+  const d=wiz.data;
+  if(wiz.childIdx+1<d.children.length){wiz.childIdx++;wiz.step='child_detail';}
+  else{if(d.hasChildren)wiz.step='special';else wiz.step='parents';}
+  wizRender();
+}
+function wizSibNext(){
+  if(wiz.sibIdx+1<wiz.data.siblings.length){wiz.sibIdx++;wiz.step='sib_detail';}
+  else wiz.step='confirm';
+  wizRender();
+}
+
+function wizRender(){
+  const bd=document.getElementById('wizBody');
+  const ft=document.getElementById('wizFt');
+  document.getElementById('wizProg').style.width=wizProgress()+'%';
+  ft.innerHTML=wiz.history.length?'<button class="wiz-back" onclick="wizBack()">← 前の質問に戻る</button>':'<span></span>';
+  const d=wiz.data;
+
+  switch(wiz.step){
+    case 'name':{
+      const banner=isClientMode?'<div class="wiz-client-banner">相続の手続きに必要な情報をおうかがいします。<br>質問に順番にお答えください。全部で数分で終わります。</div>':'';
+      bd.innerHTML=banner+'<div class="wiz-q">亡くなった方のお名前を教えてください。</div><div class="wiz-hint">戸籍に記載されているお名前をご記入ください。</div><input class="wiz-input" id="wizIn" placeholder="例：山田 太郎" value="'+esc(d.name)+'"><button class="wiz-btn primary" onclick="wizNext(\'name\')">次へ →</button>';
+      setTimeout(()=>{const el=document.getElementById('wizIn');el.focus();el.addEventListener('keydown',e=>{if(e.key==='Enter')wizNext('name');});},50);
+      break;}
+    case 'death':
+      bd.innerHTML='<div class="wiz-q">'+esc(d.name)+'さんがお亡くなりになった日を教えてください。</div><div class="wiz-hint">年月日をそれぞれ選択してください。</div>'+wizDateRow('wizD')+'<button class="wiz-btn primary" onclick="wizNext(\'death\')">次へ →</button>';
+      setTimeout(()=>{document.getElementById('wizDY').value=d.deathY||'';document.getElementById('wizDM').value=d.deathM||'';document.getElementById('wizDD').value=d.deathD||'';},10);
+      break;
+    case 'spouse':
+      bd.innerHTML='<div class="wiz-q">'+esc(d.name)+'さんに配偶者（夫または妻）はいらっしゃいましたか？</div><div class="wiz-hint">離婚済みの場合は「いいえ」を選んでください（前の配偶者との間に子がいる場合は、後の質問で聞き取ります）。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'spouse_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'spouse_no\')">いいえ（未婚・離婚済み）</button></div>';
+      break;
+    case 'spouse_status':
+      bd.innerHTML='<div class="wiz-q">配偶者の方について教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">配偶者のお名前</label><input class="wiz-input" id="wizSpName" placeholder="例：山田 花子" value="'+esc(d.spouse.name||'')+'"></div><div class="wiz-q" style="font-size:14px;margin-bottom:8px">現在ご存命ですか？</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'spouse_alive\')">存命です</button><button class="wiz-btn" onclick="wizNext(\'spouse_dead\')">亡くなっています</button></div>';
+      break;
+    case 'spouse_death':
+      bd.innerHTML='<div class="wiz-q">配偶者の方がお亡くなりになった日を教えてください。</div>'+wizDateRow('wizSD')+'<button class="wiz-btn primary" onclick="wizNext(\'spouse_death_done\')">次へ →</button>';
+      break;
+    case 'children':
+      bd.innerHTML='<div class="wiz-q">'+esc(d.name)+'さんにお子さんはいらっしゃいますか？</div><div class="wiz-hint">現在の配偶者との子についてお答えください。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'children_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'children_no\')">いいえ</button></div>';
+      break;
+    case 'child_count':
+      bd.innerHTML='<div class="wiz-q">お子さんは何人いらっしゃいますか？</div><div class="wiz-hint">現在の配偶者との子の人数です。前婚の子は後で聞きます。</div><div class="wiz-btns">'+[1,2,3,4,5].map(n=>'<button class="wiz-btn" onclick="wizNext(\'child_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'child_detail':{
+      const ci=wiz.childIdx,total=d.children.length,c=d.children[ci];
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+'/'+total+'</span><div class="wiz-q">'+(ci+1)+'番目のお子さんについて教えてください。</div><div class="fg-row" style="margin-bottom:12px"><div class="fg"><label style="font-size:12px;color:#7f8c8d;font-weight:600">お名前</label><input class="wiz-input" id="wizCName" placeholder="例：山田 一郎" value="'+esc(c.name||'')+'"></div><div class="fg"><label style="font-size:12px;color:#7f8c8d;font-weight:600">続柄</label><select class="wiz-input" id="wizCRel" style="padding:9px 14px">'+wizRelOpts(c.relation||'')+'</select></div></div><div class="wiz-q" style="font-size:14px;margin-bottom:8px">ご存命ですか？</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'child_alive\')">存命</button><button class="wiz-btn" onclick="wizNext(\'child_dead\')">死亡</button><button class="wiz-btn" onclick="wizNext(\'child_waived\')">相続放棄</button></div>';
+      break;}
+    case 'child_before_after':{
+      const ci=wiz.childIdx;
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+'</span><div class="wiz-q">'+esc(d.name)+'さんより前に亡くなりましたか？後に亡くなりましたか？</div><div class="wiz-hint">被相続人の死亡日との前後関係で立場が変わります。</div><div class="wiz-multi"><button class="wiz-btn" onclick="wizNext(\'child_before\')"><div>被相続人より前に死亡（先死亡）</div><div class="wiz-sub">→ その子の子（孫）がいれば代襲相続</div></button><button class="wiz-btn" onclick="wizNext(\'child_after\')"><div>被相続人より後に死亡（数次相続）</div><div class="wiz-sub">→ 亡くなった子の相続人が権利を承継</div></button></div>';
+      break;}
+    case 'child_has_gc':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 代襲</span><div class="wiz-q">亡くなったお子さんに子供（被相続人からみて孫）はいますか？</div><div class="wiz-hint">いる場合は代襲相続人となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'child_has_gc_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'child_has_gc_no\')">いいえ</button></div>';
+      break;}
+    case 'child_gc_names':{
+      const ci=wiz.childIdx,gcs=d.children[ci].grandchildren;
+      let inputs='';
+      gcs.forEach((g,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">孫'+(j+1)+'のお名前</label><input class="wiz-input" id="wizGC'+j+'" placeholder="お名前" value="'+esc(g.name||'')+'"></div>';});
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+' → 代襲相続人</span><div class="wiz-q">お孫さんのお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'child_gc_names_done\')">次へ →</button>';
+      break;}
+    case 'child_suuji_spouse':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">亡くなったお子さんに配偶者はいますか？</div><div class="wiz-hint">数次相続の当事者となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'suuji_spouse_yes\')">はい（存命）</button><button class="wiz-btn" onclick="wizNext(\'suuji_spouse_no\')">いいえ</button></div>';
+      break;}
+    case 'child_suuji_spouse_name':{
+      const ss=d.children[wiz.childIdx].suujiSpouse;
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">配偶者のお名前を教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">配偶者のお名前</label><input class="wiz-input" id="wizSuujiSpName" placeholder="例：山田 花子" value="'+esc(ss.name||'')+'"></div><button class="wiz-btn primary" onclick="wizNext(\'suuji_spouse_name_done\')">次へ →</button>';
+      break;}
+    case 'child_suuji_children':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">亡くなったお子さんに子供（被相続人からみて孫）はいますか？</div><div class="wiz-hint">数次相続の当事者となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'suuji_children_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'suuji_children_no\')">いいえ</button></div>';
+      break;}
+    case 'child_suuji_child_names':{
+      const ci=wiz.childIdx,scs=d.children[ci].suujiChildren;
+      let inputs='';
+      scs.forEach((c,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">孫'+(j+1)+'（数次）のお名前</label><input class="wiz-input" id="wizSC'+j+'" placeholder="お名前" value="'+esc(c.name||'')+'"></div>';});
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+' → 数次相続</span><div class="wiz-q">お孫さんのお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'suuji_child_names_done\')">次へ →</button>';
+      break;}
+    case 'special':
+      bd.innerHTML='<div class="wiz-q">特別な事情はありますか？</div><button class="wiz-btn primary" style="width:100%;margin-bottom:16px" onclick="wizNext(\'special_done\')">特になし → 次へ</button><div style="border-top:1px solid #e0e0e0;padding-top:12px;margin-top:4px"><div style="font-size:11px;color:#999;margin-bottom:10px">該当する場合のみ選択してください</div><div class="wiz-multi"><button class="wiz-btn'+(d.specialCircumstances.includes('ex')?' primary':'')+'" onclick="wizToggleSC(\'ex\')"><div>'+(d.specialCircumstances.includes('ex')?'✓ ':'')+'前婚の配偶者・子がいる</div><div class="wiz-sub">被相続人に前の配偶者との間に子がいる</div></button><button class="wiz-btn'+(d.specialCircumstances.includes('adoptee')?' primary':'')+'" onclick="wizToggleSC(\'adoptee\')"><div>'+(d.specialCircumstances.includes('adoptee')?'✓ ':'')+'養子がいる</div><div class="wiz-sub">被相続人に養子縁組した子がいる</div></button></div>'+(d.specialCircumstances.length?'<button class="wiz-btn primary" style="margin-top:14px;width:100%" onclick="wizNext(\'special_done\')">次へ →</button>':'')+'</div>';
+      break;
+    case 'ex_spouse_status':
+      bd.innerHTML='<div class="wiz-q">前配偶者の方はご存命ですか？</div><div class="wiz-hint">前配偶者自体は相続人ではありませんが、図面上に記載します。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'ex_spouse_alive\')">存命</button><button class="wiz-btn" onclick="wizNext(\'ex_spouse_dead\')">死亡</button><button class="wiz-btn" onclick="wizNext(\'ex_spouse_skip\')">記載不要</button></div>';
+      break;
+    case 'ex_spouse_name':{
+      bd.innerHTML='<div class="wiz-q">前配偶者のお名前を教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">前配偶者のお名前</label><input class="wiz-input" id="wizExSpName" placeholder="例：田中 花子" value="'+esc(d.exSpouse.name||'')+'"></div><button class="wiz-btn primary" onclick="wizNext(\'ex_spouse_name_done\')">次へ →</button>';
+      break;}
+    case 'ex_count':
+      bd.innerHTML='<div class="wiz-q">前婚のお子さんは何人いますか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'ex_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'ex_names':{
+      let inputs='';
+      d.exChildren.forEach((c,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">前婚の子'+(j+1)+'のお名前</label><input class="wiz-input" id="wizEX'+j+'" placeholder="お名前" value="'+esc(c.name||'')+'"></div>';});
+      bd.innerHTML='<div class="wiz-q">前婚のお子さんのお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'ex_names_done\')">次へ →</button>';
+      break;}
+    case 'adoptee_count':
+      bd.innerHTML='<div class="wiz-q">養子は何人いますか？</div><div class="wiz-btns">'+[1,2,3].map(n=>'<button class="wiz-btn" onclick="wizNext(\'adoptee_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'adoptee_names':{
+      let inputs='';
+      d.adoptees.forEach((c,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">養子'+(j+1)+'のお名前</label><input class="wiz-input" id="wizAD'+j+'" placeholder="お名前" value="'+esc(c.name||'')+'"></div>';});
+      bd.innerHTML='<div class="wiz-q">養子のお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'adoptee_names_done\')">次へ →</button>';
+      break;}
+    case 'parents':
+      bd.innerHTML='<div class="wiz-q">被相続人のご両親はご存命ですか？</div><div class="wiz-hint">子がいない場合、親が相続人になります。</div><div class="wiz-multi"><button class="wiz-btn" onclick="wizNext(\'parents_both\')">両親とも存命</button><button class="wiz-btn" onclick="wizNext(\'parents_father\')">父のみ存命</button><button class="wiz-btn" onclick="wizNext(\'parents_mother\')">母のみ存命</button><button class="wiz-btn" onclick="wizNext(\'parents_none\')">両親とも死亡</button></div>';
+      break;
+    case 'parent_names':{
+      let inputs='';
+      d.parents.forEach((p,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">'+esc(p.rel)+'のお名前'+(p.alive?'':'（死亡）')+'</label><input class="wiz-input" id="wizPar'+j+'" placeholder="例：山田 太郎" value="'+esc(p.name||'')+'"></div>';});
+      bd.innerHTML='<div class="wiz-q">ご両親のお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'parent_names_done\')">次へ →</button>';
+      break;}
+    case 'siblings':
+      bd.innerHTML='<div class="wiz-q">被相続人に兄弟姉妹はいますか？</div><div class="wiz-hint">子も親もいない場合、兄弟姉妹が相続人になります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'siblings_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'siblings_no\')">いいえ</button></div>';
+      break;
+    case 'sibling_count':
+      bd.innerHTML='<div class="wiz-q">兄弟姉妹は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4,5].map(n=>'<button class="wiz-btn" onclick="wizNext(\'sib_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'sib_detail':{
+      const si=wiz.sibIdx,total=d.siblings.length,sb=d.siblings[si];
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(si+1)+'/'+total+'</span><div class="wiz-q">'+(si+1)+'番目の兄弟姉妹について教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">お名前</label><input class="wiz-input" id="wizSibName" placeholder="お名前" value="'+esc(sb.name||'')+'"></div><div class="wiz-q" style="font-size:14px;margin-bottom:8px">ご存命ですか？</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'sib_alive\')">存命</button><button class="wiz-btn" onclick="wizNext(\'sib_dead\')">死亡</button></div>';
+      break;}
+    case 'sib_before_after':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(wiz.sibIdx+1)+'</span><div class="wiz-q">'+esc(d.name)+'さんより前に亡くなりましたか？後に亡くなりましたか？</div><div class="wiz-multi"><button class="wiz-btn" onclick="wizNext(\'sib_before\')"><div>被相続人より前に死亡（先死亡）</div><div class="wiz-sub">→ その子（甥姪）がいれば代襲相続</div></button><button class="wiz-btn" onclick="wizNext(\'sib_after\')"><div>被相続人より後に死亡</div></button></div>';
+      break;}
+    case 'sib_has_nephew':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(wiz.sibIdx+1)+' → 代襲</span><div class="wiz-q">亡くなった兄弟姉妹に子供（甥・姪）はいますか？</div><div class="wiz-hint">いる場合は代襲相続人となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'sib_has_nephew_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'sib_has_nephew_no\')">いいえ</button></div>';
+      break;}
+    case 'sib_nephew_names':{
+      const si=wiz.sibIdx,nps=d.siblings[si].nephews;
+      let inputs='';
+      nps.forEach((n,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">甥姪'+(j+1)+'のお名前</label><input class="wiz-input" id="wizNP'+j+'" placeholder="お名前" value="'+esc(n.name||'')+'"></div>';});
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(si+1)+' → 代襲</span><div class="wiz-q">甥・姪のお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'sib_nephew_names_done\')">次へ →</button>';
+      break;}
+    case 'confirm':{
+      const sm=[];
+      sm.push('被相続人：'+d.name+'（'+wizDeathStr(d.deathY,d.deathM,d.deathD)+'死亡）');
+      if(d.spouse)sm.push('配偶者：'+(d.spouse.name||'(未入力)')+'　'+(d.spouse.alive?'存命':'死亡'));else sm.push('配偶者：なし');
+      if(d.children.length){
+        sm.push('子：'+d.children.length+'人');
+        d.children.forEach((c,i)=>{
+          let st=c.alive?'存命':c.waived?'相続放棄':(c.roleOverride==='先死亡'?'先死亡':'相続後死亡（数次）');
+          if(c.grandchildren&&c.grandchildren.length)st+=' → 代襲'+c.grandchildren.length+'人';
+          if(c.suujiSpouse)st+=' → 数次:配偶者あり';
+          if(c.suujiChildren&&c.suujiChildren.length)st+=' → 数次:子'+c.suujiChildren.length+'人';
+          sm.push('  └ '+(c.relation||'子'+(i+1))+'：'+(c.name||'(未入力)')+'　'+st);
+        });
+      }
+      if(d.exSpouse)sm.push('前配偶者：'+(d.exSpouse.name||'(未入力)')+'　'+(d.exSpouse.alive?'存命':'死亡'));
+      if(d.exChildren.length){sm.push('前婚の子：'+d.exChildren.length+'人');d.exChildren.forEach((c,i)=>sm.push('  └ '+(c.name||'(未入力)')));}
+      if(d.adoptees.length){sm.push('養子：'+d.adoptees.length+'人');d.adoptees.forEach((c,i)=>sm.push('  └ '+(c.name||'(未入力)')));}
+      if(d.parents.length)d.parents.forEach(p=>sm.push(p.rel+'：'+(p.name||'(未入力)')+'　'+(p.alive?'存命（相続人）':'先死亡')));
+      if(d.siblings.length){
+        sm.push('兄弟姉妹：'+d.siblings.length+'人');
+        d.siblings.forEach((sb,i)=>{
+          let st=sb.alive?'存命':(sb.roleOverride==='先死亡'?'先死亡':'相続後死亡');
+          if(sb.nephews&&sb.nephews.length)st+=' → 代襲(甥姪)'+sb.nephews.length+'人';
+          sm.push('  └ '+(sb.name||'(未入力)')+'　'+st);
+        });
+      }
+      if(isClientMode){
+        bd.innerHTML='<div class="wiz-q">入力ありがとうございます。内容をご確認ください。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-q" style="font-size:13px;margin-top:16px">よろしければ下のボタンを押して、表示されたコードを担当者にお送りください。</div><button class="wiz-copy-btn" id="wizCopyBtn" onclick="wizCopyCode()">コードをコピーする</button><textarea class="wiz-code-area" id="wizCodeArea" style="display:none" readonly></textarea><div style="margin-top:12px"><button class="wiz-btn" onclick="wizBack()">← 修正する</button></div>';
+      } else {
+        bd.innerHTML='<div class="wiz-q">以下の内容で相続関係説明図を作成します。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-btns"><button class="wiz-btn primary" onclick="wizApply()">図面を作成 →</button><button class="wiz-btn" onclick="wizBack()">修正する</button></div>';
+      }
+      ft.innerHTML='';
+      break;}
+  }
+}
+
+function wizDeathStr(y,m,dd){if(!y)return'';const pv=parseYearVal(y);if(!pv.y)return'';const es=pv.era?pv.era:warekiYear(pv.y).replace('年','');return es+'年'+(m?m+'月':'')+(dd?dd+'日':'');}
+function wizToggleSC(id){const sc=wiz.data.specialCircumstances;const i=sc.indexOf(id);if(i>=0)sc.splice(i,1);else sc.push(id);wizRender();}
+function wizHasAnyChildren(){const d=wiz.data;return d.hasChildren||d.exChildren.length>0||d.adoptees.length>0;}
+function wizAfterSpecial(){const d=wiz.data;if(d.specialCircumstances.includes('ex'))wiz.step='ex_spouse_status';else if(d.specialCircumstances.includes('adoptee'))wiz.step='adoptee_count';else if(!d.hasChildren)wiz.step='parents';else wiz.step='confirm';}
+function wizAfterEx(){const d=wiz.data;if(d.specialCircumstances.includes('adoptee'))wiz.step='adoptee_count';else if(!wizHasAnyChildren())wiz.step='parents';else wiz.step='confirm';}
+
+function wizSaveChildInput(){
+  const ci=wiz.childIdx,c=wiz.data.children[ci];
+  const nameEl=document.getElementById('wizCName');
+  const relEl=document.getElementById('wizCRel');
+  if(nameEl)c.name=nameEl.value.trim();
+  if(relEl)c.relation=relEl.value;
+}
+function wizSaveSibInput(){
+  const si=wiz.sibIdx,sb=wiz.data.siblings[si];
+  const nameEl=document.getElementById('wizSibName');
+  if(nameEl)sb.name=nameEl.value.trim();
+}
+function wizHighlight(id){const el=document.getElementById(id);if(el){el.style.borderColor='#e74c3c';el.focus();el.addEventListener('input',function h(){el.style.borderColor='';el.removeEventListener('input',h);},{once:true});}}
+function wizSaveSpouseName(){
+  if(wiz.data.spouse){
+    const el=document.getElementById('wizSpName');
+    if(el)wiz.data.spouse.name=el.value.trim();
+  }
+}
+
+function wizNext(action,val){
+  const d=wiz.data;
+  wizPush();
+  switch(action){
+    case 'name':
+      d.name=(document.getElementById('wizIn').value||'').trim();
+      if(!d.name){wiz.history.pop();return;}
+      wiz.step='death';break;
+    case 'death':
+      d.deathY=document.getElementById('wizDY').value;d.deathM=document.getElementById('wizDM').value;d.deathD=document.getElementById('wizDD').value;
+      wiz.step='spouse';break;
+    case 'spouse_yes':d.spouse={alive:true,name:'',deathY:'',deathM:'',deathD:''};wiz.step='spouse_status';break;
+    case 'spouse_no':d.spouse=null;wiz.step='children';break;
+    case 'spouse_alive':wizSaveSpouseName();if(!d.spouse.name){wiz.history.pop();wizHighlight('wizSpName');return;}d.spouse.alive=true;wiz.step='children';break;
+    case 'spouse_dead':wizSaveSpouseName();if(!d.spouse.name){wiz.history.pop();wizHighlight('wizSpName');return;}d.spouse.alive=false;wiz.step='spouse_death';break;
+    case 'spouse_death_done':
+      d.spouse.deathY=document.getElementById('wizSDY').value;d.spouse.deathM=document.getElementById('wizSDM').value;d.spouse.deathD=document.getElementById('wizSDD').value;
+      wiz.step='children';break;
+    case 'children_yes':d.hasChildren=true;wiz.step='child_count';break;
+    case 'children_no':d.hasChildren=false;wiz.step='special';break;
+    case 'child_n':
+      d.children=Array.from({length:val},()=>({alive:true,waived:false,name:'',relation:'',roleOverride:'',grandchildren:[],suujiSpouse:null,suujiChildren:[]}));
+      wiz.childIdx=0;wiz.step='child_detail';break;
+    case 'child_alive':wizSaveChildInput();if(!d.children[wiz.childIdx].name){wiz.history.pop();wizHighlight('wizCName');return;}d.children[wiz.childIdx].alive=true;wizChildNext();return;
+    case 'child_dead':wizSaveChildInput();if(!d.children[wiz.childIdx].name){wiz.history.pop();wizHighlight('wizCName');return;}d.children[wiz.childIdx].alive=false;wiz.step='child_before_after';break;
+    case 'child_waived':wizSaveChildInput();if(!d.children[wiz.childIdx].name){wiz.history.pop();wizHighlight('wizCName');return;}d.children[wiz.childIdx].waived=true;wizChildNext();return;
+    case 'child_before':d.children[wiz.childIdx].roleOverride='先死亡';wiz.step='child_has_gc';break;
+    case 'child_after':d.children[wiz.childIdx].roleOverride='相続後死亡';wiz.step='child_suuji_spouse';break;
+    case 'child_has_gc_yes':wiz.step='child_gc_count';break;
+    case 'child_has_gc_no':wizChildNext();return;
+    case 'child_gc_count':break;
+    case 'child_gc_n':d.children[wiz.childIdx].grandchildren=Array.from({length:val},()=>({name:''}));wiz.step='child_gc_names';break;
+    case 'child_gc_names_done':{
+      const gcs=d.children[wiz.childIdx].grandchildren;
+      gcs.forEach((g,j)=>{const el=document.getElementById('wizGC'+j);if(el)g.name=el.value.trim();});
+      const emptyGC=gcs.findIndex(g=>!g.name);if(emptyGC>=0){wiz.history.pop();wizHighlight('wizGC'+emptyGC);return;}
+      wizChildNext();return;}
+    case 'suuji_spouse_yes':d.children[wiz.childIdx].suujiSpouse={exists:true,name:''};wiz.step='child_suuji_spouse_name';break;
+    case 'suuji_spouse_name_done':{const el=document.getElementById('wizSuujiSpName');const ss=d.children[wiz.childIdx].suujiSpouse;if(el)ss.name=el.value.trim();if(!ss.name){wiz.history.pop();wizHighlight('wizSuujiSpName');return;}wiz.step='child_suuji_children';break;}
+    case 'suuji_spouse_no':d.children[wiz.childIdx].suujiSpouse=null;wiz.step='child_suuji_children';break;
+    case 'suuji_children_yes':wiz.step='child_suuji_child_count';break;
+    case 'suuji_children_no':wizChildNext();return;
+    case 'suuji_child_count':break;
+    case 'suuji_child_n':d.children[wiz.childIdx].suujiChildren=Array.from({length:val},()=>({name:''}));wiz.step='child_suuji_child_names';break;
+    case 'suuji_child_names_done':{
+      const scs=d.children[wiz.childIdx].suujiChildren;
+      scs.forEach((c,j)=>{const el=document.getElementById('wizSC'+j);if(el)c.name=el.value.trim();});
+      const emptySC=scs.findIndex(c=>!c.name);if(emptySC>=0){wiz.history.pop();wizHighlight('wizSC'+emptySC);return;}
+      wizChildNext();return;}
+    case 'special_done':wizAfterSpecial();break;
+    case 'ex_spouse_alive':d.exSpouse={alive:true,name:''};wiz.step='ex_spouse_name';break;
+    case 'ex_spouse_dead':d.exSpouse={alive:false,name:''};wiz.step='ex_spouse_name';break;
+    case 'ex_spouse_name_done':{const el=document.getElementById('wizExSpName');if(el)d.exSpouse.name=el.value.trim();if(!d.exSpouse.name){wiz.history.pop();wizHighlight('wizExSpName');return;}wiz.step='ex_count';break;}
+    case 'ex_spouse_skip':d.exSpouse=null;wiz.step='ex_count';break;
+    case 'ex_n':d.exChildren=Array.from({length:val},()=>({name:''}));wiz.step='ex_names';break;
+    case 'ex_names_done':
+      d.exChildren.forEach((c,j)=>{const el=document.getElementById('wizEX'+j);if(el)c.name=el.value.trim();});
+      {const emptyEX=d.exChildren.findIndex(c=>!c.name);if(emptyEX>=0){wiz.history.pop();wizHighlight('wizEX'+emptyEX);return;}}
+      wizAfterEx();break;
+    case 'adoptee_n':d.adoptees=Array.from({length:val},()=>({name:''}));wiz.step='adoptee_names';break;
+    case 'adoptee_names_done':
+      d.adoptees.forEach((c,j)=>{const el=document.getElementById('wizAD'+j);if(el)c.name=el.value.trim();});
+      {const emptyAD=d.adoptees.findIndex(c=>!c.name);if(emptyAD>=0){wiz.history.pop();wizHighlight('wizAD'+emptyAD);return;}}
+      if(!wizHasAnyChildren())wiz.step='parents';else wiz.step='confirm';break;
+    case 'parents_both':d.parents=[{rel:'父',alive:true,name:''},{rel:'母',alive:true,name:''}];wiz.step='parent_names';break;
+    case 'parents_father':d.parents=[{rel:'父',alive:true,name:''},{rel:'母',alive:false,name:''}];wiz.step='parent_names';break;
+    case 'parents_mother':d.parents=[{rel:'父',alive:false,name:''},{rel:'母',alive:true,name:''}];wiz.step='parent_names';break;
+    case 'parents_none':d.parents=[{rel:'父',alive:false,name:''},{rel:'母',alive:false,name:''}];wiz.step='parent_names';break;
+    case 'parent_names_done':
+      d.parents.forEach((p,j)=>{const el=document.getElementById('wizPar'+j);if(el)p.name=el.value.trim();});
+      {const emptyPar=d.parents.findIndex(p=>!p.name);if(emptyPar>=0){wiz.history.pop();wizHighlight('wizPar'+emptyPar);return;}}
+      if(d.parents.every(p=>!p.alive))wiz.step='siblings';else wiz.step='confirm';break;
+    case 'siblings_yes':wiz.step='sibling_count';break;
+    case 'siblings_no':wiz.step='confirm';break;
+    case 'sib_n':
+      d.siblings=Array.from({length:val},()=>({alive:true,name:'',roleOverride:'',nephews:[]}));
+      wiz.sibIdx=0;wiz.step='sib_detail';break;
+    case 'sib_alive':wizSaveSibInput();if(!d.siblings[wiz.sibIdx].name){wiz.history.pop();wizHighlight('wizSibName');return;}d.siblings[wiz.sibIdx].alive=true;wizSibNext();return;
+    case 'sib_dead':wizSaveSibInput();if(!d.siblings[wiz.sibIdx].name){wiz.history.pop();wizHighlight('wizSibName');return;}d.siblings[wiz.sibIdx].alive=false;wiz.step='sib_before_after';break;
+    case 'sib_before':d.siblings[wiz.sibIdx].roleOverride='先死亡';wiz.step='sib_has_nephew';break;
+    case 'sib_after':d.siblings[wiz.sibIdx].roleOverride='相続後死亡';wizSibNext();return;
+    case 'sib_has_nephew_yes':wiz.step='sib_nephew_count';break;
+    case 'sib_has_nephew_no':wizSibNext();return;
+    case 'sib_nephew_count':break;
+    case 'sib_nephew_n':d.siblings[wiz.sibIdx].nephews=Array.from({length:val},()=>({name:''}));wiz.step='sib_nephew_names';break;
+    case 'sib_nephew_names_done':{
+      const nps=d.siblings[wiz.sibIdx].nephews;
+      nps.forEach((n,j)=>{const el=document.getElementById('wizNP'+j);if(el)n.name=el.value.trim();});
+      const emptyNP=nps.findIndex(n=>!n.name);if(emptyNP>=0){wiz.history.pop();wizHighlight('wizNP'+emptyNP);return;}
+      wizSibNext();return;}
+  }
+  wizRender();
+}
+
+// gc/nephew/suuji count steps (need to render inline since they go to name steps)
+(function(){
+  const origRender=wizRender;
+  wizRender=function(){
+    origRender();
+    const bd=document.getElementById('wizBody');
+    if(wiz.step==='child_gc_count'){
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 代襲</span><div class="wiz-q">お孫さん（代襲相続人）は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'child_gc_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+    }
+    if(wiz.step==='child_suuji_child_count'){
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">お孫さん（数次相続の当事者）は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'suuji_child_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+    }
+    if(wiz.step==='sib_nephew_count'){
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(wiz.sibIdx+1)+' → 代襲</span><div class="wiz-q">甥・姪（代襲相続人）は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'sib_nephew_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+    }
+  };
+})();
+
+function getClientUrl(){
+  const u=new URL(location.href);u.search='?client';
+  return u.toString();
+}
+function openShareClient(){
+  let ov=document.getElementById('shareOverlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='shareOverlay';ov.className='import-overlay';
+    ov.innerHTML='<div class="share-box"><h3>📤 お客様に入力用リンクを送る</h3><p>下のURLをコピーして、お客様にお送りください。<br>お客様がリンクを開くと入力画面が表示されます。</p><div class="share-url-row"><input id="shareUrlInput" readonly><button onclick="shareClipboard()">コピー</button></div><div style="margin-top:16px;text-align:right"><button class="wiz-btn" onclick="closeShareClient()">閉じる</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  const si=document.getElementById('shareUrlInput');si.value=getClientUrl();
+  setTimeout(()=>{si.focus();si.select();},100);
+  ov.classList.add('active');
+}
+function closeShareClient(){document.getElementById('shareOverlay').classList.remove('active');}
+function shareClipboard(){
+  const inp=document.getElementById('shareUrlInput');
+  inp.focus();inp.select();inp.setSelectionRange(0,99999);
+  const btn=document.querySelector('.share-url-row button');
+  try{
+    if(document.execCommand('copy')){btn.textContent='✓ コピー済';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);return;}
+  }catch(e){}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(inp.value).then(()=>{btn.textContent='✓ コピー済';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);});
+  }else{btn.textContent='Ctrl+C でコピーしてください';setTimeout(()=>{btn.textContent='コピー';},3000);}
+}
+
+function openLoadDialog(){
+  let ov=document.getElementById('loadOverlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='loadOverlay';ov.className='import-overlay';
+    ov.innerHTML='<div class="import-box"><h3>読み込み</h3><div class="wiz-multi" style="margin-bottom:16px"><button class="wiz-btn" onclick="doLoadFile()" style="padding:16px"><div style="font-weight:700">📁 ファイルから読込</div><div class="wiz-sub">保存したJSONファイルを選択</div></button><button class="wiz-btn" onclick="showCodeInput()" style="padding:16px"><div style="font-weight:700">📋 お客様コードを読込</div><div class="wiz-sub">お客様から受け取ったコードを貼り付け</div></button></div><div id="codeInputArea" style="display:none"><textarea class="wiz-code-area" id="importArea" placeholder="お客様から受け取ったコードを貼り付け..."></textarea><div class="wiz-btns"><button class="wiz-btn primary" onclick="doClientImport()">読み込む</button></div><div class="import-err" id="importErr">コードが正しくありません。お客様に再度お送りいただくようお伝えください。</div></div><div style="margin-top:12px;text-align:right"><button class="wiz-btn" onclick="closeLoadDialog()">キャンセル</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('codeInputArea').style.display='none';
+  document.getElementById('importErr').style.display='none';
+  ov.classList.add('active');
+}
+function closeLoadDialog(){document.getElementById('loadOverlay').classList.remove('active');}
+function doLoadFile(){closeLoadDialog();document.getElementById('fi').click();}
+function showCodeInput(){document.getElementById('codeInputArea').style.display='block';setTimeout(()=>document.getElementById('importArea').focus(),50);}
+function doClientImport(){
+  const code=document.getElementById('importArea').value.trim();
+  try{
+    const json=decodeURIComponent(escape(atob(code)));
+    const d=JSON.parse(json);
+    if(!d.name)throw new Error('invalid');
+    wiz.data=Object.assign(wizInitData(),d);
+    wiz.step='confirm';wiz.history=[];wiz.forward=[];wiz.childIdx=0;wiz.sibIdx=0;
+    closeLoadDialog();openWizard();wizRender();
+  }catch(e){document.getElementById('importErr').style.display='block';}
+}
+
+function wizCopyCode(){
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(wiz.data))));
+  const area=document.getElementById('wizCodeArea');
+  const btn=document.getElementById('wizCopyBtn');
+  area.value=code;area.style.display='block';
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='✓ コピーしました！担当者にお送りください';btn.classList.add('wiz-copied');
+    setTimeout(()=>{btn.textContent='もう一度コピーする';btn.classList.remove('wiz-copied');},3000);
+  }).catch(()=>{area.select();btn.textContent='上のコードを全選択してコピーしてください';});
+}
+
+function wizApply(){
+  const d=wiz.data;
+  P=[];uid=1;cardPositions={};cardPositionsV={};cardPositionsH={};footerPos=null;hdrPos=null;
+
+  const bsz={id:uid++,name:d.name,relation:'',role:'被相続人',roleOverride:'',isBSZ:true,
+    birthY:'',birthM:'',birthD:'',deathY:d.deathY,deathM:d.deathM,deathD:d.deathD,
+    father:'',mother:'',spouse:'',exSpouses:[],address:''};
+  P.push(bsz);
+
+  let spouseId=null;
+  if(d.spouse){
+    const sp={id:uid++,name:d.spouse.name||'',relation:'妻',role:'',roleOverride:'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:d.spouse.deathY||'',deathM:d.spouse.deathM||'',deathD:d.spouse.deathD||'',
+      father:'',mother:'',spouse:String(bsz.id),exSpouses:[],address:''};
+    P.push(sp);bsz.spouse=String(sp.id);spouseId=sp.id;
+  }
+
+  let exSpouseId=null;
+  if(d.exSpouse){
+    const ex={id:uid++,name:d.exSpouse.name||'',relation:'前妻',role:'',roleOverride:d.exSpouse.alive?'元配偶者':'死亡',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:'',mother:'',spouse:'',exSpouses:[],address:''};
+    P.push(ex);exSpouseId=ex.id;bsz.exSpouses.push(String(ex.id));
+  }
+
+  d.children.forEach((c,i)=>{
+    const rel=c.relation||CHILD_REL_M[i]||('子'+(i+1));
+    const kid={id:uid++,name:c.name||'',relation:rel,role:'',roleOverride:c.waived?'遺産分割':(c.roleOverride||''),isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:String(bsz.id),mother:spouseId?String(spouseId):'',spouse:'',exSpouses:[],address:''};
+    P.push(kid);
+    if(c.grandchildren&&c.grandchildren.length){
+      c.grandchildren.forEach(g=>{
+        P.push({id:uid++,name:g.name||'',relation:'孫',role:'',roleOverride:'',isBSZ:false,
+          birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+          father:String(kid.id),mother:'',spouse:'',exSpouses:[],address:''});
+      });
+    }
+    if(c.suujiSpouse&&c.suujiSpouse.exists){
+      const suujiSp={id:uid++,name:c.suujiSpouse.name||'',relation:'妻',role:'',roleOverride:'',isBSZ:false,
+        birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+        father:'',mother:'',spouse:String(kid.id),exSpouses:[],address:''};
+      P.push(suujiSp);kid.spouse=String(suujiSp.id);
+    }
+    if(c.suujiChildren&&c.suujiChildren.length){
+      c.suujiChildren.forEach(sc=>{
+        P.push({id:uid++,name:sc.name||'',relation:'孫',role:'',roleOverride:'',isBSZ:false,
+          birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+          father:String(kid.id),mother:kid.spouse||'',spouse:'',exSpouses:[],address:''});
+      });
+    }
+  });
+
+  d.exChildren.forEach(c=>{
+    P.push({id:uid++,name:c.name||'',relation:'子',role:'',roleOverride:'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:String(bsz.id),mother:exSpouseId?String(exSpouseId):'',spouse:'',exSpouses:[],address:''});
+  });
+
+  d.adoptees.forEach(c=>{
+    P.push({id:uid++,name:c.name||'',relation:'養子',role:'',roleOverride:'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:String(bsz.id),mother:spouseId?String(spouseId):'',spouse:'',exSpouses:[],address:''});
+  });
+
+  let fatherId=null,motherId=null;
+  d.parents.forEach(p=>{
+    const par={id:uid++,name:p.name||'',relation:p.rel,role:'',roleOverride:p.alive?'':'先死亡',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:'',mother:'',spouse:'',exSpouses:[],address:''};
+    P.push(par);
+    if(p.rel==='父'){bsz.father=String(par.id);fatherId=par.id;}
+    if(p.rel==='母'){bsz.mother=String(par.id);motherId=par.id;}
+  });
+  if(fatherId&&motherId){
+    const f=P.find(x=>x.id===fatherId),m=P.find(x=>x.id===motherId);
+    if(f&&m){f.spouse=String(motherId);m.spouse=String(fatherId);}
+  }
+
+  d.siblings.forEach((sb,i)=>{
+    const sib={id:uid++,name:sb.name||'',relation:i===0?'兄':'弟',role:'',roleOverride:sb.roleOverride||'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:bsz.father||'',mother:bsz.mother||'',spouse:'',exSpouses:[],address:''};
+    P.push(sib);
+    if(sb.nephews&&sb.nephews.length){
+      sb.nephews.forEach(n=>{
+        P.push({id:uid++,name:n.name||'',relation:'甥',role:'',roleOverride:'',isBSZ:false,
+          birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+          father:String(sib.id),mother:'',spouse:'',exSpouses:[],address:''});
+      });
+    }
+  });
+
+  document.getElementById('inHonseki').value=d.honseki||'';
+  document.getElementById('inLastAddr').value=d.lastAddr||'';
+  document.getElementById('inRegAddr').value=d.regAddr||'';
+  autoRoles();renderList(0);draw();closeWizard();
+}
 </script>
 </body>
 </html>
