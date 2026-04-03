@@ -1825,9 +1825,10 @@ function doClientImport(){
     const json=decodeURIComponent(escape(atob(code)));
     const d=JSON.parse(json);
     if(!d.name)throw new Error('invalid');
+    closeLoadDialog();openWizard();
     wiz.data=Object.assign(wizInitData(),d);
     wiz.step='confirm';wiz.history=[];wiz.forward=[];wiz.childIdx=0;wiz.sibIdx=0;
-    closeLoadDialog();openWizard();wizRender();
+    wizRender();
   }catch(e){document.getElementById('importErr').style.display='block';}
 }
 
