@@ -1439,8 +1439,6 @@ P.push({ id:uid++, name:'', relation:'', role:'被相続人', roleOverride:'', i
   father:'', mother:'', spouse:'', exSpouses:[] });
 renderList(0);draw();initRangeSelect();
 document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo();}});
-const isClientMode=new URLSearchParams(location.search).has('client');
-if(isClientMode){document.body.classList.add('client-mode');openWizard();}
 
 // ===== ウィザード =====
 let wiz={step:'name',data:{},childIdx:0,sibIdx:0,history:[],forward:[]};
@@ -1942,6 +1940,9 @@ function wizApply(){
   document.getElementById('inRegAddr').value=d.regAddr||'';
   autoRoles();renderList(0);draw();closeWizard();
 }
+
+const isClientMode=new URLSearchParams(location.search).has('client');
+if(isClientMode){document.body.classList.add('client-mode');openWizard();}
 </script>
 </body>
 </html>
