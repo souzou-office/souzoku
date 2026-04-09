@@ -49,6 +49,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .pc.r-先死亡{border-left-color:#95a5a6}
 .pc.r-相続後死亡{border-left-color:#8e44ad}
 .pc.r-数次相続人{border-left-color:#2980b9}
+.pc.r-無関係{border-left-color:#95a5a6}
 
 .pc-hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
 .pc-hd:hover{background:#f8f9fa}
@@ -61,6 +62,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .bg-先死亡{background:#95a5a6}
 .bg-相続後死亡{background:#8e44ad}
 .bg-数次相続人{background:#2980b9}
+.bg-無関係{background:#95a5a6}
 .pc-tgl{font-size:16px;color:#aaa;transition:transform .2s}
 .pc.open .pc-tgl{transform:rotate(180deg)}
 
@@ -132,6 +134,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .c-先死亡{border-color:#95a5a6;background:#f5f5f5} .c-先死亡 .card-h{background:#f0f0f0;color:#555}
 .c-相続後死亡{border-color:#8e44ad;background:#f3e5f5} .c-相続後死亡 .card-h{background:#f4ecf7;color:#6c3483}
 .c-数次相続人{border-color:#2980b9;background:#e8f4fd} .c-数次相続人 .card-h{background:#2980b9;color:#fff}
+.c-無関係{border-color:#95a5a6;background:#f5f5f5} .c-無関係 .card-h{background:#f0f0f0;color:#555}
 
 /* 範囲選択 */
 .sel-rect{position:absolute;border:2px dashed #2980b9;background:rgba(41,128,185,.1);z-index:50;pointer-events:none}
@@ -289,7 +292,8 @@ const DOCS = {
   '遺産分割': ['現戸','印証','遺分'],
   '先死亡': ['生亡'],
   '相続後死亡': ['生亡'],
-  '数次相続人': ['現戸','住所','印証','遺分']
+  '数次相続人': ['現戸','住所','印証','遺分'],
+  '無関係': []
 };
 const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
 
@@ -356,7 +360,7 @@ function dateToNum(p, prefix){
   return pv.y*10000 + (+o.m||0)*100 + (+o.d||0);
 }
 
-const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡','数次相続人'];
+const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡','数次相続人','無関係'];
 
 function toggleTags(){
   showTags=!showTags;
@@ -384,23 +388,26 @@ function autoRoles(){
   const deathNum = dateToNum(hisou, 'death');
   // 第1パス: 基本ロール判定
   P.forEach(p => {
-    if(p.isBSZ){ p.role = '被相続人'; return; }
-    if(p.roleOverride){ p.role = p.roleOverride; return; }
+    if(p.isBSZ){ p.role = '被相続人'; p._autoRole = '被相続人'; return; }
     const pDeath = dateToNum(p, 'death');
+    let autoRole;
     if(pDeath === 0){
-      p.role = '相続人';
+      autoRole = '相続人';
     } else if(deathNum && pDeath < deathNum){
-      p.role = '先死亡';
+      autoRole = '先死亡';
     } else if(deathNum && pDeath >= deathNum){
-      p.role = '相続後死亡';
+      autoRole = '相続後死亡';
     } else {
-      p.role = '相続人';
+      autoRole = '相続人';
     }
+    p._autoRole = autoRole;
+    p.role = p.roleOverride || autoRole;
   });
   // 第2パス: 数次相続人の判定（相続後死亡の配偶者・子）
   const suujiIds = new Set(P.filter(p => p.role === '相続後死亡').map(p => String(p.id)));
   P.forEach(p => {
     if(p.role !== '相続人') return;
+    if(p.roleOverride) return;
     const isChildOfSuuji = (p.father && suujiIds.has(String(p.father))) || (p.mother && suujiIds.has(String(p.mother)));
     const isSpouseOfSuuji = p.spouse && suujiIds.has(String(p.spouse));
     if(isChildOfSuuji || isSpouseOfSuuji) p.role = '数次相続人';
@@ -476,7 +483,7 @@ function renderList(openIdx){
                 <select class="d-sel" data-i="${i}" data-f="deathD">${DAY_OPTS}</select>
               </div>
             </div>
-            ${!p.isBSZ?`<div class="fg" style="margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0"><label>立場 <span style="font-weight:400;color:#aaa">（自動: ${p.role}）</span></label><select data-i="${i}" data-f="roleOverride">${ROLE_LIST.map(r=>`<option value="${r}" ${r===p.roleOverride?'selected':''}>${r||'自動判定'}</option>`).join('')}</select></div>`:''}
+            ${!p.isBSZ?`<div class="fg" style="margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0"><label>立場 <span style="font-weight:400;color:#aaa">（自動: ${p._autoRole||p.role}）</span></label><select data-i="${i}" data-f="roleOverride">${ROLE_LIST.map(r=>`<option value="${r}" ${r===p.roleOverride?'selected':''}>${r||'自動判定'}</option>`).join('')}</select></div>`:''}
           </div>
         </div>
         <div class="pc-ft">${!p.isBSZ?`<button class="btn-del" onclick="delPerson(${i})">削除</button>`:''}</div>
@@ -1233,7 +1240,7 @@ function drawLines(svg,cards,byId){
     const kids=P.filter(c=>{
       if(!has(c.id)||drawnKids.has(c.id))return false;
       const cf=+c.father, cm=+c.mother;
-      if(anchorIds.length===2) return anchorIds.includes(cf)||anchorIds.includes(cm);
+      if(anchorIds.length===2) return anchorIds.includes(cf)&&anchorIds.includes(cm);
       return cf===anchorIds[0]||cm===anchorIds[0];
     });
     if(!kids.length)return;
