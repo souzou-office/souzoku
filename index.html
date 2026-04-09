@@ -281,7 +281,7 @@ let hdrPos = null; // ヘッダーのドラッグ位置
 let hdrScale = 1.0; // ヘッダーのスケール
 let footerScale = 1.0; // フッターのスケール
 let showTags = true; // タグ一括表示/非表示
-let layoutDir = 'horizontal'; // 'horizontal'=縦配置, 'vertical'=横配置
+let layoutDir = 'vertical'; // 'vertical'=縦配置, 'horizontal'=横配置
 let cardPositionsV = {}; // 縦モード用カード位置
 let cardPositionsH = {}; // 横モード用カード位置
 let currentSvg = null, currentCards = null, currentById = null;
@@ -381,7 +381,7 @@ function toggleLayout(){
   // 新モードの位置を復元（なければ空で自動レイアウト）
   if(layoutDir==='vertical') cardPositions=Object.assign({},cardPositionsV);
   else cardPositions=Object.assign({},cardPositionsH);
-  document.getElementById('btnLayout').textContent='配置: '+(layoutDir==='horizontal'?'縦':'横');
+  document.getElementById('btnLayout').textContent='配置: '+(layoutDir==='vertical'?'縦':'横');
   footerPos=null; // フッター位置もリセット
   draw();
 }
@@ -1443,7 +1443,7 @@ document.getElementById('fi').addEventListener('change',e=>{
       cardPositionsV=d.cardPositionsV||{};
       cardPositionsH=d.cardPositionsH||{};
       document.getElementById('btnTags').textContent='タグ: '+(showTags?'ON':'OFF');
-      document.getElementById('btnLayout').textContent='配置: '+(layoutDir==='horizontal'?'縦':'横');
+      document.getElementById('btnLayout').textContent='配置: '+(layoutDir==='vertical'?'縦':'横');
       document.getElementById('inHonseki').value=d.honseki||'';
       document.getElementById('inLastAddr').value=d.lastAddr||'';
       document.getElementById('inRegAddr').value=d.regAddr||'';
