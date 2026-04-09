@@ -50,6 +50,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .pc.r-相続後死亡{border-left-color:#8e44ad}
 .pc.r-数次相続人{border-left-color:#2980b9}
 .pc.r-無関係{border-left-color:#95a5a6}
+.pc.r-相続人兼数次相続人{border-left-color:#16a085}
 
 .pc-hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
 .pc-hd:hover{background:#f8f9fa}
@@ -63,6 +64,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .bg-相続後死亡{background:#8e44ad}
 .bg-数次相続人{background:#2980b9}
 .bg-無関係{background:#95a5a6}
+.bg-相続人兼数次相続人{background:#16a085}
 .pc-tgl{font-size:16px;color:#aaa;transition:transform .2s}
 .pc.open .pc-tgl{transform:rotate(180deg)}
 
@@ -135,6 +137,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .c-相続後死亡{border-color:#8e44ad;background:#f3e5f5} .c-相続後死亡 .card-h{background:#f4ecf7;color:#6c3483}
 .c-数次相続人{border-color:#2980b9;background:#e8f4fd} .c-数次相続人 .card-h{background:#2980b9;color:#fff}
 .c-無関係{border-color:#95a5a6;background:#f5f5f5} .c-無関係 .card-h{background:#f0f0f0;color:#555}
+.c-相続人兼数次相続人{border-color:#16a085;background:#e8f6f3} .c-相続人兼数次相続人 .card-h{background:#16a085;color:#fff}
 
 /* 範囲選択 */
 .sel-rect{position:absolute;border:2px dashed #2980b9;background:rgba(41,128,185,.1);z-index:50;pointer-events:none}
@@ -293,6 +296,7 @@ const DOCS = {
   '先死亡': ['生亡'],
   '相続後死亡': ['生亡'],
   '数次相続人': ['現戸','住所','印証','遺分'],
+  '相続人兼数次相続人': ['現戸','住所','印証','遺分'],
   '無関係': []
 };
 const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
@@ -360,7 +364,7 @@ function dateToNum(p, prefix){
   return pv.y*10000 + (+o.m||0)*100 + (+o.d||0);
 }
 
-const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡','数次相続人','無関係'];
+const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡','数次相続人','相続人兼数次相続人','無関係'];
 
 function toggleTags(){
   showTags=!showTags;
@@ -404,13 +408,17 @@ function autoRoles(){
     p.role = p.roleOverride || autoRole;
   });
   // 第2パス: 数次相続人の判定（相続後死亡の配偶者・子）
+  const bszId = String(hisou.id);
   const suujiIds = new Set(P.filter(p => p.role === '相続後死亡').map(p => String(p.id)));
   P.forEach(p => {
     if(p.role !== '相続人') return;
     if(p.roleOverride) return;
     const isChildOfSuuji = (p.father && suujiIds.has(String(p.father))) || (p.mother && suujiIds.has(String(p.mother)));
     const isSpouseOfSuuji = p.spouse && suujiIds.has(String(p.spouse));
-    if(isChildOfSuuji || isSpouseOfSuuji) p.role = '数次相続人';
+    if(!isChildOfSuuji && !isSpouseOfSuuji) return;
+    // 被相続人の直接の相続人かどうか判定
+    const isHeirOfBSZ = String(p.father)===bszId || String(p.mother)===bszId || String(p.spouse)===bszId;
+    p.role = isHeirOfBSZ ? '相続人兼数次相続人' : '数次相続人';
   });
 }
 
