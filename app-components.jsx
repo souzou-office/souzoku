@@ -1,54 +1,37 @@
-// app-components.jsx — TopBar + PersonSidebar
+// app-components.jsx — v2 (Modern SaaS) TopBar + Sidebar
 
-function TopBar({ onOpenWizard, onPreview, onSave, onLoad, tagsOn, onToggleTags, layout, onToggleLayout, onUndo, onRedo, bszName }) {
+function TopBar({ onOpenWizard, onPreview, onSave, onLoad, tagsOn, onToggleTags, layout, onToggleLayout, onUndo, onRedo, onShare, bszName }) {
   return (
-    <header className="top-bar">
-      <div className="top-bar__left">
-        <div className="brand">
-          <div className="brand__mark" aria-hidden>
-            <svg viewBox="0 0 32 32" width="22" height="22">
-              <rect x="2" y="2" width="28" height="28" rx="3" fill="#8c2a2b"/>
-              <text x="16" y="22" textAnchor="middle" fontFamily="Shippori Mincho, serif" fontWeight="600" fontSize="17" fill="#fdfaf1" letterSpacing="-.5">相</text>
-            </svg>
-          </div>
-          <div className="brand__text">
-            <div className="brand__title">相続関係説明図</div>
-            <div className="brand__sub">作成ツール</div>
+    <header className="v2-top">
+      <div className="v2-top__left">
+        <div className="v2-brand">
+          <div className="v2-brand__mark">相</div>
+          <div className="v2-brand__text">
+            <div className="v2-brand__name">souzou</div>
+            <div className="v2-brand__sub">相続関係説明図</div>
           </div>
         </div>
-        <div className="top-bar__divider" />
-        <div className="doc-switcher">
-          <button className="doc-tab is-active">
-            <Icons.Paper size={13}/> {bszName || '(未入力)'} ・ 相続関係図
-          </button>
+        <div className="v2-crumb">
+          <Icons.Home size={13} style={{color:'var(--m-ink-500)'}}/>
+          <span className="v2-crumb__folder">作業中</span>
+          <Icons.ChevronRight size={12} style={{color:'var(--m-ink-400)'}}/>
+          <span className="v2-crumb__doc">{bszName || '（被相続人 未入力）'} 様</span>
         </div>
       </div>
-      <div className="top-bar__right">
-        <div className="btn-group">
-          <button className="t-btn t-btn--ghost" title="元に戻す (Ctrl+Z)" onClick={onUndo}><Icons.Undo size={15}/></button>
-          <button className="t-btn t-btn--ghost" title="やり直す (Ctrl+Y)" onClick={onRedo}><Icons.Redo size={15}/></button>
+      <div className="v2-top__right">
+        <button className="v2-btn v2-btn--icon" title="元に戻す (Ctrl+Z)" onClick={onUndo}><Icons.Undo size={14}/></button>
+        <button className="v2-btn v2-btn--icon" title="やり直す (Ctrl+Y)" onClick={onRedo}><Icons.Redo size={14}/></button>
+        <div className="v2-top__sep"/>
+        <button className="v2-btn" onClick={onOpenWizard}><Icons.Wand size={13}/> かんたん入力</button>
+        <button className="v2-btn" onClick={onSave}><Icons.Save size={13}/> 保存</button>
+        <button className="v2-btn" onClick={onLoad}><Icons.Upload size={13}/> 読込</button>
+        <div className="v2-top__sep"/>
+        <div className={`v2-switch ${tagsOn?'is-on':''}`} onClick={onToggleTags}>
+          <span>書類タグ</span>
+          <div className="v2-switch__track"><div className="v2-switch__thumb"/></div>
         </div>
-        <div className="top-bar__divider" />
-        <button className="t-btn t-btn--primary" onClick={onOpenWizard}>
-          <Icons.Sparkle size={14}/> かんたん入力
-        </button>
-        <div className="btn-group">
-          <button className="t-btn t-btn--ghost" onClick={onSave}><Icons.Save size={14}/> 保存</button>
-          <button className="t-btn t-btn--ghost" onClick={onLoad}><Icons.Upload size={14}/> 読込</button>
-        </div>
-        <div className="top-bar__divider" />
-        <button className={`t-btn t-btn--toggle ${tagsOn?'is-on':''}`} onClick={onToggleTags}>
-          <Icons.Tag size={14}/> 書類タグ
-          <span className="t-btn__state">{tagsOn?'ON':'OFF'}</span>
-        </button>
-        <button className="t-btn t-btn--ghost" onClick={onToggleLayout}>
-          {layout==='vertical' ? <Icons.Layout size={14}/> : <Icons.LayoutH size={14}/>}
-          配置: {layout==='vertical'?'縦':'横'}
-        </button>
-        <div className="top-bar__divider" />
-        <button className="t-btn t-btn--outline" onClick={onPreview}>
-          <Icons.Eye size={14}/> プレビュー・印刷
-        </button>
+        <button className="v2-btn v2-btn--outline" onClick={onShare}><Icons.Send size={13}/> 共有</button>
+        <button className="v2-btn v2-btn--primary" onClick={onPreview}><Icons.Eye size={13}/> プレビュー</button>
       </div>
     </header>
   );
@@ -57,66 +40,78 @@ function TopBar({ onOpenWizard, onPreview, onSave, onLoad, tagsOn, onToggleTags,
 function PersonSidebar({ data, setData, people, selectedId, onSelect, expandedId, setExpandedId, onAddPerson, onDeletePerson }) {
   const onHeadInput = (k, v) => setData(d => ({ ...d, [k]:v }));
   return (
-    <aside className="side">
-      <div className="side__head">
-        <div className="side__title">被相続人の情報</div>
-        <div className="side__form">
-          <label className="lbl">最後の本籍</label>
-          <input className="inp" value={data.honseki||''} onChange={e=>onHeadInput('honseki',e.target.value)} placeholder="東京都..."/>
-          <label className="lbl">最後の住所</label>
-          <input className="inp" value={data.lastAddr||''} onChange={e=>onHeadInput('lastAddr',e.target.value)} placeholder="東京都..."/>
-          <label className="lbl">登記簿上の住所</label>
-          <input className="inp" value={data.regAddr||''} onChange={e=>onHeadInput('regAddr',e.target.value)} placeholder="登記簿上の住所..."/>
+    <aside className="v2-side">
+      <div className="v2-side__sec">
+        <div className="v2-side__title">
+          <span className="v2-side__title-text">被相続人</span>
+        </div>
+        <div className="v2-field">
+          <div className="v2-field__label">最後の本籍</div>
+          <input className="v2-input" value={data.honseki||''} onChange={e=>onHeadInput('honseki',e.target.value)} placeholder="東京都..."/>
+        </div>
+        <div className="v2-field">
+          <div className="v2-field__label">最後の住所</div>
+          <input className="v2-input" value={data.lastAddr||''} onChange={e=>onHeadInput('lastAddr',e.target.value)} placeholder="東京都..."/>
+        </div>
+        <div className="v2-field">
+          <div className="v2-field__label">登記簿上の住所</div>
+          <input className="v2-input" value={data.regAddr||''} onChange={e=>onHeadInput('regAddr',e.target.value)} placeholder="登記簿上の住所..."/>
         </div>
       </div>
-      <div className="side__list-header">
-        <div>
-          <div className="side__title">関係者</div>
-          <div className="side__count">{people.length}名 登録済み</div>
-        </div>
+      <div className="v2-plist__head">
+        <span className="v2-side__title-text">関係者</span>
+        <div className="v2-side__title-count">{people.length}</div>
       </div>
-      <div className="side__list">
+      <div className="v2-plist">
         {people.map(p => (
           <PersonRow key={p.id} p={p} allPeople={people}
-            expanded={expandedId===p.id}
-            selected={selectedId===p.id}
+            open={expandedId===p.id}
+            sel={selectedId===p.id}
             onClick={() => { onSelect(p.id); setExpandedId(expandedId===p.id?null:p.id); }}
             setData={setData}
             onDelete={() => onDeletePerson(p.id)}
           />
         ))}
-      </div>
-      <div className="side__foot">
-        <button className="btn-add-row" onClick={onAddPerson}>
-          <Icons.Plus size={14}/> 人物を追加
+        <button className="v2-add-row" onClick={onAddPerson}>
+          <Icons.Plus size={13}/> 人物を追加
         </button>
       </div>
     </aside>
   );
 }
 
-function PersonRow({ p, allPeople, expanded, selected, onClick, setData, onDelete }) {
-  const role = p.role || '';
+function PersonRow({ p, allPeople, open, sel, onClick, setData, onDelete }) {
+  const role = p.role || '無関係';
+  const initial = (p.name || '？').slice(-1).charAt(0) || '？';
   const birthStr = dateToStr(p,'birth');
   const deathStr = dateToStr(p,'death');
   return (
-    <div className={`pr ${expanded?'is-open':''} ${selected?'is-sel':''}`}>
-      <div className={`pr__bar pr-c-${role}`} />
-      <div className="pr__head" onClick={onClick}>
-        <div className="pr__main">
-          <div className="pr__top">
-            <span className="pr__name">{p.name || '(未入力)'}</span>
-            {role && <span className={`pill pill-${role}`}>{role}</span>}
+    <div className={`v2-prow v2-prow-${role} ${open?'is-open':''} ${sel?'is-sel':''}`}>
+      <div className="v2-prow__head" onClick={onClick}>
+        <div className={`v2-prow__avatar v2-av-${role}`}>{initial}</div>
+        <div className="v2-prow__main">
+          <div className="v2-prow__row1">
+            <span className="v2-prow__name">{p.name || '(未入力)'}</span>
+            {role && <span className={`v2-pill v2-pill-${role}`}>
+              <span className="v2-pill__dot" style={{background:'currentColor'}}/>
+              {role}
+            </span>}
           </div>
-          <div className="pr__sub">
-            {p.relation && <span>{p.relation}</span>}
-            {birthStr && (<><span className="pr__dot">·</span><span>{birthStr}</span></>)}
-            {deathStr && (<><span className="pr__dot">·</span><span className="pr__death">{deathStr} 死亡</span></>)}
+          <div className="v2-prow__row2">
+            <span>{p.relation || (p.isBSZ?'本人':'—')}</span>
+            {deathStr && <>
+              <span style={{color:'var(--m-ink-300)'}}>•</span>
+              <span style={{color:'var(--mr-post)'}}>死亡 {deathStr}</span>
+            </>}
+            {!deathStr && birthStr && <>
+              <span style={{color:'var(--m-ink-300)'}}>•</span>
+              <span>{birthStr}</span>
+            </>}
           </div>
         </div>
-        <Icons.Chevron size={14} style={{color:'var(--ink-500)',transition:'transform .2s',transform: expanded?'rotate(180deg)':''}}/>
+        <Icons.Chevron size={14} style={{color:'var(--m-ink-400)', transform: open?'rotate(180deg)':'', transition:'transform .2s'}}/>
       </div>
-      {expanded && <PersonDetail p={p} allPeople={allPeople} setData={setData} onDelete={onDelete}/>}
+      {open && <PersonDetail p={p} allPeople={allPeople} setData={setData} onDelete={onDelete}/>}
     </div>
   );
 }
@@ -125,108 +120,107 @@ function PersonDetail({ p, allPeople, setData, onDelete }) {
   const [tab, setTab] = useState('basic');
   const upd = (field, value) => {
     setData(d => {
-      const ppl = d.people.map(x => x.id===p.id ? { ...x, [field]:value } : x);
-      // if updating spouse, also update the pair
+      let ppl = d.people.map(x => x.id===p.id ? { ...x, [field]:value } : x);
       if (field === 'spouse') {
-        return { ...d, people: ppl.map(x => {
+        ppl = ppl.map(x => {
           if (x.id===p.id) return x;
           if (value && String(x.id)===String(value)) return { ...x, spouse:String(p.id) };
           if (String(x.spouse)===String(p.id) && String(x.id)!==String(value)) return { ...x, spouse:'' };
           return x;
-        })};
+        });
       }
-      return { ...d, people: ppl };
+      return { ...d, people:ppl };
     });
   };
   const others = allPeople.filter(x => x.id !== p.id);
   return (
-    <div className="pr__body">
-      <div className="sub-tabs">
-        <button className={`sub-tab ${tab==='basic'?'is-on':''}`} onClick={()=>setTab('basic')}>基本情報</button>
-        <button className={`sub-tab ${tab==='dates'?'is-on':''}`} onClick={()=>setTab('dates')}>日付・立場</button>
-        <button className={`sub-tab ${tab==='docs'?'is-on':''}`} onClick={()=>setTab('docs')}>必要書類</button>
+    <div className="v2-prow__body">
+      <div className="v2-tabs">
+        <button className={`v2-tab ${tab==='basic'?'is-on':''}`} onClick={()=>setTab('basic')}>基本</button>
+        <button className={`v2-tab ${tab==='dates'?'is-on':''}`} onClick={()=>setTab('dates')}>日付</button>
+        <button className={`v2-tab ${tab==='docs'?'is-on':''}`} onClick={()=>setTab('docs')}>必要書類</button>
       </div>
       {tab==='basic' && (
-        <div className="pd">
-          <div className="pd__row pd__row--2">
-            <div className="field">
-              <div className="lbl">氏名</div>
-              <input className="inp-text" value={p.name||''} onChange={e=>upd('name',e.target.value)} placeholder="例：山田 太郎"/>
-            </div>
+        <div className="v2-pd">
+          <div className="v2-field">
+            <div className="v2-field__label">氏名</div>
+            <input className="v2-input-text" value={p.name||''} onChange={e=>upd('name',e.target.value)} placeholder="例：山田 太郎"/>
+          </div>
+          <div className="v2-pd__grid2">
             {!p.isBSZ && (
-              <div className="field">
-                <div className="lbl">続柄</div>
-                <select className="inp-select" value={p.relation||''} onChange={e=>upd('relation',e.target.value)}>
+              <div className="v2-field">
+                <div className="v2-field__label">続柄</div>
+                <select className="v2-input-select" value={p.relation||''} onChange={e=>upd('relation',e.target.value)}>
                   {ZOKUGARA.map(z => <option key={z} value={z}>{z||'-- 選択 --'}</option>)}
                 </select>
               </div>
             )}
-          </div>
-          <div className="pd__row pd__row--2">
-            <div className="field">
-              <div className="lbl">父</div>
-              <select className="inp-select" value={p.father||''} onChange={e=>upd('father',e.target.value)}>
-                <option value="">-- なし --</option>
-                {others.map(x => <option key={x.id} value={x.id}>{x.name||'(未入力)'}</option>)}
-              </select>
-            </div>
-            <div className="field">
-              <div className="lbl">母</div>
-              <select className="inp-select" value={p.mother||''} onChange={e=>upd('mother',e.target.value)}>
-                <option value="">-- なし --</option>
+            <div className="v2-field">
+              <div className="v2-field__label">配偶者</div>
+              <select className="v2-input-select" value={p.spouse||''} onChange={e=>upd('spouse',e.target.value)}>
+                <option value="">指定なし</option>
                 {others.map(x => <option key={x.id} value={x.id}>{x.name||'(未入力)'}</option>)}
               </select>
             </div>
           </div>
-          <div className="field">
-            <div className="lbl">配偶者</div>
-            <select className="inp-select" value={p.spouse||''} onChange={e=>upd('spouse',e.target.value)}>
-              <option value="">-- なし --</option>
-              {others.map(x => <option key={x.id} value={x.id}>{x.name||'(未入力)'}</option>)}
-            </select>
+          <div className="v2-pd__grid2">
+            <div className="v2-field">
+              <div className="v2-field__label">父</div>
+              <select className="v2-input-select" value={p.father||''} onChange={e=>upd('father',e.target.value)}>
+                <option value="">指定なし</option>
+                {others.map(x => <option key={x.id} value={x.id}>{x.name||'(未入力)'}</option>)}
+              </select>
+            </div>
+            <div className="v2-field">
+              <div className="v2-field__label">母</div>
+              <select className="v2-input-select" value={p.mother||''} onChange={e=>upd('mother',e.target.value)}>
+                <option value="">指定なし</option>
+                {others.map(x => <option key={x.id} value={x.id}>{x.name||'(未入力)'}</option>)}
+              </select>
+            </div>
           </div>
           {!p.isBSZ && (
-            <div className="field">
-              <div className="lbl">住所</div>
-              <textarea className="inp-area" value={p.address||''} onChange={e=>upd('address',e.target.value)} rows="2" placeholder="東京都新宿区..."/>
+            <div className="v2-field">
+              <div className="v2-field__label">住所</div>
+              <textarea className="v2-input-area" value={p.address||''} onChange={e=>upd('address',e.target.value)} rows="2" placeholder="東京都新宿区..."/>
             </div>
           )}
         </div>
       )}
       {tab==='dates' && (
-        <div className="pd">
-          <div className="pd__date-group">
-            <div className="lbl">生年月日</div>
-            <div className="pd__date-row">
-              <select className="inp-select date-sel date-sel--wide" value={p.birthY||''} onChange={e=>upd('birthY',e.target.value)}>
+        <div className="v2-pd">
+          <div className="v2-field">
+            <div className="v2-field__label">生年月日</div>
+            <div className="v2-date-row">
+              <select className="v2-input-select v2-date-y" value={p.birthY||''} onChange={e=>upd('birthY',e.target.value)}>
                 {YEAR_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <select className="inp-select date-sel" value={p.birthM||''} onChange={e=>upd('birthM',e.target.value)}>
+              <select className="v2-input-select" value={p.birthM||''} onChange={e=>upd('birthM',e.target.value)}>
                 {MONTH_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <select className="inp-select date-sel" value={p.birthD||''} onChange={e=>upd('birthD',e.target.value)}>
+              <select className="v2-input-select" value={p.birthD||''} onChange={e=>upd('birthD',e.target.value)}>
                 {DAY_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
           </div>
-          <div className="pd__date-group">
-            <div className="lbl">死亡年月日</div>
-            <div className="pd__date-row">
-              <select className="inp-select date-sel date-sel--wide" value={p.deathY||''} onChange={e=>upd('deathY',e.target.value)}>
+          <div className="v2-field">
+            <div className="v2-field__label">死亡年月日</div>
+            <div className="v2-date-row">
+              <select className="v2-input-select v2-date-y" value={p.deathY||''} onChange={e=>upd('deathY',e.target.value)}>
                 {YEAR_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <select className="inp-select date-sel" value={p.deathM||''} onChange={e=>upd('deathM',e.target.value)}>
+              <select className="v2-input-select" value={p.deathM||''} onChange={e=>upd('deathM',e.target.value)}>
                 {MONTH_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
-              <select className="inp-select date-sel" value={p.deathD||''} onChange={e=>upd('deathD',e.target.value)}>
+              <select className="v2-input-select" value={p.deathD||''} onChange={e=>upd('deathD',e.target.value)}>
                 {DAY_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
           </div>
           {!p.isBSZ && (
-            <div className="pd__role">
-              <div className="lbl">立場 <span className="lbl__note">自動判定: {p._autoRole||p.role||''}</span></div>
-              <select className="inp-select" value={p.roleOverride||''} onChange={e=>upd('roleOverride',e.target.value)}>
+            <div className="v2-field">
+              <div className="v2-field__label">立場 <span style={{color:'var(--m-ink-500)', fontWeight:400, fontSize:10}}>自動判定: {p._autoRole||p.role||''}</span></div>
+              <select className="v2-input-select" value={p.roleOverride||''} onChange={e=>upd('roleOverride',e.target.value)}>
                 {ROLE_LIST.map(r => <option key={r} value={r}>{r || '自動判定'}</option>)}
               </select>
             </div>
@@ -234,25 +228,22 @@ function PersonDetail({ p, allPeople, setData, onDelete }) {
         </div>
       )}
       {tab==='docs' && (
-        <div className="pd pd--docs">
-          <div className="pd__docs-head">取得・準備が必要な書類</div>
-          <div className="pd__docs-list">
-            {(ROLE_DOCS[p.role]||[]).map(d => (
-              <label className="doc-chk" key={d}>
-                <input type="checkbox" defaultChecked readOnly/>
-                <span className="doc-chk__box"><Icons.Check size={10}/></span>
-                <span className="doc-chk__label">{DOC_LABELS[d] || d}</span>
-              </label>
-            ))}
-            {(!ROLE_DOCS[p.role] || !ROLE_DOCS[p.role].length) && (
-              <div className="pd__empty">このロールでは不要</div>
-            )}
-          </div>
+        <div className="v2-docgrid">
+          {(ROLE_DOCS[p.role]||[]).map(d => (
+            <label className="v2-docchk" key={d}>
+              <input type="checkbox" defaultChecked readOnly/>
+              <span className="v2-docchk__box"><Icons.Check size={9}/></span>
+              <span>{DOC_LABELS[d]||d}</span>
+            </label>
+          ))}
+          {(!ROLE_DOCS[p.role] || !ROLE_DOCS[p.role].length) && (
+            <div style={{gridColumn:'1/-1', textAlign:'center', color:'var(--m-ink-500)', fontSize:12, padding:'12px 0'}}>このロールでは不要</div>
+          )}
         </div>
       )}
       {!p.isBSZ && (
-        <div className="pd__actions">
-          <button className="t-btn t-btn--danger-ghost" onClick={onDelete}>
+        <div style={{padding:'12px 0 4px', borderTop:'1px solid var(--m-border)', marginTop:12, display:'flex', justifyContent:'flex-end'}}>
+          <button className="v2-btn" style={{color:'#dc2626'}} onClick={onDelete}>
             <Icons.Trash size={12}/> この人物を削除
           </button>
         </div>
