@@ -1,4 +1,4 @@
-// app-main.jsx — v2 (Modern) root App
+// app-main.jsx — root App component + mount
 
 function initialData() {
   return {
@@ -19,15 +19,20 @@ function App() {
   const [expandedId, setExpandedId] = useState(1);
   const [tagsOn, setTagsOn] = useState(true);
   const [layoutDir, setLayoutDir] = useState('vertical');
-  const [zoom, setZoom] = useState(75);
+  const [zoom, setZoom] = useState(80);
   const [positions, setPositions] = useState({});
   const [wizardOpen, setWizardOpen] = useState(isClientMode);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
+  // Undo / redo
   const history = useRef({ past:[], future:[] });
-  const prevSnap = useRef('');
+  const pushHistory = useCallback(() => {
+    history.current.past.push(JSON.stringify({ data, positions }));
+    if (history.current.past.length > 50) history.current.past.shift();
+    history.current.future = [];
+  }, [data, positions]);
 
   const onUndo = () => {
     const h = history.current;
@@ -44,32 +49,41 @@ function App() {
     setData(s.data); setPositions(s.positions);
   };
 
+  // Track data changes for undo (debounced)
+  const prevSnap = useRef('');
   useEffect(() => {
     const snap = JSON.stringify({ data, positions });
     if (prevSnap.current && prevSnap.current !== snap) {
-      history.current.past.push(prevSnap.current);
+      const prev = prevSnap.current;
+      history.current.past.push(prev);
       if (history.current.past.length > 50) history.current.past.shift();
       history.current.future = [];
     }
     prevSnap.current = snap;
   }, [data, positions]);
 
+  // Auto-compute roles
   const peopleWithRoles = useMemo(() => autoRoles(data.people), [data.people]);
+
+  // Auto layout when positions missing
   const layout = useMemo(() => calcLayout(peopleWithRoles, layoutDir), [peopleWithRoles, layoutDir]);
 
   useEffect(() => {
     setPositions(prev => {
       const next = { ...prev };
       let changed = false;
+      // add missing positions from layout
       layout.forEach(L => {
         if (!next[L.p.id]) { next[L.p.id] = { x:L.x, y:L.y }; changed = true; }
       });
+      // remove stale positions
       const ids = new Set(peopleWithRoles.map(p => p.id));
       Object.keys(next).forEach(id => { if (!ids.has(+id)) { delete next[id]; changed = true; } });
       return changed ? next : prev;
     });
   }, [layout, peopleWithRoles]);
 
+  // Handlers
   const onAddPerson = () => {
     setData(d => ({
       ...d, uid:d.uid+1,
@@ -100,6 +114,7 @@ function App() {
     setPositions(p => { const np={...p}; delete np[pid]; return np; });
   };
 
+  // Save / load JSON
   const onSave = () => {
     const out = { ...data, positions, layoutDir, tagsOn };
     const blob = new Blob([JSON.stringify(out, null, 2)], { type:'application/json' });
@@ -132,6 +147,7 @@ function App() {
     inp.click();
   };
 
+  // Wizard → apply
   const applyWizard = w => {
     const d = wizToData(w);
     setData(d);
@@ -139,6 +155,7 @@ function App() {
     setWizardOpen(false);
   };
 
+  // Keyboard shortcuts
   useEffect(() => {
     const h = e => {
       if (e.ctrlKey && e.key === 'z') { e.preventDefault(); onUndo(); }
@@ -146,7 +163,7 @@ function App() {
     };
     document.addEventListener('keydown', h);
     return () => document.removeEventListener('keydown', h);
-  }, [data, positions]);
+  }, []);
 
   useEffect(() => {
     if (isClientMode) document.body.classList.add('client-mode');
@@ -156,50 +173,39 @@ function App() {
   const bsz = peopleWithRoles.find(p => p.isBSZ);
 
   return (
-    <div className="v2">
-      <div className="v2-shell">
-        <TopBar
-          bszName={bsz?.name}
-          onOpenWizard={()=>setWizardOpen(true)}
-          onPreview={()=>setPreviewOpen(true)}
-          onSave={onSave} onLoad={onLoad}
-          tagsOn={tagsOn} onToggleTags={()=>setTagsOn(!tagsOn)}
-          layout={layoutDir} onToggleLayout={()=>{setLayoutDir(layoutDir==='vertical'?'horizontal':'vertical'); setPositions({});}}
-          onUndo={onUndo} onRedo={onRedo}
-          onShare={()=>setShareOpen(true)}
+    <div className="app-shell" style={{height:'100%', display:'flex', flexDirection:'column'}}>
+      <TopBar
+        bszName={bsz?.name}
+        onOpenWizard={()=>setWizardOpen(true)}
+        onPreview={()=>setPreviewOpen(true)}
+        onSave={onSave} onLoad={onLoad}
+        tagsOn={tagsOn} onToggleTags={()=>setTagsOn(!tagsOn)}
+        layout={layoutDir} onToggleLayout={()=>{setLayoutDir(layoutDir==='vertical'?'horizontal':'vertical'); setPositions({});}}
+        onUndo={onUndo} onRedo={onRedo}
+      />
+      <div className="app-body" style={{flex:1, display:'flex', overflow:'hidden'}}>
+        <PersonSidebar
+          data={data} setData={setData} people={peopleWithRoles}
+          selectedId={selectedId} onSelect={setSelectedId}
+          expandedId={expandedId} setExpandedId={setExpandedId}
+          onAddPerson={onAddPerson} onDeletePerson={onDeletePerson}
         />
-        <div className="v2-body">
-          <PersonSidebar
-            data={data} setData={setData} people={peopleWithRoles}
-            selectedId={selectedId} onSelect={setSelectedId}
-            expandedId={expandedId} setExpandedId={setExpandedId}
-            onAddPerson={onAddPerson} onDeletePerson={onDeletePerson}
-          />
-          <div className="v2-canvas">
-            <CanvasHeader
-              title="相続関係図"
-              peopleCount={peopleWithRoles.length}
-              layout={layoutDir}
-              onToggleLayout={()=>{setLayoutDir(layoutDir==='vertical'?'horizontal':'vertical'); setPositions({});}}
-            />
-            <div className="v2-canvas__scroll">
-              <div style={{transform:`scale(${zoom/100})`, transformOrigin:'top center'}}>
-                <DiagramCanvas
-                  data={data} people={peopleWithRoles}
-                  positions={positions} setPositions={setPositions}
-                  tagsOn={tagsOn} selectedId={selectedId}
-                  onSelectCard={pid => { setSelectedId(pid); setExpandedId(pid); }}
-                  layoutDir={layoutDir}
-                />
-              </div>
+        <div className="canvas-wrap">
+          <div className="canvas-scroll">
+            <div style={{transform:`scale(${zoom/100})`, transformOrigin:'top center'}}>
+              <DiagramCanvas
+                data={data} people={peopleWithRoles}
+                positions={positions} setPositions={setPositions}
+                tagsOn={tagsOn} selectedId={selectedId}
+                onSelectCard={pid => { setSelectedId(pid); setExpandedId(pid); }}
+                layoutDir={layoutDir}
+              />
             </div>
-            <CanvasFooter zoom={zoom} setZoom={setZoom}/>
           </div>
+          <CanvasBar zoom={zoom} setZoom={setZoom}/>
         </div>
       </div>
-      <button className="share-fab" onClick={()=>setShareOpen(true)}>
-        <Icons.Send size={14}/> ヒアリングシート送付
-      </button>
+      <button className="share-fab" onClick={()=>setShareOpen(true)}>📤 ヒアリングシート送付</button>
 
       {wizardOpen && <Wizard isClient={isClientMode} onClose={()=>setWizardOpen(false)} onApply={applyWizard}/>}
       {previewOpen && (
