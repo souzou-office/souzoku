@@ -1,0 +1,118 @@
+/* 相続関係説明図 — Design Tokens */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Serif+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* --- Ink palette (neutrals, warm black) --- */
+  --ink-900: #14110e;   /* sumi — headings, emphasis */
+  --ink-800: #2a2620;
+  --ink-700: #4a433b;   /* body */
+  --ink-600: #6e665b;
+  --ink-500: #928878;
+  --ink-400: #b5ac9c;
+  --ink-300: #d5cdbd;
+  --ink-200: #e8e1d2;   /* hairlines */
+  --ink-150: #f0ead9;
+  --ink-100: #f7f2e3;   /* warm paper */
+  --ink-50:  #fbf8ee;   /* lightest paper */
+  --paper:   #fdfaf1;   /* diagram canvas */
+  --white:   #ffffff;
+
+  /* --- Brand: sumi + enji (legal-document authority) --- */
+  --brand-900: #1a2332;   /* deep sumi-navy */
+  --brand-800: #253449;
+  --brand-700: #334a66;
+  --brand-600: #4a6585;
+  --brand-500: #6b84a3;
+  --accent:    #8c2a2b;   /* enji — hanko red, for the 被相続人 */
+  --accent-soft: #b85457;
+
+  /* --- Role colors (refined, desaturated) --- */
+  --role-bsz:    #8c2a2b;  /* 被相続人 — enji red */
+  --role-bsz-bg: #f5e8e4;
+  --role-heir:   #3d6e4f;  /* 相続人 — 松葉 matsuba green */
+  --role-heir-bg:#e4ede3;
+  --role-waiver: #a86b1f;  /* 遺産分割 — 黄土 ochre */
+  --role-waiver-bg:#f4ead6;
+  --role-pre:    #786d5f;  /* 先死亡 — stone */
+  --role-pre-bg: #ede8dd;
+  --role-post:   #583f6b;  /* 相続後死亡 — 紫紺 shikon */
+  --role-post-bg:#ebe3f0;
+  --role-suuji:  #2f5977;  /* 数次相続人 — 藍 ai */
+  --role-suuji-bg:#dde7ef;
+  --role-both:   #2a6860;  /* 相続人兼数次 — 青緑 seiryoku */
+  --role-both-bg:#dfece8;
+  --role-none:   #8c8478;  /* 無関係 */
+  --role-none-bg:#eae4d8;
+
+  /* --- Semantic states --- */
+  --focus: #3d6e4f;
+  --danger: #8c2a2b;
+  --warning: #a86b1f;
+
+  /* --- Spacing (4pt base) --- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+
+  /* --- Radii --- */
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+
+  /* --- Type --- */
+  --ff-ui: 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic UI', system-ui, sans-serif;
+  --ff-doc: 'Shippori Mincho', 'Noto Serif JP', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  --ff-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* --- Shadows (paper-like) --- */
+  --shadow-1: 0 1px 2px rgba(20,17,14,.04), 0 1px 3px rgba(20,17,14,.06);
+  --shadow-2: 0 2px 4px rgba(20,17,14,.05), 0 4px 12px rgba(20,17,14,.08);
+  --shadow-3: 0 8px 24px rgba(20,17,14,.1), 0 2px 6px rgba(20,17,14,.06);
+  --shadow-pop: 0 20px 48px rgba(20,17,14,.18), 0 4px 12px rgba(20,17,14,.08);
+}
+
+/* --- Base reset --- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--ff-ui);
+  font-feature-settings: 'palt' 1;
+  color: var(--ink-800);
+  background: var(--ink-50);
+  -webkit-font-smoothing: antialiased;
+  font-size: 13px;
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+/* --- Utility --- */
+.hairline { background: var(--ink-200); height: 1px; }
+.v-hairline { background: var(--ink-200); width: 1px; }
+
+/* --- Role pill (shared) --- */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px; font-weight: 600; letter-spacing: .02em;
+  border-radius: 3px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.pill-dot { width: 5px; height: 5px; border-radius: 50%; }
+.pill-被相続人  { background: var(--role-bsz-bg);   color: var(--role-bsz); }
+.pill-相続人    { background: var(--role-heir-bg);  color: var(--role-heir); }
+.pill-遺産分割  { background: var(--role-waiver-bg);color: var(--role-waiver); }
+.pill-先死亡    { background: var(--role-pre-bg);   color: var(--role-pre); }
+.pill-相続後死亡{ background: var(--role-post-bg);  color: var(--role-post); }
+.pill-数次相続人{ background: var(--role-suuji-bg); color: var(--role-suuji); }
+.pill-相続人兼数次相続人{ background: var(--role-both-bg); color: var(--role-both); }
+.pill-無関係    { background: var(--role-none-bg);  color: var(--role-none); }

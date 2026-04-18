@@ -1,0 +1,825 @@
+/* =====================================================================
+   app-v2.css — Modernized redesign
+   Contemporary SaaS feel: lighter surfaces, more whitespace, finer hairlines,
+   modern sans-serif type, subtle accent color, refined cards.
+   ===================================================================== */
+
+:root {
+  /* --- Modern neutrals (cooler, crisper than v1) --- */
+  --m-bg:      #f6f7f8;
+  --m-surface: #ffffff;
+  --m-canvas:  #fafbfc;
+  --m-border:  #eceef1;
+  --m-border-2:#e4e6ea;
+  --m-muted:   #f5f6f8;
+
+  --m-ink-900: #0a0d12;
+  --m-ink-800: #1a1f26;
+  --m-ink-700: #333942;
+  --m-ink-600: #5c636d;
+  --m-ink-500: #8a919b;
+  --m-ink-400: #b2b7bf;
+  --m-ink-300: #d4d7dc;
+
+  /* --- Modern accent: deep indigo-violet, used sparingly --- */
+  --m-accent:   #4f46e5;
+  --m-accent-2: #6366f1;
+  --m-accent-bg:#eef0ff;
+  --m-accent-fg:#312e81;
+
+  /* --- Role colors v2 — desaturated, modern (flat + soft-bg) --- */
+  --mr-bsz:    #dc2626;  --mr-bsz-bg:    #fef2f2;  --mr-bsz-ring:    #fecaca;
+  --mr-heir:   #059669;  --mr-heir-bg:   #ecfdf5;  --mr-heir-ring:   #a7f3d0;
+  --mr-waiver: #d97706;  --mr-waiver-bg: #fffbeb;  --mr-waiver-ring: #fde68a;
+  --mr-pre:    #64748b;  --mr-pre-bg:    #f8fafc;  --mr-pre-ring:    #cbd5e1;
+  --mr-post:   #7c3aed;  --mr-post-bg:   #f5f3ff;  --mr-post-ring:   #ddd6fe;
+  --mr-suuji:  #0284c7;  --mr-suuji-bg:  #f0f9ff;  --mr-suuji-ring:  #bae6fd;
+  --mr-both:   #0d9488;  --mr-both-bg:   #f0fdfa;  --mr-both-ring:   #99f6e4;
+  --mr-none:   #94a3b8;  --mr-none-bg:   #f8fafc;  --mr-none-ring:   #e2e8f0;
+
+  --m-ff-ui:  'Inter', 'Noto Sans JP', system-ui, -apple-system, sans-serif;
+  --m-ff-doc: 'Shippori Mincho', 'Noto Serif JP', serif;
+  --m-ff-mono:'JetBrains Mono', ui-monospace, monospace;
+
+  --m-r-sm: 6px;
+  --m-r-md: 8px;
+  --m-r-lg: 12px;
+  --m-r-xl: 16px;
+
+  --m-shadow-1: 0 1px 2px rgba(16,24,40,.04);
+  --m-shadow-2: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+  --m-shadow-3: 0 4px 12px rgba(16,24,40,.08), 0 2px 4px rgba(16,24,40,.04);
+  --m-shadow-pop: 0 20px 48px rgba(16,24,40,.12), 0 4px 12px rgba(16,24,40,.06);
+}
+
+/* --- scope wrapper so v2 only affects v2 artboards --- */
+.v2 { font-family: var(--m-ff-ui); color: var(--m-ink-800); background: var(--m-bg); letter-spacing: -.003em; }
+.v2 * { box-sizing: border-box; }
+.v2 button { font-family: inherit; cursor: pointer; }
+
+/* =====================================================================
+   TOP BAR v2 — Light, minimal
+   ===================================================================== */
+.v2-top {
+  height: 56px;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 16px;
+  background: var(--m-surface);
+  border-bottom: 1px solid var(--m-border);
+  flex-shrink: 0;
+}
+.v2-top__left, .v2-top__right {
+  display: flex; align-items: center; gap: 8px;
+}
+.v2-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 10px 4px 4px;
+}
+.v2-brand__mark {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #111827, #374151);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--m-ff-doc);
+  font-weight: 600;
+  font-size: 17px;
+  letter-spacing: -.02em;
+}
+.v2-brand__text {
+  display: flex; flex-direction: column; gap: 0;
+}
+.v2-brand__name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--m-ink-900);
+  letter-spacing: -.01em;
+  line-height: 1.1;
+}
+.v2-brand__sub {
+  font-size: 10.5px;
+  color: var(--m-ink-500);
+  font-weight: 500;
+  letter-spacing: 0;
+  margin-top: 1px;
+}
+
+.v2-crumb {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  background: var(--m-muted);
+  border-radius: 8px;
+  margin-left: 4px;
+}
+.v2-crumb__sep { color: var(--m-ink-400); }
+.v2-crumb__folder {
+  font-size: 12px;
+  color: var(--m-ink-600);
+  font-weight: 500;
+}
+.v2-crumb__doc {
+  font-size: 12.5px;
+  color: var(--m-ink-900);
+  font-weight: 600;
+}
+.v2-crumb__badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--mr-heir);
+  background: var(--mr-heir-bg);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+}
+
+.v2-search {
+  width: 300px; height: 34px;
+  background: var(--m-muted);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 12px;
+  color: var(--m-ink-500);
+  font-size: 12.5px;
+  cursor: text;
+  transition: all .15s;
+}
+.v2-search:hover { background: #fff; border-color: var(--m-border-2); }
+.v2-search__kbd {
+  margin-left: auto;
+  font-size: 10px;
+  padding: 2px 5px;
+  border: 1px solid var(--m-border-2);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--m-ink-500);
+  font-family: var(--m-ff-mono);
+}
+
+.v2-btn {
+  height: 34px;
+  padding: 0 12px;
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--m-ink-700);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: -.005em;
+  transition: all .12s;
+}
+.v2-btn:hover { background: var(--m-muted); color: var(--m-ink-900); }
+.v2-btn--outline {
+  border-color: var(--m-border-2);
+  background: #fff;
+}
+.v2-btn--outline:hover {
+  border-color: var(--m-ink-300);
+  background: #fff;
+}
+.v2-btn--primary {
+  background: var(--m-ink-900);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 1px 2px rgba(16,24,40,.3);
+}
+.v2-btn--primary:hover { background: #000; color: #fff; }
+.v2-btn--accent {
+  background: var(--m-accent);
+  color: #fff;
+  font-weight: 600;
+}
+.v2-btn--accent:hover { background: var(--m-accent-2); color: #fff; }
+.v2-btn--ghost-accent {
+  color: var(--m-accent);
+  background: var(--m-accent-bg);
+  font-weight: 600;
+}
+.v2-btn--icon {
+  width: 34px; padding: 0; justify-content: center;
+}
+
+.v2-top__sep {
+  width: 1px; height: 20px; background: var(--m-border-2);
+  margin: 0 4px;
+}
+.v2-switch {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px;
+  color: var(--m-ink-700);
+  padding: 0 10px;
+  height: 34px;
+}
+.v2-switch__track {
+  width: 30px; height: 18px;
+  background: var(--m-ink-300);
+  border-radius: 99px;
+  position: relative;
+  transition: background .2s;
+}
+.v2-switch.is-on .v2-switch__track { background: var(--mr-heir); }
+.v2-switch__thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+  transition: transform .2s;
+}
+.v2-switch.is-on .v2-switch__thumb { transform: translateX(12px); }
+
+.v2-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--m-accent-bg);
+  color: var(--m-accent-fg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid rgba(0,0,0,0.04);
+  margin-left: 4px;
+}
+
+/* =====================================================================
+   APP LAYOUT v2
+   ===================================================================== */
+.v2-shell {
+  display: flex; flex-direction: column;
+  height: 100%;
+  background: var(--m-bg);
+}
+.v2-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  padding: 12px;
+  gap: 12px;
+}
+
+/* =====================================================================
+   SIDEBAR v2 — Card-style, floating, modern
+   ===================================================================== */
+.v2-side {
+  width: 340px;
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-r-lg);
+  display: flex; flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.v2-side__sec {
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--m-border);
+}
+.v2-side__sec:last-child { border-bottom: none; }
+.v2-side__title {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.v2-side__title-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--m-ink-600);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.v2-side__title-count {
+  font-size: 11px;
+  color: var(--m-ink-500);
+  background: var(--m-muted);
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.v2-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.v2-field:last-child { margin-bottom: 0; }
+.v2-field__label {
+  font-size: 11px;
+  color: var(--m-ink-600);
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+.v2-input {
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--m-border-2);
+  border-radius: var(--m-r-md);
+  background: var(--m-surface);
+  font-size: 12.5px;
+  color: var(--m-ink-800);
+  font-family: inherit;
+  letter-spacing: -.005em;
+  width: 100%;
+  transition: all .12s;
+}
+.v2-input:focus {
+  outline: none;
+  border-color: var(--m-accent);
+  box-shadow: 0 0 0 3px var(--m-accent-bg);
+}
+
+/* People list */
+.v2-plist {
+  flex: 1; overflow-y: auto;
+  padding: 6px 10px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.v2-plist__head {
+  padding: 14px 18px 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--m-border);
+}
+
+.v2-prow {
+  position: relative;
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-r-md);
+  transition: all .12s;
+  overflow: hidden;
+}
+/* Left colored rail per role — bolder */
+.v2-prow::before {
+  content: '';
+  position: absolute; top: 0; bottom: 0; left: 0;
+  width: 4px;
+  background: var(--prow-role, var(--m-ink-300));
+}
+.v2-prow-被相続人   { --prow-role: var(--mr-bsz); }
+.v2-prow-相続人     { --prow-role: var(--mr-heir); }
+.v2-prow-遺産分割   { --prow-role: var(--mr-waiver); }
+.v2-prow-先死亡     { --prow-role: var(--mr-pre); }
+.v2-prow-相続後死亡 { --prow-role: var(--mr-post); }
+.v2-prow-数次相続人 { --prow-role: var(--mr-suuji); }
+.v2-prow-相続人兼数次相続人 { --prow-role: var(--mr-both); }
+.v2-prow-無関係     { --prow-role: var(--mr-none); }
+.v2-prow:hover { border-color: var(--m-border-2); box-shadow: var(--m-shadow-1); }
+.v2-prow.is-sel {
+  border-color: var(--m-accent);
+  box-shadow: 0 0 0 3px var(--m-accent-bg);
+}
+.v2-prow.is-open { box-shadow: var(--m-shadow-2); }
+
+.v2-prow__head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+.v2-prow__avatar {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  flex-shrink: 0;
+  font-family: var(--m-ff-doc);
+}
+.v2-av-被相続人  { background: var(--mr-bsz-bg);    color: var(--mr-bsz); }
+.v2-av-相続人    { background: var(--mr-heir-bg);   color: var(--mr-heir); }
+.v2-av-遺産分割  { background: var(--mr-waiver-bg); color: var(--mr-waiver); }
+.v2-av-先死亡    { background: var(--mr-pre-bg);    color: var(--mr-pre); }
+.v2-av-相続後死亡{ background: var(--mr-post-bg);   color: var(--mr-post); }
+.v2-av-数次相続人{ background: var(--mr-suuji-bg);  color: var(--mr-suuji); }
+.v2-av-相続人兼数次相続人 { background: var(--mr-both-bg); color: var(--mr-both); }
+.v2-av-無関係    { background: var(--mr-none-bg);   color: var(--mr-none); }
+
+.v2-prow__main { flex: 1; min-width: 0; }
+.v2-prow__row1 {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 2px;
+}
+.v2-prow__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--m-ink-900);
+  letter-spacing: -.01em;
+}
+.v2-prow__row2 {
+  font-size: 11.5px;
+  color: var(--m-ink-500);
+  display: flex; align-items: center; gap: 4px;
+}
+
+.v2-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  border-radius: 5px;
+  line-height: 1.5;
+  white-space: nowrap;
+  color: #fff;
+}
+.v2-pill__dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.8)!important;}
+.v2-pill-被相続人  { background: var(--mr-bsz); }
+.v2-pill-相続人    { background: var(--mr-heir); }
+.v2-pill-遺産分割  { background: var(--mr-waiver); }
+.v2-pill-先死亡    { background: var(--mr-pre); }
+.v2-pill-相続後死亡{ background: var(--mr-post); }
+.v2-pill-数次相続人{ background: var(--mr-suuji); }
+.v2-pill-相続人兼数次相続人 { background: var(--mr-both); }
+.v2-pill-無関係    { background: var(--mr-none); }
+
+/* Expanded detail panel */
+.v2-prow__body {
+  padding: 12px;
+  border-top: 1px solid var(--m-border);
+  background: var(--m-muted);
+  border-radius: 0 0 7px 7px;
+}
+.v2-tabs {
+  display: flex; gap: 0;
+  background: var(--m-surface);
+  border: 1px solid var(--m-border-2);
+  border-radius: 7px;
+  padding: 2px;
+  margin-bottom: 12px;
+}
+.v2-tab {
+  flex: 1; height: 26px;
+  background: transparent;
+  border: none;
+  color: var(--m-ink-600);
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 5px;
+}
+.v2-tab.is-on {
+  background: var(--m-ink-900);
+  color: #fff;
+  font-weight: 600;
+}
+.v2-pd { display: flex; flex-direction: column; gap: 10px; }
+.v2-pd .v2-field { margin-bottom: 0; }
+.v2-pd__grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.v2-select {
+  height: 34px;
+  padding: 0 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid var(--m-border-2);
+  border-radius: var(--m-r-md);
+  background: var(--m-surface);
+  font-size: 12.5px;
+  color: var(--m-ink-800);
+}
+.v2-select--dim { color: var(--m-ink-500); }
+.v2-docgrid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+.v2-docchk {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  background: var(--m-surface);
+  border: 1px solid var(--m-border-2);
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--m-ink-800);
+  cursor: pointer;
+}
+.v2-docchk input { display: none; }
+.v2-docchk__box {
+  width: 14px; height: 14px;
+  border: 1.5px solid var(--m-ink-300);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  color: transparent;
+  flex-shrink: 0;
+}
+.v2-docchk input:checked + .v2-docchk__box {
+  background: var(--m-ink-900);
+  border-color: var(--m-ink-900);
+  color: #fff;
+}
+
+.v2-add-row {
+  width: 100%;
+  height: 36px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--m-surface);
+  color: var(--m-ink-700);
+  border: 1px dashed var(--m-border-2);
+  border-radius: var(--m-r-md);
+  font-weight: 500;
+  font-size: 12.5px;
+  transition: all .12s;
+}
+.v2-add-row:hover {
+  border-color: var(--m-ink-900);
+  color: var(--m-ink-900);
+  border-style: solid;
+}
+
+/* =====================================================================
+   CANVAS v2 — Clean, modern, dotted grid
+   ===================================================================== */
+.v2-canvas {
+  flex: 1;
+  display: flex; flex-direction: column;
+  background: var(--m-surface);
+  border: 1px solid var(--m-border);
+  border-radius: var(--m-r-lg);
+  overflow: hidden;
+}
+.v2-canvas__top {
+  height: 44px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--m-border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--m-surface);
+}
+.v2-canvas__top-left, .v2-canvas__top-right {
+  display: flex; align-items: center; gap: 8px;
+}
+.v2-canvas__title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--m-ink-800);
+}
+.v2-canvas__meta {
+  font-size: 11px;
+  color: var(--m-ink-500);
+  padding: 3px 8px;
+  background: var(--m-muted);
+  border-radius: 5px;
+}
+
+.v2-canvas__scroll {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  background-color: var(--m-canvas);
+  background-image: radial-gradient(circle, #d4d7dc 1px, transparent 1px);
+  background-size: 20px 20px;
+  display: flex; justify-content: center; align-items: flex-start;
+  padding: 32px;
+}
+
+.v2-canvas__bottom {
+  height: 40px;
+  padding: 0 14px;
+  border-top: 1px solid var(--m-border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--m-surface);
+}
+
+/* Modern legend */
+.v2-legend {
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.v2-legend__label {
+  font-size: 10px;
+  color: var(--m-ink-500);
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding-right: 2px;
+}
+.v2-legend__item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px;
+  color: var(--m-ink-700);
+  font-weight: 500;
+}
+.v2-legend__dot { width: 10px; height: 10px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06); }
+
+/* Zoom pill */
+.v2-zoom {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 2px;
+  background: var(--m-muted);
+  border-radius: 8px;
+}
+.v2-zoom__btn {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--m-ink-700);
+  border-radius: 6px;
+}
+.v2-zoom__btn:hover { background: var(--m-surface); color: var(--m-ink-900); }
+.v2-zoom__val {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--m-ink-700);
+  min-width: 38px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =====================================================================
+   DIAGRAM CARD v2 — Bold role-coded header strip
+   ===================================================================== */
+.v2-dcard {
+  position: absolute;
+  background: var(--m-surface);
+  border: 1px solid var(--m-border-2);
+  border-radius: 10px;
+  box-shadow: var(--m-shadow-2);
+  overflow: hidden;
+  font-family: var(--m-ff-ui);
+  color: var(--m-ink-900);
+  transition: all .14s ease;
+}
+/* Full role-colored header strip — unmistakable at a glance */
+.v2-dcard__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--dcard-role, var(--m-ink-700));
+  color: #fff;
+}
+.v2-dcard__head .v2-dcard__kicker {
+  color: rgba(255,255,255,.85);
+  font-weight: 600;
+}
+.v2-dcard-被相続人   { --dcard-role: var(--mr-bsz);    border-color: var(--mr-bsz-ring); }
+.v2-dcard-相続人     { --dcard-role: var(--mr-heir);   border-color: var(--mr-heir-ring); }
+.v2-dcard-遺産分割   { --dcard-role: var(--mr-waiver); border-color: var(--mr-waiver-ring); }
+.v2-dcard-先死亡     { --dcard-role: var(--mr-pre);    border-color: var(--mr-pre-ring); }
+.v2-dcard-相続後死亡 { --dcard-role: var(--mr-post);   border-color: var(--mr-post-ring); }
+.v2-dcard-数次相続人 { --dcard-role: var(--mr-suuji);  border-color: var(--mr-suuji-ring); }
+.v2-dcard-相続人兼数次相続人 { --dcard-role: var(--mr-both); border-color: var(--mr-both-ring); }
+.v2-dcard-無関係     { --dcard-role: var(--mr-none);   border-color: var(--mr-none-ring); }
+
+.v2-dcard:hover {
+  box-shadow: var(--m-shadow-3);
+  transform: translateY(-1px);
+}
+.v2-dcard.is-sel {
+  border-color: var(--m-accent) !important;
+  box-shadow: 0 0 0 3px var(--m-accent-bg), var(--m-shadow-3);
+}
+.v2-dcard.is-bsz {
+  box-shadow: var(--m-shadow-3), 0 0 0 2px var(--mr-bsz);
+}
+/* Inside-card role pill (on dark header) */
+.v2-dcard__head .v2-pill {
+  background: rgba(255,255,255,.2) !important;
+  color: #fff !important;
+  padding: 2px 8px;
+  font-weight: 700;
+}
+.v2-dcard__head .v2-pill__dot { background: #fff !important; }
+
+.v2-dcard__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--dcard-role, var(--m-ink-700));
+  color: #fff;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+.v2-dcard__role-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.v2-dcard__kicker {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--m-ink-500);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.v2-dcard__body {
+  padding: 12px 14px 12px;
+}
+.v2-dcard__name {
+  font-family: var(--m-ff-doc);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  color: var(--m-ink-900);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.v2-dcard__relation {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--m-ink-600);
+  margin-bottom: 10px;
+  letter-spacing: -.005em;
+}
+.v2-dcard__meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 10px;
+  font-size: 11.5px;
+  margin: 0;
+}
+.v2-dcard__meta dt {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--m-ink-500);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  align-self: center;
+}
+.v2-dcard__meta dd {
+  margin: 0;
+  font-family: var(--m-ff-doc);
+  color: var(--m-ink-800);
+  letter-spacing: -.005em;
+}
+.v2-dcard__addr { font-size: 10.5px; line-height: 1.5; }
+.v2-dcard__docs {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding: 8px 14px 10px;
+  border-top: 1px dashed var(--m-border);
+}
+.v2-dcard__tag {
+  display: inline-flex;
+  padding: 2px 7px;
+  background: var(--m-muted);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--m-ink-700);
+  letter-spacing: .02em;
+}
+
+/* Modern document header — rule-based, no boxes */
+.v2-dheader {
+  position: absolute;
+  left: 28px;
+  top: 20px;
+  right: 28px;
+  width: auto;
+}
+.v2-dheader__title {
+  font-family: var(--m-ff-doc);
+  font-size: 44px;
+  font-weight: 700;
+  color: var(--m-ink-900);
+  letter-spacing: .08em;
+  line-height: 1;
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 3px double var(--m-ink-900);
+}
+.v2-dheader__subject {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.v2-dheader__subject-label {
+  font-family: var(--m-ff-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--m-ink-700);
+  letter-spacing: .22em;
+  padding: 4px 0;
+  border-top: 1px solid var(--m-ink-700);
+  border-bottom: 1px solid var(--m-ink-700);
+  min-width: 70px;
+  text-align: center;
+  flex: none;
+}
+.v2-dheader__subject-name {
+  font-family: var(--m-ff-doc);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--m-ink-900);
+  letter-spacing: .02em;
+  line-height: 1;
+}
+.v2-dheader__meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--m-border-2);
+}
+.v2-dheader__meta dt {
+  font-family: var(--m-ff-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--m-ink-600);
+  letter-spacing: .08em;
+  white-space: nowrap;
+  padding: 8px 20px 8px 0;
+  border-bottom: 1px solid var(--m-border-2);
+  display: flex;
+  align-items: center;
+}
+.v2-dheader__meta dd {
+  margin: 0;
+  font-family: var(--m-ff-doc);
+  font-size: 14px;
+  color: var(--m-ink-900);
+  font-weight: 500;
+  letter-spacing: -.005em;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--m-border-2);
+  display: flex;
+  align-items: center;
+}
+
+/* Connector lines — still SVG */
+.v2-dlines { position: absolute; inset: 0; pointer-events: none; }
