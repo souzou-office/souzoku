@@ -1,94 +1,1973 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>相続関係説明図</title>
-<link rel="stylesheet" href="design/tokens.css"/>
-<link rel="stylesheet" href="design/app-v2.css"/>
-<link rel="stylesheet" href="design/app-v2-client.css"/>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-  html, body, #root { height:100%; width:100%; overflow:hidden; margin:0; }
-  .v2 { height:100%; }
-  /* .v2-shell, .v2-body come from app-v2.css */
-  .v2-canvas { min-width:0; }
-  .v2-canvas__scroll > div { position:relative; padding:24px; }
-  /* Inputs we add on top of v2 base */
-  .v2-input-text, .v2-input-select, .v2-input-area { width:100%; padding:6px 10px; border:1px solid var(--m-border); border-radius:var(--m-r-sm); font-size:12.5px; color:var(--m-ink-800); background:var(--m-surface); font-family:inherit; box-sizing:border-box; }
-  .v2-input-area { resize:vertical; min-height:48px; padding:8px 10px; }
-  .v2-input-text:focus, .v2-input-select:focus, .v2-input-area:focus { outline:none; border-color:var(--m-accent); box-shadow:0 0 0 3px var(--m-accent-bg); }
-  .v2-prow__body .v2-input-text, .v2-prow__body .v2-input-select { height:30px; }
-  .v2-date-row { display:flex; gap:6px; }
-  .v2-date-row .v2-input-select { flex:1; height:32px; font-size:12px; }
-  .v2-date-row .v2-date-y { flex:2.2; }
-  .v2-dcard { position:absolute; cursor:grab; user-select:none; }
-  .v2-dcard.dragging { cursor:grabbing; opacity:.95; z-index:50; box-shadow: 0 8px 24px rgba(16,24,40,.18); }
-  .v2-dlines { position:absolute; top:0; left:0; pointer-events:none; }
-  .v2-add-row { margin-top:8px; }
-  /* .v2-side, .v2-side__sec, .v2-plist, .v2-plist__head are provided by app-v2.css */
-  /* Preview overlay */
-  .pv-overlay { position:fixed; inset:0; background:rgba(10,13,18,.72); z-index:200; display:flex; flex-direction:column; align-items:center; overflow:auto; }
-  .pv-a4 { position:relative; background:#fff; width:210mm; height:297mm; margin:20px auto 80px; box-shadow:0 20px 48px rgba(0,0,0,.4); overflow:hidden; flex-shrink:0; }
-  .pv-ctrl { position:fixed; bottom:0; left:0; right:0; background:var(--m-ink-900); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:14px; justify-content:center; z-index:201; }
-  .pv-ctrl button { background:#fff; color:var(--m-ink-900); border:none; border-radius:6px; padding:8px 18px; font-weight:600; cursor:pointer; font-family:inherit; font-size:13px; }
-  .pv-ctrl button.primary { background:var(--m-accent); color:#fff; }
-  .pv-ctrl .pv-val { min-width:52px; text-align:center; font-variant-numeric:tabular-nums; font-weight:600; }
-  /* Modals */
-  .modal-back { position:fixed; inset:0; background:rgba(10,13,18,.5); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px; }
-  .modal-card { background:#fff; border-radius:16px; width:540px; max-width:95vw; max-height:90vh; overflow:auto; box-shadow:0 20px 48px rgba(16,24,40,.18); }
-  .modal-hd { padding:16px 22px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--m-border); }
-  .modal-hd h3 { margin:0; font-size:15px; font-weight:600; color:var(--m-ink-900); letter-spacing:-.01em; }
-  .modal-hd button { background:transparent; color:var(--m-ink-500); border:none; font-size:18px; cursor:pointer; border-radius:6px; width:30px; height:30px; }
-  .modal-hd button:hover { background:var(--m-muted); color:var(--m-ink-900); }
-  .modal-bd { padding:22px; }
-  .modal-ft { padding:14px 22px; border-top:1px solid var(--m-border); display:flex; justify-content:space-between; }
-  .progress { height:3px; background:var(--m-border); }
-  .progress-bar { height:3px; background:var(--m-accent); transition:width .3s; }
-  .q-title { font-size:15px; font-weight:600; color:var(--m-ink-900); margin-bottom:6px; line-height:1.6; letter-spacing:-.005em; }
-  .q-hint { font-size:12.5px; color:var(--m-ink-600); margin-bottom:16px; line-height:1.5; }
-  .q-btns { display:flex; gap:8px; flex-wrap:wrap; }
-  .q-btn { padding:10px 22px; border-radius:8px; border:1px solid var(--m-border-2); background:#fff; color:var(--m-ink-800); font-weight:500; font-size:13px; cursor:pointer; font-family:inherit; transition:all .12s; text-align:left; }
-  .q-btn:hover { border-color:var(--m-accent); background:var(--m-accent-bg); color:var(--m-accent-fg); }
-  .q-btn.primary { background:var(--m-accent); color:#fff; border-color:var(--m-accent); font-weight:600; }
-  .q-btn.primary:hover { background:var(--m-accent-2); color:#fff; }
-  .q-multi { display:flex; flex-direction:column; gap:8px; }
-  .q-multi .q-btn { line-height:1.5; }
-  .q-multi .q-sub { font-size:11px; color:var(--m-ink-500); margin-top:2px; font-weight:400; }
-  .q-tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; margin-bottom:8px; letter-spacing:.02em; background:var(--m-accent-bg); color:var(--m-accent-fg); }
-  .q-summary { background:var(--m-muted); border:1px solid var(--m-border); border-radius:8px; padding:14px; font-size:13px; line-height:2; white-space:pre-line; margin-bottom:16px; color:var(--m-ink-800); }
-  .share-fab { position:fixed; bottom:16px; right:16px; z-index:150; padding:10px 18px; border-radius:10px; background:var(--m-accent); color:#fff; border:none; font-weight:600; font-size:13px; cursor:pointer; box-shadow:0 6px 16px rgba(79,70,229,.3); font-family:inherit; letter-spacing:.01em; display:inline-flex; align-items:center; gap:8px; }
-  .share-fab:hover { background:var(--m-accent-2); }
-  .code-area { width:100%; min-height:80px; padding:10px; border:1px solid var(--m-border); border-radius:8px; font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; word-break:break-all; resize:none; box-sizing:border-box; margin-bottom:12px; background:var(--m-muted); color:var(--m-ink-800); }
-  .copy-btn { padding:12px 24px; border-radius:8px; border:none; background:var(--m-accent); color:#fff; font-weight:600; font-size:14px; cursor:pointer; width:100%; transition:all .15s; font-family:inherit; }
-  .copy-btn:hover { background:var(--m-accent-2); }
-  .copy-btn.done { background:var(--mr-heir) !important; }
-  body.client-mode .v2-top, body.client-mode .v2-body, body.client-mode .share-fab { display:none !important; }
-  body.client-mode .modal-back { background:linear-gradient(135deg,#f5f7fa,#e4e9f0); }
-  body.client-mode .modal-card { width:720px; }
-  body.client-mode .modal-bd { padding:32px; }
-  @page { size:A4; margin:0; }
-  @media print {
-    html, body, #root { overflow:visible !important; height:auto !important; }
-    .v2-top, .v2-body, .share-fab, .pv-ctrl, .modal-back { display:none !important; }
-    .pv-overlay { position:static !important; background:#fff !important; padding:0 !important; margin:0 !important; }
-    .pv-a4 { box-shadow:none !important; margin:0 !important; width:210mm !important; height:297mm !important; page-break-after:avoid; }
-  }
+:root {
+  --primary: #1a5276;
+  --primary-l: #2980b9;
+  --bg: #eef1f5;
+  --card: #fff;
+  --border: #d5dbe3;
+  --txt: #2c3e50;
+  --txtL: #7f8c8d;
+  --r: 8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Yu Gothic UI','Meiryo',sans-serif;background:var(--bg);color:var(--txt);font-size:13px}
+button{cursor:pointer;font-family:inherit;font-size:13px}
+
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.header h1{font-size:17px;font-weight:600}
+.hdr-btns .btn-undo,.hdr-btns .btn-redo{padding:6px 10px!important;font-size:14px!important;min-width:0}
+.hdr-btns .btn-undo{background:rgba(255,255,255,.85)!important;color:#1a5276!important;font-weight:700}
+.hdr-btns .btn-undo:hover{background:#fff!important}
+.hdr-btns .btn-redo{background:#f0c040!important;color:#1a5276!important;font-weight:700}
+.hdr-btns .btn-redo:hover{background:#e6b030!important}
+.hdr-sep{width:1px;background:rgba(255,255,255,.3);align-self:stretch;margin:2px 4px}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btns button{padding:6px 16px;border:none;border-radius:6px;font-weight:600;font-size:12px;background:rgba(255,255,255,.2);color:#fff;cursor:pointer}
+.hdr-btns button:hover{background:rgba(255,255,255,.35)}
+
+.wrap{display:flex;height:calc(100vh - 46px)}
+
+.side{width:400px;min-width:400px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.side-head{padding:12px 16px 14px;border-bottom:1px solid var(--border)}
+.side-head label{font-size:11px;color:var(--txtL);font-weight:600;display:block;margin-bottom:3px;margin-top:10px}
+.side-head label:first-child{margin-top:0}
+.side-head input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:2px}
+.side-head input:focus{border-color:var(--primary-l);outline:none}
+
+.plist{flex:1;overflow-y:auto;padding:10px}
+
+.pc{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;border-left:4px solid #bdc3c7}
+.pc.r-被相続人{border-left-color:#e91e63}
+.pc.r-相続人{border-left-color:#27ae60}
+.pc.r-遺産分割{border-left-color:#f39c12}
+.pc.r-先死亡{border-left-color:#95a5a6}
+.pc.r-相続後死亡{border-left-color:#8e44ad}
+.pc.r-数次相続人{border-left-color:#2980b9}
+.pc.r-無関係{border-left-color:#95a5a6}
+.pc.r-相続人兼数次相続人{border-left-color:#16a085}
+
+.pc-hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
+.pc-hd:hover{background:#f8f9fa}
+.pc-nm{font-weight:700;font-size:13px}
+.pc-sub{font-size:11px;color:var(--txtL);margin-left:8px}
+.pc-badge{font-size:10px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:700;margin-left:6px}
+.bg-被相続人{background:#e91e63}
+.bg-相続人{background:#27ae60}
+.bg-遺産分割{background:#f39c12}
+.bg-先死亡{background:#95a5a6}
+.bg-相続後死亡{background:#8e44ad}
+.bg-数次相続人{background:#2980b9}
+.bg-無関係{background:#95a5a6}
+.bg-相続人兼数次相続人{background:#16a085}
+.pc-tgl{font-size:16px;color:#aaa;transition:transform .2s}
+.pc.open .pc-tgl{transform:rotate(180deg)}
+
+.pc-bd{display:none;border-top:1px solid #f0f0f0;background:#fafbfc}
+.pc.open .pc-bd{display:block}
+
+.tabs{display:flex;border-bottom:2px solid #e0e0e0;background:#f5f6f8}
+.tab{flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--txtL);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab-body{padding:10px 12px 12px}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+.fg{margin-bottom:6px}
+.fg label{font-size:11px;color:var(--txtL);font-weight:600;display:block;margin-bottom:2px}
+.fg input,.fg select{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary-l);outline:none}
+.fg-row{display:flex;gap:8px}
+.fg-row .fg{flex:1}
+
+.date-row{display:flex;gap:4px;align-items:center}
+.date-row select{padding:4px 2px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:#fff}
+.date-row .y-sel{width:120px}
+.date-row .m-sel{width:55px}
+.date-row .d-sel{width:55px}
+.date-row span{font-size:11px;color:var(--txtL)}
+
+.pc-ft{display:flex;justify-content:flex-end;padding:6px 12px 10px;background:#fafbfc}
+.btn-del{background:none;border:1px solid #e74c3c;color:#e74c3c;padding:3px 14px;border-radius:5px;font-size:11px;font-weight:600}
+.btn-del:hover{background:#e74c3c;color:#fff}
+
+.btn-add{display:block;width:100%;padding:11px;margin-top:4px;background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:13px}
+.btn-add:hover{opacity:.85}
+
+.auto-note{font-size:10px;color:#999;padding:4px 12px 8px;background:#fafbfc}
+
+/* 右: 図 */
+.main{flex:1;overflow:auto;background:#eee;position:relative}
+.diagram{position:relative;width:3000px;height:3000px;padding:30px 40px;background:#fff;margin:10px;box-shadow:0 1px 6px rgba(0,0,0,.1);font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;transform-origin:0 0}
+.diagram svg{position:absolute;top:0;left:0;pointer-events:none}
+.dhdr{position:absolute;z-index:1;font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;cursor:grab}
+.dhdr.dragging{cursor:grabbing;opacity:.7}
+.dhdr.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
+.dtitle{font-size:26px;font-weight:700;color:#000;margin-bottom:16px;letter-spacing:2px}
+.dsub{font-size:16px;font-weight:400;color:#000;line-height:2.0}
+.dsub .dlabel{display:inline-block;width:9em;text-align-last:justify;margin-right:1em}
+
+.dfooter{font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;font-size:18px;text-align:center;color:#000;position:absolute;z-index:1;cursor:grab}
+.dfooter.dragging{cursor:grabbing;opacity:.7}
+.dfooter.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
+
+/* カード */
+.card{position:absolute;min-width:220px;width:max-content;max-width:400px;border:2px solid #bbb;border-radius:var(--r);background:#fff;font-size:14px;z-index:1;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:grab;user-select:none}
+.card.selected{outline:3px solid #2980b9;outline-offset:2px}
+.card.dragging{cursor:grabbing;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:10;opacity:.9}
+.card-h{padding:4px 8px;font-weight:700;font-size:14px;border-bottom:1px solid #ddd;border-radius:6px 6px 0 0;letter-spacing:.5px}
+.card-b{padding:4px 8px;line-height:1.5}
+.card-b .f{display:flex}
+.card-b .l{width:38px;color:var(--txtL);font-weight:700;flex-shrink:0}
+.card-b .v{flex:1;white-space:nowrap}
+.card-b .v-addr{flex:1;white-space:pre-wrap}
+.card-d{display:flex;gap:4px;padding:5px 10px;border-top:1px solid #eee;flex-wrap:wrap}
+.tag{padding:2px 7px;border:1px solid #aaa;border-radius:4px;font-size:12px;font-weight:700;background:#f8f9fa}
+
+.c-被相続人{border-color:#e91e63;background:#fce4ec} .c-被相続人 .card-h{background:#e91e63;color:#fff}
+.c-相続人{border-color:#27ae60;background:#e8f5e9} .c-相続人 .card-h{background:#27ae60;color:#fff}
+.c-遺産分割{border-color:#f39c12;background:#fff8e1} .c-遺産分割 .card-h{background:#fef5e7;color:#b7770a}
+.c-先死亡{border-color:#95a5a6;background:#f5f5f5} .c-先死亡 .card-h{background:#f0f0f0;color:#555}
+.c-相続後死亡{border-color:#8e44ad;background:#f3e5f5} .c-相続後死亡 .card-h{background:#f4ecf7;color:#6c3483}
+.c-数次相続人{border-color:#2980b9;background:#e8f4fd} .c-数次相続人 .card-h{background:#2980b9;color:#fff}
+.c-無関係{border-color:#95a5a6;background:#f5f5f5} .c-無関係 .card-h{background:#f0f0f0;color:#555}
+.c-相続人兼数次相続人{border-color:#16a085;background:#e8f6f3} .c-相続人兼数次相続人 .card-h{background:#16a085;color:#fff}
+
+/* 範囲選択 */
+.sel-rect{position:absolute;border:2px dashed #2980b9;background:rgba(41,128,185,.1);z-index:50;pointer-events:none}
+
+/* プレビューモード */
+.preview-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#555;z-index:200;overflow:auto}
+.preview-overlay.active{display:flex;flex-direction:column;align-items:center}
+.preview-a4{position:relative;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.5);width:210mm;height:297mm;margin:20px auto 60px;overflow:hidden;flex-shrink:0}
+.preview-a4 .diagram{position:absolute;top:0;left:0;width:3000px;height:3000px;margin:0;box-shadow:none;transform-origin:0 0;cursor:grab}
+.preview-a4 .diagram.grabbing{cursor:grabbing}
+.preview-ctrl{position:fixed;bottom:0;left:0;right:0;background:rgba(30,30,30,.95);color:#ccc;padding:10px 20px;display:flex;align-items:center;gap:12px;font-size:12px;z-index:201;justify-content:center}
+.preview-ctrl span{min-width:45px;text-align:center;font-weight:600}
+.preview-ctrl button{padding:8px 20px;border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer}
+.preview-ctrl button:hover{opacity:.85}
+.pv-btn-back{background:#fff;color:#333}
+.pv-btn-print{background:#2980b9;color:#fff}
+
+@page{size:A4;margin:0mm}
+@media print{
+  html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important;height:297mm!important}
+  .header,.preview-ctrl,.side,.sel-rect,.share-fab{display:none!important}
+  .wrap{display:none!important}
+  .preview-overlay.active{display:block!important;position:static!important;background:#fff!important;padding:0!important;margin:0!important}
+  .preview-a4{box-shadow:none!important;margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important;position:relative!important}
+  .preview-a4 .diagram{margin:0!important;box-shadow:none!important;padding:0!important}
+  .card{box-shadow:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card-h{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .c-被相続人,.c-相続人,.c-遺産分割,.c-先死亡,.c-相続後死亡,.c-数次相続人{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .dfooter{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+/* ウィザード */
+.wiz-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;justify-content:center;align-items:center}
+.wiz-overlay.active{display:flex}
+.wiz-box{background:#fff;border-radius:12px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.wiz-hd{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:16px 24px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
+.wiz-hd h2{font-size:16px;margin:0;font-weight:700}
+.wiz-hd .wiz-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:0 4px}
+.wiz-hd .wiz-close:hover{color:#fff}
+.wiz-progress{height:4px;background:#e0e0e0}.wiz-progress-bar{height:4px;background:var(--primary-l);transition:width .3s}
+.wiz-body{padding:24px}
+.wiz-q{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px;line-height:1.6}
+.wiz-hint{font-size:12px;color:var(--txtL);margin-bottom:16px;line-height:1.5}
+.wiz-btns{display:flex;gap:8px;flex-wrap:wrap}
+.wiz-btn{padding:10px 22px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--txt);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
+.wiz-btn:hover{border-color:var(--primary-l);background:#eaf2f8}
+.wiz-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.wiz-btn.primary:hover{opacity:.85}
+.wiz-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box}
+.wiz-input:focus{border-color:var(--primary-l);outline:none}
+.wiz-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-bottom:8px}
+.wiz-tag-blue{background:#eaf2f8;color:var(--primary)}
+.wiz-ft{padding:12px 24px;border-top:1px solid #eee;display:flex;justify-content:space-between}
+.wiz-back{background:none;border:none;color:var(--txtL);font-size:13px;cursor:pointer;font-family:inherit;padding:6px 0}
+.wiz-back:hover{color:var(--txt)}
+.wiz-multi{display:flex;flex-direction:column;gap:8px}
+.wiz-multi button{text-align:left;padding:12px 16px;line-height:1.5}
+.wiz-multi .wiz-sub{font-size:11px;color:var(--txtL);margin-top:2px;font-weight:400}
+.wiz-summary{background:#f8f9fa;border-radius:8px;padding:14px;font-size:13px;line-height:2;white-space:pre-line;margin-bottom:16px}
+/* お客様モード */
+body.client-mode .header,body.client-mode .wrap,body.client-mode .share-fab{display:none!important}
+body.client-mode .wiz-overlay{display:flex!important;background:linear-gradient(135deg,#f5f7fa,#e4e9f0)}
+body.client-mode .wiz-box{width:720px;max-width:95vw;box-shadow:0 12px 60px rgba(0,0,0,.2)}
+body.client-mode .wiz-body{padding:32px}
+body.client-mode .wiz-q{font-size:17px}
+body.client-mode .wiz-hint{font-size:13px}
+body.client-mode .wiz-btn{padding:12px 26px;font-size:14px}
+body.client-mode .wiz-input{padding:12px 16px;font-size:15px}
+body.client-mode .wiz-hd .wiz-close{display:none}
+.wiz-client-banner{background:#eaf2f8;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#2c3e50;line-height:1.6;border-left:4px solid var(--primary)}
+.wiz-code-area{width:100%;min-height:80px;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:monospace;font-size:11px;word-break:break-all;resize:none;box-sizing:border-box;margin-bottom:12px}
+.wiz-copy-btn{padding:12px 24px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;font-size:14px;cursor:pointer;width:100%;transition:all .15s}
+.wiz-copy-btn:hover{opacity:.85}
+.wiz-copied{background:#27ae60!important}
+.import-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;justify-content:center;align-items:center}
+.import-overlay.active{display:flex}
+.import-box{background:#fff;border-radius:12px;width:480px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.import-box h3{margin:0 0 8px;font-size:16px;color:var(--txt)}
+.import-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.import-err{color:#e74c3c;font-size:12px;margin-top:8px;display:none}
+.share-box{background:#fff;border-radius:12px;width:420px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.share-box h3{margin:0 0 6px;font-size:16px;color:var(--txt)}
+.share-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.share-fab{position:fixed;bottom:20px;right:20px;z-index:200;padding:12px 20px;border:none;border-radius:10px;background:#27ae60;color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .15s;font-family:inherit}
+.share-fab:hover{background:#219a52;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.share-url-row{display:flex;gap:6px;margin-top:4px}
+.share-url-row input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:monospace}
+.share-url-row button{padding:8px 16px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
 </style>
 </head>
 <body>
-  <div id="root"></div>
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
-  <script type="text/babel" src="design/components/icons.jsx"></script>
-  <script type="text/babel" src="app.jsx"></script>
-  <script type="text/babel" src="app-layout.jsx"></script>
-  <script type="text/babel" src="app-components.jsx"></script>
-  <script type="text/babel" src="app-diagram.jsx"></script>
-  <script type="text/babel" src="app-modals.jsx"></script>
-  <script type="text/babel" src="app-main.jsx"></script>
+
+<div class="header">
+  <h1>相続関係説明図 作成ツール</h1>
+  <div class="hdr-btns">
+    <button class="btn-undo" onclick="undo()" title="Ctrl+Z">↩</button>
+    <button class="btn-redo" onclick="redo()" title="Ctrl+Y">↪</button>
+    <span class="hdr-sep"></span>
+    <button onclick="openWizard()" style="background:rgba(255,255,255,.9);color:#1a5276;font-weight:700">⚡ かんたん入力</button>
+    <button onclick="saveJSON()">保存</button>
+    <button onclick="openLoadDialog()">読込</button>
+    <span class="hdr-sep"></span>
+    <button onclick="toggleTags()" id="btnTags">タグ: ON</button>
+    <button onclick="toggleLayout()" id="btnLayout">配置: 縦</button>
+    <button onclick="togglePreview()">プレビュー・印刷</button>
+  </div>
+</div>
+<input type="file" id="fi" accept=".json" style="display:none">
+<button class="share-fab" onclick="openShareClient()">📤 ヒアリングシート送付</button>
+
+<div class="wrap">
+  <div class="side">
+    <div class="side-head">
+      <label>被相続人の最後の本籍</label>
+      <input id="inHonseki" placeholder="東京都..." onchange="draw()">
+      <label>被相続人の最後の住所</label>
+      <input id="inLastAddr" placeholder="東京都..." onchange="draw()">
+      <label>登記上の住所</label>
+      <input id="inRegAddr" placeholder="登記簿上の住所..." onchange="draw()">
+    </div>
+    <div class="plist" id="plist"></div>
+    <div style="padding:10px">
+      <button class="btn-add" onclick="addPerson()">+ 人物を追加</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="diagram" id="diagram"></div>
+  </div>
+</div>
+
+<script>
+let P = [], uid = 1, activeTab = {};
+let undoStack = [], redoStack = [], undoLock = false;
+function saveUndo(){if(undoLock)return;undoStack.push(getSnapshot());if(undoStack.length>50)undoStack.shift();redoStack=[];}
+function getSnapshot(){return JSON.stringify({P,uid,h:document.getElementById('inHonseki')?.value||'',l:document.getElementById('inLastAddr')?.value||'',r:document.getElementById('inRegAddr')?.value||''});}
+function applySnapshot(s){const d=JSON.parse(s);P=d.P;uid=d.uid;const hEl=document.getElementById('inHonseki'),lEl=document.getElementById('inLastAddr'),rEl=document.getElementById('inRegAddr');if(hEl)hEl.value=d.h;if(lEl)lEl.value=d.l;if(rEl)rEl.value=d.r;undoLock=true;renderList(-1);draw();undoLock=false;}
+function undo(){if(!undoStack.length)return;redoStack.push(getSnapshot());applySnapshot(undoStack.pop());}
+function redo(){if(!redoStack.length)return;undoStack.push(getSnapshot());applySnapshot(redoStack.pop());}
+let cardPositions = {};
+let footerPos = null;
+let hdrPos = null; // ヘッダーのドラッグ位置
+let hdrScale = 1.0; // ヘッダーのスケール
+let footerScale = 1.0; // フッターのスケール
+let showTags = true; // タグ一括表示/非表示
+let layoutDir = 'vertical'; // 'vertical'=縦配置, 'horizontal'=横配置
+let cardPositionsV = {}; // 縦モード用カード位置
+let cardPositionsH = {}; // 横モード用カード位置
+let currentSvg = null, currentCards = null, currentById = null;
+let previewScale = 50;
+let selectedIds = new Set();
+
+const ZOKUGARA = ['','妻','夫','長男','二男','三男','四男','五男','長女','二女','三女','四女','五女','父','母','養父','養母','兄','姉','弟','妹','孫','甥','姪'];
+const DOCS = {
+  '被相続人': ['生亡','住所'],
+  '相続人': ['現戸','住所','印証','遺分'],
+  '遺産分割': ['現戸','印証','遺分'],
+  '先死亡': ['生亡'],
+  '相続後死亡': ['生亡'],
+  '数次相続人': ['現戸','住所','印証','遺分'],
+  '相続人兼数次相続人': ['現戸','住所','印証','遺分'],
+  '無関係': []
+};
+const ROLE_DISP = { '相続後死亡': '相続後死亡(数次)' };
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function allSpouses(p){const a=[];if(p.spouse)a.push(String(p.spouse));(p.exSpouses||[]).forEach(id=>{if(id)a.push(String(id))});return a;}
+
+// 元号が重複する年: 値に"年H"等の接尾辞を付けて旧元号を表す
+// 2019H=平成31年, 1989S=昭和64年, 1926T=大正15年
+const DUAL_ERA_YEARS=[
+  {y:2019,suffix:'H',label:'平成31年'},
+  {y:1989,suffix:'S',label:'昭和64年'},
+  {y:1926,suffix:'T',label:'大正15年'}
+];
+function parseYearVal(v){
+  if(!v)return{y:0,era:''};
+  const s=String(v);
+  const d=DUAL_ERA_YEARS.find(d=>s===d.y+d.suffix);
+  if(d)return{y:d.y,era:d.label.replace('年','')};
+  return{y:+s,era:''};
+}
+function makeYears(){
+  let opts = '<option value="">--</option>';
+  for(let y=2026;y>=1868;y--){
+    opts += `<option value="${y}">${warekiYear(y)} (${y})</option>`;
+    const dual=DUAL_ERA_YEARS.find(d=>d.y===y);
+    if(dual) opts += `<option value="${y}${dual.suffix}">${dual.label} (${y})</option>`;
+  }
+  return opts;
+}
+function warekiYear(y){
+  if(y>=2019) return '令和'+(y-2018===1?'元':y-2018)+'年';
+  if(y>=1989) return '平成'+(y-1988===1?'元':y-1988)+'年';
+  if(y>=1926) return '昭和'+(y-1925===1?'元':y-1925)+'年';
+  if(y>=1912) return '大正'+(y-1911===1?'元':y-1911)+'年';
+  return '明治'+(y-1867)+'年';
+}
+function makeMonths(){
+  let o='<option value="">--</option>';
+  for(let m=1;m<=12;m++) o+=`<option value="${m}">${m}月</option>`;
+  return o;
+}
+function makeDays(){
+  let o='<option value="">--</option>';
+  for(let d=1;d<=31;d++) o+=`<option value="${d}">${d}日</option>`;
+  return o;
+}
+const YEAR_OPTS = makeYears(), MONTH_OPTS = makeMonths(), DAY_OPTS = makeDays();
+
+function dateToObj(p, prefix){
+  return { y: p[prefix+'Y']||'', m: p[prefix+'M']||'', d: p[prefix+'D']||'' };
+}
+function dateToStr(p, prefix){
+  const o = dateToObj(p, prefix);
+  if(!o.y) return '';
+  const pv=parseYearVal(o.y);
+  if(!pv.y) return '';
+  const eraStr=pv.era?pv.era:warekiYear(pv.y).replace('年','');
+  return eraStr + '年' + (o.m?o.m+'月':'') + (o.d?o.d+'日':'');
+}
+function dateToNum(p, prefix){
+  const o = dateToObj(p, prefix);
+  if(!o.y) return 0;
+  const pv=parseYearVal(o.y);
+  return pv.y*10000 + (+o.m||0)*100 + (+o.d||0);
+}
+
+const ROLE_LIST = ['','相続人','遺産分割','先死亡','相続後死亡','数次相続人','相続人兼数次相続人','無関係'];
+
+function toggleTags(){
+  showTags=!showTags;
+  document.getElementById('btnTags').textContent='タグ: '+(showTags?'ON':'OFF');
+  draw();
+}
+
+function toggleLayout(){
+  // 現モードの位置を退避
+  if(layoutDir==='vertical') cardPositionsV=Object.assign({},cardPositions);
+  else cardPositionsH=Object.assign({},cardPositions);
+  // 切り替え
+  layoutDir=layoutDir==='vertical'?'horizontal':'vertical';
+  // 新モードの位置を復元（なければ空で自動レイアウト）
+  if(layoutDir==='vertical') cardPositions=Object.assign({},cardPositionsV);
+  else cardPositions=Object.assign({},cardPositionsH);
+  document.getElementById('btnLayout').textContent='配置: '+(layoutDir==='vertical'?'縦':'横');
+  footerPos=null; // フッター位置もリセット
+  draw();
+}
+
+function autoRoles(){
+  const hisou = P.find(p => p.isBSZ);
+  if(!hisou) return;
+  const deathNum = dateToNum(hisou, 'death');
+  // 第1パス: 基本ロール判定
+  P.forEach(p => {
+    if(p.isBSZ){ p.role = '被相続人'; p._autoRole = '被相続人'; return; }
+    const pDeath = dateToNum(p, 'death');
+    let autoRole;
+    if(pDeath === 0){
+      autoRole = '相続人';
+    } else if(deathNum && pDeath < deathNum){
+      autoRole = '先死亡';
+    } else if(deathNum && pDeath >= deathNum){
+      autoRole = '相続後死亡';
+    } else {
+      autoRole = '相続人';
+    }
+    p._autoRole = autoRole;
+    p.role = p.roleOverride || autoRole;
+  });
+  // 第2パス: 数次相続人の判定（相続後死亡の配偶者・子）
+  const bszId = String(hisou.id);
+  const suujiIds = new Set(P.filter(p => p.role === '相続後死亡').map(p => String(p.id)));
+  P.forEach(p => {
+    if(p.role !== '相続人') return;
+    if(p.roleOverride) return;
+    const isChildOfSuuji = (p.father && suujiIds.has(String(p.father))) || (p.mother && suujiIds.has(String(p.mother)));
+    const isSpouseOfSuuji = p.spouse && suujiIds.has(String(p.spouse));
+    if(!isChildOfSuuji && !isSpouseOfSuuji) return;
+    // 被相続人の直接の相続人かどうか判定
+    const isHeirOfBSZ = String(p.father)===bszId || String(p.mother)===bszId || String(p.spouse)===bszId;
+    p.role = isHeirOfBSZ ? '相続人兼数次相続人' : '数次相続人';
+  });
+}
+
+// === UI ===
+function addPerson(){
+  P.push({ id:uid++, name:'', relation:'', role:'', roleOverride:'', isBSZ:false,
+    birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
+    father:'', mother:'', spouse:'', exSpouses:[], address:'' });
+  autoRoles();
+  renderList(P.length-1);
+  draw();
+}
+
+function renderList(openIdx){
+  const ct = document.getElementById('plist');
+  ct.innerHTML = '';
+  P.forEach((p,i) => {
+    const rc = p.role ? 'r-'+p.role : '';
+    const isOpen = i===openIdx;
+    const div = document.createElement('div');
+    div.className = `pc ${rc} ${isOpen?'open':''}`;
+
+    const dn = p.name||'(未入力)';
+    const dr = ROLE_DISP[p.role]||p.role||'';
+    const badgeCls = p.role ? 'bg-'+p.role : '';
+
+    const otherOpts = P.filter(x=>x.id!==p.id).map(x=>`<option value="${x.id}">${x.name||'(未入力)'}</option>`).join('');
+
+    const curTab = activeTab[i] || 0;
+    div.innerHTML = `
+      <div class="pc-hd" onclick="toggle(${i})">
+        <div>
+          <span class="pc-nm">${esc(dn)}</span>
+          ${dr?`<span class="pc-badge ${badgeCls}">${dr}</span>`:''}
+          <span class="pc-sub">${p.relation?'('+esc(p.relation)+')':''}</span>
+        </div>
+        <span class="pc-tgl">&#9662;</span>
+      </div>
+      <div class="pc-bd">
+        <div class="tabs">
+          <button class="tab ${curTab===0?'active':''}" onclick="switchTab(this,${i},0)">基本情報</button>
+          <button class="tab ${curTab===1?'active':''}" onclick="switchTab(this,${i},1)">日付/立場</button>
+        </div>
+        <div class="tab-body">
+          <div class="tab-pane ${curTab===0?'active':''}" data-tab="0">
+            <div class="fg-row">
+              <div class="fg"><label>氏名</label><input value="${esc(p.name)}" data-i="${i}" data-f="name"></div>
+              ${!p.isBSZ?`<div class="fg"><label>続柄</label><select data-i="${i}" data-f="relation">${ZOKUGARA.map(z=>`<option value="${z}" ${z===p.relation?'selected':''}>${z||'-- 選択 --'}</option>`).join('')}<option value="__custom__" ${p.relation&&!ZOKUGARA.includes(p.relation)?'selected':''}>その他（自由入力）</option></select>${(p.relation&&!ZOKUGARA.includes(p.relation))||p._customRel?`<input value="${esc(p.relation)}" data-i="${i}" data-f="relationCustom" placeholder="続柄を入力" style="margin-top:4px">`:''}</div>`:''}
+            </div>
+            <div class="fg-row">
+              <div class="fg"><label>父</label><select data-i="${i}" data-f="father"><option value="">-- なし --</option>${otherOpts}</select></div>
+              <div class="fg"><label>母</label><select data-i="${i}" data-f="mother"><option value="">-- なし --</option>${otherOpts}</select></div>
+            </div>
+            <div class="fg"><label>配偶者</label><select data-i="${i}" data-f="spouse"><option value="">-- なし --</option>${otherOpts}</select></div>
+            <div class="fg"><label>前配偶者</label><div class="ex-spouses-list" data-i="${i}">${(p.exSpouses||[]).map((eid,ei)=>`<div class="ex-sp-row" style="display:flex;gap:4px;margin-bottom:4px"><select data-i="${i}" data-f="exSpouse" data-ei="${ei}"><option value="">-- なし --</option>${otherOpts}</select><button type="button" onclick="removeExSpouse(${i},${ei})" style="padding:2px 6px;font-size:12px">✕</button></div>`).join('')}</div><button type="button" onclick="addExSpouse(${i})" style="margin-top:4px;padding:2px 8px;font-size:12px">＋ 前配偶者を追加</button></div>
+            ${!p.isBSZ?`<div class="fg"><label>住所</label><textarea data-i="${i}" data-f="address" placeholder="東京都新宿区..." rows="2" style="width:100%;resize:vertical">${esc(p.address||'')}</textarea></div>`:''}
+          </div>
+          <div class="tab-pane ${curTab===1?'active':''}" data-tab="1">
+            <div class="fg"><label>生年月日</label>
+              <div class="date-row">
+                <select class="y-sel" data-i="${i}" data-f="birthY">${YEAR_OPTS}</select>
+                <select class="m-sel" data-i="${i}" data-f="birthM">${MONTH_OPTS}</select>
+                <select class="d-sel" data-i="${i}" data-f="birthD">${DAY_OPTS}</select>
+              </div>
+            </div>
+            <div class="fg"><label>死亡年月日</label>
+              <div class="date-row">
+                <select class="y-sel" data-i="${i}" data-f="deathY">${YEAR_OPTS}</select>
+                <select class="m-sel" data-i="${i}" data-f="deathM">${MONTH_OPTS}</select>
+                <select class="d-sel" data-i="${i}" data-f="deathD">${DAY_OPTS}</select>
+              </div>
+            </div>
+            ${!p.isBSZ?`<div class="fg" style="margin-top:10px;padding-top:8px;border-top:1px solid #e0e0e0"><label>立場 <span style="font-weight:400;color:#aaa">（自動: ${p._autoRole||p.role}）</span></label><select data-i="${i}" data-f="roleOverride">${ROLE_LIST.map(r=>`<option value="${r}" ${r===p.roleOverride?'selected':''}>${r||'自動判定'}</option>`).join('')}</select></div>`:''}
+          </div>
+        </div>
+        <div class="pc-ft">${!p.isBSZ?`<button class="btn-del" onclick="delPerson(${i})">削除</button>`:''}</div>
+      </div>
+    `;
+    ct.appendChild(div);
+
+    div.querySelector('[data-f="birthY"]').value = p.birthY||'';
+    div.querySelector('[data-f="birthM"]').value = p.birthM||'';
+    div.querySelector('[data-f="birthD"]').value = p.birthD||'';
+    div.querySelector('[data-f="deathY"]').value = p.deathY||'';
+    div.querySelector('[data-f="deathM"]').value = p.deathM||'';
+    div.querySelector('[data-f="deathD"]').value = p.deathD||'';
+    div.querySelector('[data-f="father"]').value = p.father||'';
+    div.querySelector('[data-f="mother"]').value = p.mother||'';
+    div.querySelector('[data-f="spouse"]').value = p.spouse||'';
+    div.querySelectorAll('[data-f="exSpouse"]').forEach(el=>{
+      el.value = (p.exSpouses||[])[+el.dataset.ei]||'';
+    });
+
+    div.querySelectorAll('input:not([type="checkbox"]),textarea').forEach(el=>{
+      el.addEventListener('input', onInput);
+      el.addEventListener('change', onChange);
+    });
+    div.querySelectorAll('select').forEach(el=>el.addEventListener('change', onChange));
+  });
+}
+
+function toggle(idx){
+  const cards = document.querySelectorAll('.pc');
+  cards.forEach((c,i)=>{ if(i===idx) c.classList.toggle('open'); else c.classList.remove('open'); });
+}
+
+function addExSpouse(i){
+  if(!P[i].exSpouses)P[i].exSpouses=[];
+  P[i].exSpouses.push('');
+  const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+  renderList(openIdx);
+}
+function removeExSpouse(i,ei){
+  P[i].exSpouses.splice(ei,1);
+  const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+  renderList(openIdx);draw();
+}
+
+function openPersonCard(idx){
+  const cards = document.querySelectorAll('.pc');
+  cards.forEach((c,i)=>{ if(i===idx) c.classList.add('open'); else c.classList.remove('open'); });
+  // スクロールして見えるようにする
+  if(cards[idx]) cards[idx].scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function switchTab(btn, personIdx, tabIdx){
+  activeTab[personIdx] = tabIdx;
+  const body = btn.closest('.pc-bd');
+  body.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  body.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  body.querySelector(`[data-tab="${tabIdx}"]`).classList.add('active');
+}
+
+function onInput(e){
+  const i=+e.target.dataset.i, f=e.target.dataset.f;
+  if(i>=P.length)return;
+  P[i][f]=e.target.value;
+  const card=e.target.closest('.pc');
+  if(f==='name') card.querySelector('.pc-nm').textContent=P[i].name||'(未入力)';
+  if(f==='relationCustom'){
+    P[i].relation=e.target.value;
+    card.querySelector('.pc-sub').textContent=P[i].relation?'('+P[i].relation+')':'';
+  }
+  draw();
+}
+
+function onChange(e){
+  const i=+e.target.dataset.i, f=e.target.dataset.f;
+  if(i>=P.length)return;
+  if(f==='exSpouse'){
+    const ei=+e.target.dataset.ei;
+    if(!P[i].exSpouses)P[i].exSpouses=[];
+    P[i].exSpouses[ei]=e.target.value;
+    autoRoles();
+    const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+    renderList(openIdx);draw();return;
+  }
+  P[i][f]=e.target.value;
+
+  if(f==='relation' && e.target.value==='__custom__'){
+    P[i].relation='';
+    P[i]._customRel=true;
+    autoRoles();
+    const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+    renderList(openIdx);
+    draw();
+    return;
+  }
+  if(f==='relationCustom'){
+    P[i].relation=e.target.value;
+    if(e.target.value) P[i]._customRel=false;
+    draw();
+    return;
+  }
+  if(f==='relation' && e.target.value!=='__custom__'){
+    P[i]._customRel=false;
+  }
+
+  if(f==='spouse'){
+    P.forEach((x,j)=>{if(j!==i&&String(x.spouse)===String(P[i].id))x.spouse='';});
+    if(e.target.value){const sp=P.find(x=>String(x.id)===e.target.value);if(sp)sp.spouse=String(P[i].id);}
+  }
+
+  autoRoles();
+  const openIdx=[...document.querySelectorAll('.pc')].findIndex(c=>c.classList.contains('open'));
+  renderList(openIdx);
+  draw();
+}
+
+function delPerson(i){
+  if(!confirm(P[i].name?`「${P[i].name}」を削除しますか？`:'この人物を削除しますか？'))return;
+  const rm=P.splice(i,1)[0];
+  P.forEach(p=>{
+    if(String(p.father)===String(rm.id))p.father='';
+    if(String(p.mother)===String(rm.id))p.mother='';
+    if(String(p.spouse)===String(rm.id))p.spouse='';
+    if(p.exSpouses)p.exSpouses=p.exSpouses.filter(id=>String(id)!==String(rm.id));
+  });
+  autoRoles();
+  renderList(-1);
+  draw();
+}
+
+// ===== 図 =====
+const CW=220, HGAP=50, VGAP=160;
+const SNAP=20;
+function snap(v){return Math.round(v/SNAP)*SNAP;}
+
+function draw(){
+  saveUndo();
+  const dg=document.getElementById('diagram');
+  dg.innerHTML='';
+
+  const hk=document.getElementById('inHonseki').value;
+  const la=document.getElementById('inLastAddr').value;
+  const ra=document.getElementById('inRegAddr').value;
+  const hisou=P.find(p=>p.isBSZ);
+  const hasData=P.some(p=>p.name);
+
+  if(!hasData) return;
+
+  // ヘッダー
+  const hdr=document.createElement('div');
+  hdr.className='dhdr';
+  let hdrHtml=`<div class="dtitle">被相続人　${esc(hisou?hisou.name:'')}　相続関係説明図</div>`;
+  let subLines=[];
+  if(hk) subLines.push('<span class="dlabel">最後の本籍</span>'+esc(hk));
+  if(la) subLines.push('<span class="dlabel">最後の住所</span>'+esc(la));
+  if(ra) subLines.push('<span class="dlabel">登記簿上の住所</span>'+esc(ra));
+  if(subLines.length) hdrHtml+='<div class="dsub">'+subLines.join('<br>')+'</div>';
+  hdr.innerHTML=hdrHtml;
+  const hx=hdrPos?hdrPos.x:30;
+  const hy=hdrPos?hdrPos.y:20;
+  hdr.style.left=hx+'px';hdr.style.top=hy+'px';
+  hdr.style.transform='scale('+hdrScale+')';
+  hdr.style.transformOrigin='0 0';
+  dg.appendChild(hdr);
+  initHdrDrag(hdr);
+  hdr.addEventListener('wheel',e=>{
+    if(isPreviewActive())return;
+    e.preventDefault();e.stopPropagation();
+    const delta=e.deltaY>0?-0.05:0.05;
+    hdrScale=Math.max(0.3,Math.min(3.0,hdrScale+delta));
+    hdr.style.transform='scale('+hdrScale+')';
+  },{passive:false});
+
+  const headerH=hdr.offsetHeight+hy+30;
+
+  const byId={};P.forEach(p=>byId[p.id]=p);
+  const layout=calcLayout(byId,headerH);
+
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+  dg.appendChild(svg);
+
+  // レイアウト計算後、全カードの位置を確定保存
+  layout.forEach(L=>{
+    if(!cardPositions[L.p.id]) cardPositions[L.p.id]={x:L.x,y:L.y};
+  });
+
+  const cards={};
+  layout.forEach(L=>{
+    const px=cardPositions[L.p.id].x;
+    const py=cardPositions[L.p.id].y;
+    const el=mkCard(L.p,px,py);
+    dg.appendChild(el);
+    cards[L.p.id]={x:px,y:py,el};
+    initDrag(el,L.p.id);
+    el.addEventListener('wheel',e=>{
+      if(isPreviewActive())return;
+      if(selectedIds.size<2||!selectedIds.has(L.p.id))return;
+      e.preventDefault();e.stopPropagation();
+      const delta=e.deltaY>0?-0.05:0.05;
+      const ids=[...selectedIds];
+      // 中心基準で間隔を拡縮
+      let cx=0,cy=0;
+      ids.forEach(id=>{if(cards[id]){cx+=cards[id].x;cy+=cards[id].y;}});
+      cx/=ids.length; cy/=ids.length;
+      const ratio=1+delta;
+      ids.forEach(id=>{
+        if(!cards[id])return;
+        const c=cards[id];
+        const nx=Math.round(cx+(c.x-cx)*ratio);
+        const ny=Math.round(cy+(c.y-cy)*ratio);
+        c.x=nx; c.y=ny;
+        c.el.style.left=nx+'px'; c.el.style.top=ny+'px';
+        cardPositions[id]={x:nx,y:ny};
+      });
+      if(currentSvg&&currentCards&&currentById) drawLines(currentSvg,currentCards,currentById);
+    },{passive:false});
+  });
+
+  currentSvg=svg; currentCards=cards; currentById=byId;
+
+  // フッター
+  const ftr=document.createElement('div');
+  ftr.className='dfooter';
+  ftr.textContent='戸籍謄抄本及び除籍謄本は還付した';
+  dg.appendChild(ftr);
+
+  requestAnimationFrame(()=>{
+    Object.values(cards).forEach(c=>{c.h=c.el.offsetHeight;c.w=CW;});
+    drawLines(svg,cards,byId);
+    let mx=0,my=0;
+    Object.values(cards).forEach(c=>{mx=Math.max(mx,c.x+c.w+80);my=Math.max(my,c.y+c.h+80);});
+    const fx=footerPos?footerPos.x:(mx-200);
+    const fy=footerPos?footerPos.y:(my+20);
+    ftr.style.left=fx+'px';ftr.style.top=fy+'px';
+    ftr.style.transform='scale('+footerScale+')';
+    ftr.style.transformOrigin='0 0';
+    initFooterDrag(ftr);
+    ftr.addEventListener('wheel',e=>{
+      if(isPreviewActive())return;
+      e.preventDefault();e.stopPropagation();
+      const delta=e.deltaY>0?-0.05:0.05;
+      footerScale=Math.max(0.3,Math.min(3.0,footerScale+delta));
+      ftr.style.transform='scale('+footerScale+')';
+    },{passive:false});
+    svg.setAttribute('width',3000);
+    svg.setAttribute('height',3000);
+  });
+}
+
+function calcLayout(byId,headerH){
+  const root=P.find(p=>p.isBSZ)||P[0];
+  const lvMap={};
+  const visited=new Set();
+
+  function assignLevel(p,lv){
+    if(!p||visited.has(p.id))return;
+    visited.add(p.id);
+    lvMap[p.id]=lv;
+    allSpouses(p).forEach(sid=>{
+      if(byId[sid]&&!visited.has(+sid)){
+        visited.add(+sid);
+        lvMap[+sid]=lv;
+      }
+    });
+  }
+
+  function goUp(p,lv){
+    [p.father,p.mother].forEach(pid=>{
+      if(!pid||!byId[pid]||visited.has(+pid))return;
+      assignLevel(byId[pid],lv-1);
+      goUp(byId[pid],lv-1);
+    });
+  }
+
+  function goDown(parentId,lv){
+    P.forEach(p=>{
+      if(visited.has(p.id))return;
+      if(String(p.father)===String(parentId)||String(p.mother)===String(parentId)){
+        assignLevel(p,lv);
+        goDown(p.id,lv+1);
+      }
+    });
+  }
+
+  goUp(root,0);
+  assignLevel(root,0);
+  goDown(root.id,1);
+  allSpouses(root).forEach(sid=>{if(byId[sid]) goDown(+sid,1);});
+
+  let changed=true;
+  while(changed){
+    changed=false;
+    P.forEach(p=>{
+      if(visited.has(p.id))return;
+      const fLv=p.father&&lvMap[+p.father]!==undefined?lvMap[+p.father]:null;
+      const mLv=p.mother&&lvMap[+p.mother]!==undefined?lvMap[+p.mother]:null;
+      const parentLv=fLv!==null?fLv:(mLv!==null?mLv:null);
+      if(parentLv!==null){
+        assignLevel(p,parentLv+1);
+        goDown(p.id,parentLv+2);
+        changed=true;
+      }
+    });
+  }
+
+  const maxLv=Math.max(0,...Object.values(lvMap));
+  P.forEach(p=>{if(!visited.has(p.id)){visited.add(p.id);lvMap[p.id]=maxLv+1;}});
+
+  const levels={};
+  P.forEach(p=>{
+    const lv=lvMap[p.id];
+    if(!levels[lv])levels[lv]=[];
+    levels[lv].push(p);
+  });
+
+  const sorted=Object.keys(levels).map(Number).sort((a,b)=>a-b);
+  const minLv=sorted[0]||0;
+  const result=[];
+  const OX=40,OY=(headerH||80)+40;
+  const horiz=layoutDir==='horizontal';
+
+  sorted.forEach(lv=>{
+    levels[lv].forEach((p,i)=>{
+      if(horiz){
+        result.push({p,x:OX+(lv-minLv)*(CW+HGAP),y:OY+i*VGAP});
+      } else {
+        result.push({p,x:OX+i*(CW+HGAP),y:OY+(lv-minLv)*VGAP});
+      }
+    });
+  });
+
+  // 配偶者隣接ヘルパー: 前配偶者は左側、現配偶者は右側に配置
+  function enforceSpouseAdjacency(lv){
+    const row=result.filter(r=>lvMap[r.p.id]===lv);
+    if(horiz) row.sort((a,b)=>a.y-b.y); else row.sort((a,b)=>a.x-b.x);
+    const done=new Set();
+    row.forEach(r=>{
+      if(done.has(r.p.id))return;
+      const exIds=(r.p.exSpouses||[]).filter(id=>id&&byId[id]&&lvMap[+id]===lv).map(id=>+id);
+      const curId=r.p.spouse&&byId[r.p.spouse]&&lvMap[+r.p.spouse]===lv?+r.p.spouse:null;
+      if(!exIds.length&&!curId)return;
+      done.add(r.p.id);
+      if(horiz){
+        let pos=r.y;
+        exIds.forEach(eid=>{
+          if(done.has(eid))return;done.add(eid);
+          const sp=result.find(s=>s.p.id===eid);
+          if(sp){sp.y=pos-VGAP;sp.x=r.x;pos=sp.y;}
+        });
+        if(curId&&!done.has(curId)){
+          done.add(curId);
+          const sp=result.find(s=>s.p.id===curId);
+          if(sp){sp.y=r.y+VGAP;sp.x=r.x;}
+        }
+      } else {
+        let posLeft=r.x;
+        exIds.forEach(eid=>{
+          if(done.has(eid))return;done.add(eid);
+          const sp=result.find(s=>s.p.id===eid);
+          if(sp){sp.x=posLeft-(CW+HGAP);posLeft=sp.x;sp.y=r.y;}
+        });
+        if(curId&&!done.has(curId)){
+          done.add(curId);
+          const sp=result.find(s=>s.p.id===curId);
+          if(sp){sp.x=r.x+CW+HGAP;sp.y=r.y;}
+        }
+      }
+    });
+  }
+
+  // 重なり解消ヘルパー（配偶者ペアを原子的に移動）
+  function resolveOverlaps(lv){
+    if(horiz){
+      const row=result.filter(r=>lvMap[r.p.id]===lv).sort((a,b)=>a.y-b.y);
+      for(let i=1;i<row.length;i++){
+        const mn=row[i-1].y+VGAP;
+        if(row[i].y<mn){
+          const shift=mn-row[i].y;
+          const spId=row[i].p.spouse;
+          const sp=spId?row.find(s=>String(s.p.id)===String(spId)):null;
+          for(let j=i;j<row.length;j++) row[j].y+=shift;
+          if(sp && row.indexOf(sp)<i) sp.y=row[i].y-VGAP;
+        }
+      }
+    } else {
+      const row=result.filter(r=>lvMap[r.p.id]===lv).sort((a,b)=>a.x-b.x);
+      for(let i=1;i<row.length;i++){
+        const mn=row[i-1].x+CW+HGAP;
+        if(row[i].x<mn){
+          const shift=mn-row[i].x;
+          const spId=row[i].p.spouse;
+          const sp=spId?row.find(s=>String(s.p.id)===String(spId)):null;
+          for(let j=i;j<row.length;j++) row[j].x+=shift;
+          if(sp && row.indexOf(sp)<i) sp.x=row[i].x-CW-HGAP;
+        }
+      }
+    }
+  }
+
+  // Step 1: 配偶者隣接
+  sorted.forEach(lv=>enforceSpouseAdjacency(lv));
+
+  // Step 2: 子を親中央に寄せる（配偶者ペアごとにグループ化）
+  sorted.forEach(lv=>{
+    if(!levels[lv-1])return;
+    const used=new Set();
+    const donePairs=new Set();
+    levels[lv-1].forEach(parent=>{
+      // 各配偶者ペアごとに子をグループ化して配置
+      const spouseIds=allSpouses(parent);
+      // 配偶者なしの子も含め、全ペアを処理
+      const pairs=[...spouseIds.map(sid=>({sid:+sid})),{sid:null}];
+      pairs.forEach(({sid})=>{
+        const pairId=sid?Math.min(parent.id,sid)+'-'+Math.max(parent.id,sid):'solo-'+parent.id;
+        if(donePairs.has(pairId))return;
+        donePairs.add(pairId);
+        const kids=(levels[lv]||[]).filter(c=>{
+          if(used.has(c.id))return false;
+          const cf=+c.father, cm=+c.mother;
+          if(sid){
+            return (cf===parent.id&&cm===sid)||(cm===parent.id&&cf===sid)||
+              (cf===parent.id&&!cm&&sid)||(cm===parent.id&&!cf&&sid)||
+              (cf===sid&&!cm)||(cm===sid&&!cf);
+          } else {
+            // 配偶者なし: 親だけが指定されている子
+            return (cf===parent.id||cm===parent.id)&&!spouseIds.includes(String(cf))&&!spouseIds.includes(String(cm));
+          }
+        });
+        if(!kids.length)return;
+        kids.forEach(c=>used.add(c.id));
+        const pPos=result.find(r=>r.p.id===parent.id);
+        if(!pPos)return;
+        const spPos=sid?result.find(r=>r.p.id===sid):null;
+
+        if(horiz){
+          let pcy;
+          if(spPos){
+            const tid=pPos.y<spPos.y?pPos:spPos;
+            const bid=pPos.y<spPos.y?spPos:pPos;
+            pcy=(tid.y+VGAP+bid.y)/2;
+          } else { pcy=pPos.y+VGAP/2; }
+          const th=kids.length*VGAP;
+          const sy=pcy-th/2;
+          kids.forEach((k,ci)=>{
+            const kp=result.find(r=>r.p.id===k.id);
+            if(kp) kp.y=sy+ci*VGAP;
+          });
+        } else {
+          let pcx;
+          if(spPos){
+            const lid=pPos.x<spPos.x?pPos:spPos;
+            const rid=pPos.x<spPos.x?spPos:pPos;
+            pcx = (lid.x + CW + rid.x) / 2;
+          } else {
+            pcx = pPos.x + CW/2;
+          }
+          const tw=kids.length*CW+(kids.length-1)*HGAP;
+          const sx=pcx-tw/2;
+          kids.forEach((k,ci)=>{
+            const kp=result.find(r=>r.p.id===k.id);
+            if(kp) kp.x=sx+ci*(CW+HGAP);
+          });
+        }
+      });
+    });
+  });
+
+  // Step 3: 子レベルで配偶者隣接を再適用（子の配置で崩れた場合）
+  sorted.forEach(lv=>enforceSpouseAdjacency(lv));
+
+  // Step 4: 重なり解消
+  sorted.forEach(lv=>resolveOverlaps(lv));
+
+  // Step 5: 重なり解消後に配偶者隣接が崩れていないか最終チェック
+  sorted.forEach(lv=>enforceSpouseAdjacency(lv));
+  // 最終隣接で重なりが生じた場合の再解消
+  sorted.forEach(lv=>resolveOverlaps(lv));
+
+  // 端修正
+  let mnX=Infinity,mnY=Infinity;
+  result.forEach(r=>{if(r.x<mnX)mnX=r.x;if(r.y<mnY)mnY=r.y;});
+  if(mnX<OX)result.forEach(r=>r.x+=OX-mnX);
+  if(mnY<OY)result.forEach(r=>r.y+=OY-mnY);
+
+
+  // 整数化（サブピクセル防止、SNAPは使わない）
+  result.forEach(r=>{
+    r.x=Math.round(r.x);
+    r.y=Math.round(r.y);
+  });
+
+  return result;
+}
+
+function initDrag(el,pid){
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(isPreviewActive())return;
+    e.preventDefault();
+    e.stopPropagation();
+    const sx=e.clientX, sy=e.clientY;
+    let moved=false;
+
+    // 選択中のカードをまとめてドラッグ、未選択カードなら単体
+    const dragIds=selectedIds.has(pid)?[...selectedIds]:[pid];
+    const starts={};
+    dragIds.forEach(id=>{starts[id]={x:currentCards[id].x,y:currentCards[id].y};});
+
+    function onMove(e2){
+      const dx=e2.clientX-sx, dy=e2.clientY-sy;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return;
+      moved=true;
+      dragIds.forEach(id=>{
+        const c=currentCards[id];
+        const nx=snap(starts[id].x+dx), ny=snap(starts[id].y+dy);
+        c.el.style.left=nx+'px'; c.el.style.top=ny+'px';
+        c.x=nx; c.y=ny;
+        cardPositions[id]={x:nx,y:ny};
+      });
+      if(currentSvg&&currentCards&&currentById) drawLines(currentSvg,currentCards,currentById);
+    }
+    function onUp(){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      // クリック（移動なし）→ 対応する入力欄を開く＆他の選択解除
+      if(!moved){
+        document.querySelectorAll('.dhdr.selected').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.dfooter.selected').forEach(c=>c.classList.remove('selected'));
+        const idx=P.findIndex(p=>p.id===pid);
+        if(idx>=0) openPersonCard(idx);
+      }
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+// diagram上でドラッグ → 範囲選択
+function initRangeSelect(){
+  const dg=document.getElementById('diagram');
+  let rect=null, sx, sy;
+  dg.addEventListener('mousedown',e=>{
+    if(e.button!==0||e.target.closest('.card')||e.target.closest('.dfooter')||isPreviewActive())return;
+    e.preventDefault();
+    const dgRect=dg.getBoundingClientRect();
+    sx=e.clientX-dgRect.left+dg.scrollLeft;
+    sy=e.clientY-dgRect.top+dg.scrollTop;
+    rect=document.createElement('div');
+    rect.className='sel-rect';
+    dg.appendChild(rect);
+
+    function onMove(e2){
+      const cx=e2.clientX-dgRect.left+dg.scrollLeft;
+      const cy=e2.clientY-dgRect.top+dg.scrollTop;
+      const x=Math.min(sx,cx), y=Math.min(sy,cy);
+      const w=Math.abs(cx-sx), h=Math.abs(cy-sy);
+      rect.style.left=x+'px';rect.style.top=y+'px';rect.style.width=w+'px';rect.style.height=h+'px';
+    }
+    function onUp(e2){
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!rect)return;
+      const cx=e2.clientX-dgRect.left+dg.scrollLeft;
+      const cy=e2.clientY-dgRect.top+dg.scrollTop;
+      const rx=Math.min(sx,cx), ry=Math.min(sy,cy);
+      const rw=Math.abs(cx-sx), rh=Math.abs(cy-sy);
+      rect.remove(); rect=null;
+
+      // 範囲が小さすぎたら全解除
+      if(rw<10&&rh<10){
+        selectedIds.clear();
+        document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.dhdr.selected').forEach(c=>c.classList.remove('selected'));
+        document.querySelectorAll('.dfooter.selected').forEach(c=>c.classList.remove('selected'));
+        return;
+      }
+      // 範囲内のカードを選択
+      selectedIds.clear();
+      document.querySelectorAll('.card.selected').forEach(c=>c.classList.remove('selected'));
+      if(currentCards){
+        Object.entries(currentCards).forEach(([id,c])=>{
+          const cardR=c.x, cardB=c.y;
+          const cardR2=c.x+c.w, cardB2=c.y+c.h;
+          if(cardR2>rx && cardR<rx+rw && cardB2>ry && cardB<ry+rh){
+            selectedIds.add(+id);
+            c.el.classList.add('selected');
+          }
+        });
+      }
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function initHdrDrag(el){
+  let sx,sy,ox,oy,moved;
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(isPreviewActive())return;
+    e.preventDefault();
+    e.stopPropagation();
+    el.classList.add('dragging');
+    moved=false;
+    sx=e.clientX;sy=e.clientY;
+    ox=parseInt(el.style.left)||0;oy=parseInt(el.style.top)||0;
+    function onMove(e2){
+      const dx=e2.clientX-sx, dy=e2.clientY-sy;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return;
+      moved=true;
+      const nx=snap(ox+dx), ny=snap(oy+dy);
+      el.style.left=nx+'px';el.style.top=ny+'px';
+      hdrPos={x:nx,y:ny};
+    }
+    function onUp(){
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!moved) el.classList.toggle('selected');
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function initFooterDrag(el){
+  let sx,sy,ox,oy,moved;
+  el.addEventListener('mousedown',e=>{
+    if(e.button!==0)return;
+    if(isPreviewActive())return;
+    e.preventDefault();
+    e.stopPropagation();
+    el.classList.add('dragging');
+    moved=false;
+    sx=e.clientX;sy=e.clientY;
+    ox=parseInt(el.style.left)||0;oy=parseInt(el.style.top)||0;
+    function onMove(e2){
+      const dx=e2.clientX-sx, dy=e2.clientY-sy;
+      if(!moved && Math.abs(dx)<3 && Math.abs(dy)<3) return;
+      moved=true;
+      const nx=snap(ox+dx), ny=snap(oy+dy);
+      el.style.left=nx+'px';el.style.top=ny+'px';
+      footerPos={x:nx,y:ny};
+    }
+    function onUp(){
+      el.classList.remove('dragging');
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      if(!moved) el.classList.toggle('selected');
+    }
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+}
+
+function mkCard(p,x,y){
+  const d=document.createElement('div');
+  d.className='card'+(p.role?' c-'+p.role:'');
+  d.style.left=x+'px';d.style.top=y+'px';
+  d.dataset.pid=p.id;
+  const rl=ROLE_DISP[p.role]||p.role||'';
+  const docs=DOCS[p.role]||[];
+  let h=`<div class="card-h">立場: ${rl}</div><div class="card-b">`;
+  if(p.relation)h+=`<div class="f"><span class="l">続柄</span><span class="v">${esc(p.relation)}</span></div>`;
+  if(!p.isBSZ&&p.address){const ac=p.address.includes('\n')?'v-addr':'v';h+=`<div class="f"><span class="l">住所</span><span class="${ac}">${esc(p.address).replace(/\n/g,'\n')}</span></div>`;}
+  h+=`<div class="f"><span class="l">氏名</span><span class="v">${esc(p.name)}</span></div>`;
+  const bs=dateToStr(p,'birth');
+  if(bs)h+=`<div class="f"><span class="l">出生</span><span class="v">${bs}</span></div>`;
+  const ds=dateToStr(p,'death');
+  if(ds)h+=`<div class="f"><span class="l">死亡</span><span class="v">${ds}</span></div>`;
+  h+='</div>';
+  if(showTags&&docs.length){h+='<div class="card-d">';docs.forEach(t=>h+=`<span class="tag">${t}</span>`);h+='</div>';}
+  d.innerHTML=h;
+  return d;
+}
+
+function drawLines(svg,cards,byId){
+  const ns='http://www.w3.org/2000/svg';
+  svg.innerHTML='';
+
+  function has(id){return!!cards[id]&&cards[id].w>0}
+  function cx(id){return Math.round(cards[id].x+cards[id].w/2)}
+  function bot(id){return Math.round(cards[id].y+cards[id].h)}
+  function tp(id){return Math.round(cards[id].y)}
+  function rt(id){return Math.round(cards[id].x+cards[id].w)}
+  function lt(id){return Math.round(cards[id].x)}
+  function midY(id){return Math.round(cards[id].y+cards[id].h/2)}
+
+  function mkLine(x1,y1,x2,y2,color,w){
+    const l=document.createElementNS(ns,'line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke',color||'#555');l.setAttribute('stroke-width',w||1.5);
+    svg.appendChild(l);
+  }
+
+  // 1) 配偶者線（現配偶者=二重線、前配偶者=一本線）
+  const spouseMid={};
+  const drawnSp=new Set();
+  function drawSpouseLine(pid,sid,isEx){
+    if(!has(pid)||!has(sid))return;
+    const key=Math.min(pid,sid)+'-'+Math.max(pid,sid);
+    if(drawnSp.has(key))return;
+    drawnSp.add(key);
+    const color=isEx?'#888':'#c0392b';
+    if(layoutDir==='horizontal'){
+      const tid=tp(pid)<tp(sid)?pid:sid;
+      const bid=tid===pid?sid:pid;
+      const x=Math.round((cx(tid)+cx(bid))/2);
+      const y1=bot(tid), y2=tp(bid);
+      if(isEx){mkLine(x,y1,x,y2,color,2);}
+      else{mkLine(x-3,y1,x-3,y2,color,2);mkLine(x+3,y1,x+3,y2,color,2);}
+      spouseMid[key]={x:x, y:Math.round((y1+y2)/2)};
+    } else {
+      const lid=lt(pid)<lt(sid)?pid:sid;
+      const rid=lid===pid?sid:pid;
+      const y=Math.round((midY(lid)+midY(rid))/2);
+      const x1=rt(lid), x2=lt(rid);
+      if(isEx){mkLine(x1,y,x2,y,color,2);}
+      else{mkLine(x1,y-3,x2,y-3,color,2);mkLine(x1,y+3,x2,y+3,color,2);}
+      spouseMid[key]={x:Math.round((x1+x2)/2), y:y};
+    }
+  }
+  P.forEach(p=>{
+    if(p.spouse) drawSpouseLine(p.id,+p.spouse,false);
+    (p.exSpouses||[]).forEach(eid=>{if(eid) drawSpouseLine(p.id,+eid,true);});
+  });
+
+  // 2) 親子線
+  const drawnKids=new Set();
+  const donePairs=new Set();
+
+  P.forEach(p=>{
+    if(!has(p.id))return;
+    const fid=+p.father, mid=+p.mother;
+    if(!fid&&!mid)return;
+
+    let pairKey, anchorIds=[];
+    if(fid&&mid&&has(fid)&&has(mid)){
+      pairKey=Math.min(fid,mid)+'-'+Math.max(fid,mid);
+      anchorIds=[fid,mid];
+    } else if(fid&&has(fid)){
+      pairKey='s-'+fid;
+      anchorIds=[fid];
+    } else if(mid&&has(mid)){
+      pairKey='s-'+mid;
+      anchorIds=[mid];
+    } else return;
+
+    if(donePairs.has(pairKey))return;
+    donePairs.add(pairKey);
+
+    const kids=P.filter(c=>{
+      if(!has(c.id)||drawnKids.has(c.id))return false;
+      const cf=+c.father, cm=+c.mother;
+      if(anchorIds.length===2) return anchorIds.includes(cf)&&anchorIds.includes(cm);
+      return cf===anchorIds[0]||cm===anchorIds[0];
+    });
+    if(!kids.length)return;
+    kids.forEach(k=>drawnKids.add(k.id));
+
+    // 起点
+    let startX, startY;
+    const spKey=anchorIds.length===2?Math.min(anchorIds[0],anchorIds[1])+'-'+Math.max(anchorIds[0],anchorIds[1]):null;
+
+    if(layoutDir==='horizontal'){
+      // 横モード: 親の右端→横線→分岐X→縦分岐→各子の左端へ横線
+      if(spKey&&spouseMid[spKey]){
+        startX=spouseMid[spKey].x+4;
+        startY=spouseMid[spKey].y;
+      } else {
+        startX=rt(anchorIds[0]);
+        startY=midY(anchorIds[0]);
+      }
+      const parentRt=Math.max(...anchorIds.map(id=>rt(id)));
+      const minKidLt=Math.min(...kids.map(k=>lt(k.id)));
+      const jx=Math.round(parentRt+(minKidLt-parentRt)/2);
+
+      mkLine(startX,startY,jx,startY,'#555',1.5);
+
+      const kidYs=kids.map(k=>midY(k.id)).sort((a,b)=>a-b);
+      if(kids.length===1){
+        const ky=midY(kids[0].id), kx=lt(kids[0].id);
+        if(startY!==ky) mkLine(jx,startY,jx,ky,'#555',1.5);
+        mkLine(jx,ky,kx,ky,'#555',1.5);
+      } else {
+        const ty=kidYs[0], by=kidYs[kidYs.length-1];
+        if(startY<ty) mkLine(jx,startY,jx,ty,'#555',1.5);
+        else if(startY>by) mkLine(jx,startY,jx,by,'#555',1.5);
+        mkLine(jx,ty,jx,by,'#555',1.5);
+        kids.forEach(k=>{
+          const ky=midY(k.id), kx=lt(k.id);
+          mkLine(jx,ky,kx,ky,'#555',1.5);
+        });
+      }
+    } else {
+      // 縦モード: 既存ロジック
+      if(spKey&&spouseMid[spKey]){
+        startX=spouseMid[spKey].x;
+        startY=spouseMid[spKey].y+4;
+      } else {
+        startX=cx(anchorIds[0]);
+        startY=bot(anchorIds[0]);
+      }
+
+      const parentBot=Math.max(...anchorIds.map(id=>bot(id)));
+      const minKidTop=Math.min(...kids.map(k=>tp(k.id)));
+      const jy=Math.round(parentBot+(minKidTop-parentBot)/2);
+
+      mkLine(startX,startY,startX,jy,'#555',1.5);
+
+      const kidXs=kids.map(k=>cx(k.id)).sort((a,b)=>a-b);
+      if(kids.length===1){
+        const kx=cx(kids[0].id), ky=tp(kids[0].id);
+        if(startX!==kx) mkLine(startX,jy,kx,jy,'#555',1.5);
+        mkLine(kx,jy,kx,ky,'#555',1.5);
+      } else {
+        const lx=kidXs[0], rx=kidXs[kidXs.length-1];
+        if(startX<lx) mkLine(startX,jy,lx,jy,'#555',1.5);
+        else if(startX>rx) mkLine(startX,jy,rx,jy,'#555',1.5);
+        mkLine(lx,jy,rx,jy,'#555',1.5);
+        kids.forEach(k=>{
+          const kx=cx(k.id), ky=tp(k.id);
+          mkLine(kx,jy,kx,ky,'#555',1.5);
+        });
+      }
+    }
+  });
+}
+
+let pvOffX=0, pvOffY=0, pvDragActive=false;
+
+function isPreviewActive(){
+  const o=document.getElementById('previewOverlay');
+  return o&&o.classList.contains('active');
+}
+
+function togglePreview(){
+  let overlay=document.getElementById('previewOverlay');
+
+  if(overlay && overlay.classList.contains('active')){
+    // プレビュー終了 — diagramを元に戻す
+    overlay.classList.remove('active');
+    const dg=document.getElementById('diagram');
+    const main=document.querySelector('.main');
+    main.appendChild(dg);
+    dg.style.transform='';
+    dg.classList.remove('grabbing');
+  } else {
+    // プレビュー開始 — diagramをA4枠に移動
+    if(!overlay){
+      overlay=document.createElement('div');
+      overlay.id='previewOverlay';
+      overlay.className='preview-overlay';
+      overlay.innerHTML=`
+        <div class="preview-a4" id="pvA4"></div>
+        <div class="preview-ctrl">
+          <button class="pv-btn-back" onclick="togglePreview()">戻る</button>
+          <span id="pvScaleVal">${previewScale}%</span>
+          <span style="color:#999;font-size:11px">（スクロールで拡大縮小 / ドラッグで移動）</span>
+          <button class="pv-btn-print" onclick="window.print()">印刷</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      initPvDrag();
+      initPvWheel();
+    }
+    const a4=document.getElementById('pvA4');
+    const dg=document.getElementById('diagram');
+    a4.appendChild(dg);
+    overlay.classList.add('active');
+    applyPvTransform();
+  }
+}
+
+function setPvScale(v){
+  previewScale=Math.max(5,Math.min(200,+v));
+  const el=document.getElementById('pvScaleVal');
+  if(el) el.textContent=Math.round(previewScale)+'%';
+  applyPvTransform();
+}
+
+function initPvWheel(){
+  document.addEventListener('wheel',e=>{
+    if(!isPreviewActive())return;
+    e.preventDefault();
+    const delta=e.deltaY>0?-3:3;
+    setPvScale(previewScale+delta);
+  },{passive:false});
+}
+
+function applyPvTransform(){
+  const dg=document.getElementById('diagram');
+  if(!dg)return;
+  const s=previewScale/100;
+  dg.style.transform=`translate(${pvOffX}px,${pvOffY}px) scale(${s})`;
+}
+
+function initPvDrag(){
+  let sx, sy, ox, oy;
+  document.addEventListener('mousedown',e=>{
+    const a4=document.getElementById('pvA4');
+    if(!a4||!a4.contains(e.target))return;
+    if(e.button!==0)return;
+    e.preventDefault();
+    pvDragActive=true;
+    sx=e.clientX; sy=e.clientY;
+    ox=pvOffX; oy=pvOffY;
+    document.getElementById('diagram').classList.add('grabbing');
+  });
+  document.addEventListener('mousemove',e=>{
+    if(!pvDragActive)return;
+    pvOffX=ox+(e.clientX-sx);
+    pvOffY=oy+(e.clientY-sy);
+    applyPvTransform();
+  });
+  document.addEventListener('mouseup',()=>{
+    if(!pvDragActive)return;
+    pvDragActive=false;
+    const dg=document.getElementById('diagram');
+    if(dg) dg.classList.remove('grabbing');
+  });
+}
+
+// === 保存/読込 ===
+function saveJSON(){
+  // 現モードの位置を退避してから保存
+  if(layoutDir==='vertical') cardPositionsV=Object.assign({},cardPositions);
+  else cardPositionsH=Object.assign({},cardPositions);
+  const d={honseki:document.getElementById('inHonseki').value,lastAddr:document.getElementById('inLastAddr').value,regAddr:document.getElementById('inRegAddr').value,people:P,uid,cardPositions,footerPos,hdrPos,hdrScale,footerScale,showTags,layoutDir,cardPositionsV,cardPositionsH};
+  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='相続関係図.json';a.click();
+}
+document.getElementById('fi').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      P=(d.people||[]).map(p=>({...p,exSpouses:p.exSpouses||[]}));uid=d.uid||P.length+1;
+      cardPositions=d.cardPositions||{};
+      footerPos=d.footerPos||null;
+      hdrPos=d.hdrPos||null;
+      hdrScale=d.hdrScale||1.0;
+      footerScale=d.footerScale||1.0;
+      showTags=d.showTags!==undefined?d.showTags:true;
+      layoutDir=d.layoutDir||'vertical';
+      cardPositionsV=d.cardPositionsV||{};
+      cardPositionsH=d.cardPositionsH||{};
+      document.getElementById('btnTags').textContent='タグ: '+(showTags?'ON':'OFF');
+      document.getElementById('btnLayout').textContent='配置: '+(layoutDir==='vertical'?'縦':'横');
+      document.getElementById('inHonseki').value=d.honseki||'';
+      document.getElementById('inLastAddr').value=d.lastAddr||'';
+      document.getElementById('inRegAddr').value=d.regAddr||'';
+      autoRoles();renderList(-1);draw();
+    }catch(err){alert('読込失敗: '+err.message);}
+  };
+  r.readAsText(f);e.target.value='';
+});
+
+// 初期
+P.push({ id:uid++, name:'', relation:'', role:'被相続人', roleOverride:'', isBSZ:true,
+  birthY:'', birthM:'', birthD:'', deathY:'', deathM:'', deathD:'',
+  father:'', mother:'', spouse:'', exSpouses:[] });
+renderList(0);draw();initRangeSelect();
+document.addEventListener('keydown',function(e){if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo();}if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo();}});
+
+// ===== ウィザード =====
+let wiz={step:'name',data:{},childIdx:0,sibIdx:0,history:[],forward:[]};
+const CHILD_RELS=['長男','二男','三男','四男','五男','長女','二女','三女','四女','五女','子'];
+const CHILD_REL_M=['長男','二男','三男','四男','五男'];
+const CHILD_REL_F=['長女','二女','三女','四女','五女'];
+
+function wizInitData(){
+  return {name:'',deathY:'',deathM:'',deathD:'',honseki:'',lastAddr:'',regAddr:'',
+    spouse:null,children:[],exSpouse:null,exChildren:[],adoptees:[],parents:[],siblings:[],
+    hasChildren:false,specialCircumstances:[]};
+}
+
+function openWizard(){
+  wiz={step:'name',data:wizInitData(),childIdx:0,sibIdx:0,history:[]};
+  let ov=document.getElementById('wizOverlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='wizOverlay';ov.className='wiz-overlay';
+    ov.innerHTML='<div class="wiz-box"><div class="wiz-hd"><h2>⚖ 相続関係ヒアリングシート</h2><button class="wiz-close" onclick="closeWizard()">✕</button></div><div class="wiz-progress"><div class="wiz-progress-bar" id="wizProg"></div></div><div class="wiz-body" id="wizBody"></div><div class="wiz-ft" id="wizFt"></div></div>';
+    document.body.appendChild(ov);
+  }
+  ov.classList.add('active');
+  wizRender();
+}
+function closeWizard(){document.getElementById('wizOverlay').classList.remove('active');}
+function wizPush(){wiz.history.push(JSON.parse(JSON.stringify({step:wiz.step,data:wiz.data,childIdx:wiz.childIdx,sibIdx:wiz.sibIdx})));wiz.forward=[];}
+function wizBack(){if(!wiz.history.length)return;wiz.forward.push(JSON.parse(JSON.stringify({step:wiz.step,data:wiz.data,childIdx:wiz.childIdx,sibIdx:wiz.sibIdx})));const p=wiz.history.pop();wiz.step=p.step;wiz.data=p.data;wiz.childIdx=p.childIdx;wiz.sibIdx=p.sibIdx;wizRender();}
+function wizForward(){if(!wiz.forward.length)return;wiz.history.push(JSON.parse(JSON.stringify({step:wiz.step,data:wiz.data,childIdx:wiz.childIdx,sibIdx:wiz.sibIdx})));const f=wiz.forward.pop();wiz.step=f.step;wiz.data=f.data;wiz.childIdx=f.childIdx;wiz.sibIdx=f.sibIdx;wizRender();}
+function wizProgress(){const map={name:1,death:2,spouse:3,spouse_status:4,spouse_death:4,children:5,child_count:6,child_detail:7,child_before_after:7,child_has_gc:7,child_gc_names:7,child_suuji_spouse:7,child_suuji_spouse_name:7,child_suuji_children:7,child_suuji_child_names:7,special:8,ex_spouse_status:9,ex_spouse_name:9,ex_count:9,ex_names:9,adoptee_count:10,adoptee_names:10,parents:9,parent_names:9,siblings:10,sibling_count:11,sib_detail:11,sib_before_after:11,sib_has_nephew:11,sib_nephew_names:11,confirm:12};return((map[wiz.step]||1)/12)*100;}
+function wizDateRow(idPrefix){return '<div class="date-row" style="margin-bottom:12px"><select class="y-sel" id="'+idPrefix+'Y">'+YEAR_OPTS+'</select><select class="m-sel" id="'+idPrefix+'M">'+MONTH_OPTS+'</select><select class="d-sel" id="'+idPrefix+'D">'+DAY_OPTS+'</select></div>';}
+function wizRelOpts(sel){return CHILD_RELS.map(r=>'<option value="'+r+'"'+(r===sel?' selected':'')+'>'+r+'</option>').join('');}
+
+function wizChildNext(){
+  const d=wiz.data;
+  if(wiz.childIdx+1<d.children.length){wiz.childIdx++;wiz.step='child_detail';}
+  else{if(d.hasChildren)wiz.step='special';else wiz.step='parents';}
+  wizRender();
+}
+function wizSibNext(){
+  if(wiz.sibIdx+1<wiz.data.siblings.length){wiz.sibIdx++;wiz.step='sib_detail';}
+  else wiz.step='confirm';
+  wizRender();
+}
+
+function wizRender(){
+  const bd=document.getElementById('wizBody');
+  const ft=document.getElementById('wizFt');
+  document.getElementById('wizProg').style.width=wizProgress()+'%';
+  ft.innerHTML=wiz.history.length?'<button class="wiz-back" onclick="wizBack()">← 前の質問に戻る</button>':'<span></span>';
+  const d=wiz.data;
+
+  switch(wiz.step){
+    case 'name':{
+      const banner=isClientMode?'<div class="wiz-client-banner">相続の手続きに必要な情報をおうかがいします。<br>質問に順番にお答えください。全部で数分で終わります。</div>':'';
+      bd.innerHTML=banner+'<div class="wiz-q">亡くなった方のお名前を教えてください。</div><div class="wiz-hint">戸籍に記載されているお名前をご記入ください。</div><input class="wiz-input" id="wizIn" placeholder="例：山田 太郎" value="'+esc(d.name)+'"><button class="wiz-btn primary" onclick="wizNext(\'name\')">次へ →</button>';
+      setTimeout(()=>{const el=document.getElementById('wizIn');el.focus();el.addEventListener('keydown',e=>{if(e.key==='Enter')wizNext('name');});},50);
+      break;}
+    case 'death':
+      bd.innerHTML='<div class="wiz-q">'+esc(d.name)+'さんがお亡くなりになった日を教えてください。</div><div class="wiz-hint">年月日をそれぞれ選択してください。</div>'+wizDateRow('wizD')+'<button class="wiz-btn primary" onclick="wizNext(\'death\')">次へ →</button>';
+      setTimeout(()=>{document.getElementById('wizDY').value=d.deathY||'';document.getElementById('wizDM').value=d.deathM||'';document.getElementById('wizDD').value=d.deathD||'';},10);
+      break;
+    case 'spouse':
+      bd.innerHTML='<div class="wiz-q">'+esc(d.name)+'さんに配偶者（夫または妻）はいらっしゃいましたか？</div><div class="wiz-hint">離婚済みの場合は「いいえ」を選んでください（前の配偶者との間に子がいる場合は、後の質問で聞き取ります）。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'spouse_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'spouse_no\')">いいえ（未婚・離婚済み）</button></div>';
+      break;
+    case 'spouse_status':
+      bd.innerHTML='<div class="wiz-q">配偶者の方について教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">配偶者のお名前</label><input class="wiz-input" id="wizSpName" placeholder="例：山田 花子" value="'+esc(d.spouse.name||'')+'"></div><div class="wiz-q" style="font-size:14px;margin-bottom:8px">現在ご存命ですか？</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'spouse_alive\')">存命です</button><button class="wiz-btn" onclick="wizNext(\'spouse_dead\')">亡くなっています</button></div>';
+      break;
+    case 'spouse_death':
+      bd.innerHTML='<div class="wiz-q">配偶者の方がお亡くなりになった日を教えてください。</div>'+wizDateRow('wizSD')+'<button class="wiz-btn primary" onclick="wizNext(\'spouse_death_done\')">次へ →</button>';
+      break;
+    case 'children':
+      bd.innerHTML='<div class="wiz-q">'+esc(d.name)+'さんにお子さんはいらっしゃいますか？</div><div class="wiz-hint">現在の配偶者との子についてお答えください。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'children_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'children_no\')">いいえ</button></div>';
+      break;
+    case 'child_count':
+      bd.innerHTML='<div class="wiz-q">お子さんは何人いらっしゃいますか？</div><div class="wiz-hint">現在の配偶者との子の人数です。前婚の子は後で聞きます。</div><div class="wiz-btns">'+[1,2,3,4,5].map(n=>'<button class="wiz-btn" onclick="wizNext(\'child_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'child_detail':{
+      const ci=wiz.childIdx,total=d.children.length,c=d.children[ci];
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+'/'+total+'</span><div class="wiz-q">'+(ci+1)+'番目のお子さんについて教えてください。</div><div class="fg-row" style="margin-bottom:12px"><div class="fg"><label style="font-size:12px;color:#7f8c8d;font-weight:600">お名前</label><input class="wiz-input" id="wizCName" placeholder="例：山田 一郎" value="'+esc(c.name||'')+'"></div><div class="fg"><label style="font-size:12px;color:#7f8c8d;font-weight:600">続柄</label><select class="wiz-input" id="wizCRel" style="padding:9px 14px">'+wizRelOpts(c.relation||'')+'</select></div></div><div class="wiz-q" style="font-size:14px;margin-bottom:8px">ご存命ですか？</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'child_alive\')">存命</button><button class="wiz-btn" onclick="wizNext(\'child_dead\')">死亡</button><button class="wiz-btn" onclick="wizNext(\'child_waived\')">相続放棄</button></div>';
+      break;}
+    case 'child_before_after':{
+      const ci=wiz.childIdx;
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+'</span><div class="wiz-q">'+esc(d.name)+'さんより前に亡くなりましたか？後に亡くなりましたか？</div><div class="wiz-hint">被相続人の死亡日との前後関係で立場が変わります。</div><div class="wiz-multi"><button class="wiz-btn" onclick="wizNext(\'child_before\')"><div>被相続人より前に死亡（先死亡）</div><div class="wiz-sub">→ その子の子（孫）がいれば代襲相続</div></button><button class="wiz-btn" onclick="wizNext(\'child_after\')"><div>被相続人より後に死亡（数次相続）</div><div class="wiz-sub">→ 亡くなった子の相続人が権利を承継</div></button></div>';
+      break;}
+    case 'child_has_gc':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 代襲</span><div class="wiz-q">亡くなったお子さんに子供（被相続人からみて孫）はいますか？</div><div class="wiz-hint">いる場合は代襲相続人となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'child_has_gc_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'child_has_gc_no\')">いいえ</button></div>';
+      break;}
+    case 'child_gc_names':{
+      const ci=wiz.childIdx,gcs=d.children[ci].grandchildren;
+      let inputs='';
+      gcs.forEach((g,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">孫'+(j+1)+'のお名前</label><input class="wiz-input" id="wizGC'+j+'" placeholder="お名前" value="'+esc(g.name||'')+'"></div>';});
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+' → 代襲相続人</span><div class="wiz-q">お孫さんのお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'child_gc_names_done\')">次へ →</button>';
+      break;}
+    case 'child_suuji_spouse':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">亡くなったお子さんに配偶者はいますか？</div><div class="wiz-hint">数次相続の当事者となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'suuji_spouse_yes\')">はい（存命）</button><button class="wiz-btn" onclick="wizNext(\'suuji_spouse_no\')">いいえ</button></div>';
+      break;}
+    case 'child_suuji_spouse_name':{
+      const ss=d.children[wiz.childIdx].suujiSpouse;
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">配偶者のお名前を教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">配偶者のお名前</label><input class="wiz-input" id="wizSuujiSpName" placeholder="例：山田 花子" value="'+esc(ss.name||'')+'"></div><button class="wiz-btn primary" onclick="wizNext(\'suuji_spouse_name_done\')">次へ →</button>';
+      break;}
+    case 'child_suuji_children':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">亡くなったお子さんに子供（被相続人からみて孫）はいますか？</div><div class="wiz-hint">数次相続の当事者となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'suuji_children_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'suuji_children_no\')">いいえ</button></div>';
+      break;}
+    case 'child_suuji_child_names':{
+      const ci=wiz.childIdx,scs=d.children[ci].suujiChildren;
+      let inputs='';
+      scs.forEach((c,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">孫'+(j+1)+'（数次）のお名前</label><input class="wiz-input" id="wizSC'+j+'" placeholder="お名前" value="'+esc(c.name||'')+'"></div>';});
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(ci+1)+' → 数次相続</span><div class="wiz-q">お孫さんのお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'suuji_child_names_done\')">次へ →</button>';
+      break;}
+    case 'special':
+      bd.innerHTML='<div class="wiz-q">特別な事情はありますか？</div><button class="wiz-btn primary" style="width:100%;margin-bottom:16px" onclick="wizNext(\'special_done\')">特になし → 次へ</button><div style="border-top:1px solid #e0e0e0;padding-top:12px;margin-top:4px"><div style="font-size:11px;color:#999;margin-bottom:10px">該当する場合のみ選択してください</div><div class="wiz-multi"><button class="wiz-btn'+(d.specialCircumstances.includes('ex')?' primary':'')+'" onclick="wizToggleSC(\'ex\')"><div>'+(d.specialCircumstances.includes('ex')?'✓ ':'')+'前婚の配偶者・子がいる</div><div class="wiz-sub">被相続人に前の配偶者との間に子がいる</div></button><button class="wiz-btn'+(d.specialCircumstances.includes('adoptee')?' primary':'')+'" onclick="wizToggleSC(\'adoptee\')"><div>'+(d.specialCircumstances.includes('adoptee')?'✓ ':'')+'養子がいる</div><div class="wiz-sub">被相続人に養子縁組した子がいる</div></button></div>'+(d.specialCircumstances.length?'<button class="wiz-btn primary" style="margin-top:14px;width:100%" onclick="wizNext(\'special_done\')">次へ →</button>':'')+'</div>';
+      break;
+    case 'ex_spouse_status':
+      bd.innerHTML='<div class="wiz-q">前配偶者の方はご存命ですか？</div><div class="wiz-hint">前配偶者自体は相続人ではありませんが、図面上に記載します。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'ex_spouse_alive\')">存命</button><button class="wiz-btn" onclick="wizNext(\'ex_spouse_dead\')">死亡</button><button class="wiz-btn" onclick="wizNext(\'ex_spouse_skip\')">記載不要</button></div>';
+      break;
+    case 'ex_spouse_name':{
+      bd.innerHTML='<div class="wiz-q">前配偶者のお名前を教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">前配偶者のお名前</label><input class="wiz-input" id="wizExSpName" placeholder="例：田中 花子" value="'+esc(d.exSpouse.name||'')+'"></div><button class="wiz-btn primary" onclick="wizNext(\'ex_spouse_name_done\')">次へ →</button>';
+      break;}
+    case 'ex_count':
+      bd.innerHTML='<div class="wiz-q">前婚のお子さんは何人いますか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'ex_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'ex_names':{
+      let inputs='';
+      d.exChildren.forEach((c,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">前婚の子'+(j+1)+'のお名前</label><input class="wiz-input" id="wizEX'+j+'" placeholder="お名前" value="'+esc(c.name||'')+'"></div>';});
+      bd.innerHTML='<div class="wiz-q">前婚のお子さんのお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'ex_names_done\')">次へ →</button>';
+      break;}
+    case 'adoptee_count':
+      bd.innerHTML='<div class="wiz-q">養子は何人いますか？</div><div class="wiz-btns">'+[1,2,3].map(n=>'<button class="wiz-btn" onclick="wizNext(\'adoptee_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'adoptee_names':{
+      let inputs='';
+      d.adoptees.forEach((c,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">養子'+(j+1)+'のお名前</label><input class="wiz-input" id="wizAD'+j+'" placeholder="お名前" value="'+esc(c.name||'')+'"></div>';});
+      bd.innerHTML='<div class="wiz-q">養子のお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'adoptee_names_done\')">次へ →</button>';
+      break;}
+    case 'parents':
+      bd.innerHTML='<div class="wiz-q">被相続人のご両親はご存命ですか？</div><div class="wiz-hint">子がいない場合、親が相続人になります。</div><div class="wiz-multi"><button class="wiz-btn" onclick="wizNext(\'parents_both\')">両親とも存命</button><button class="wiz-btn" onclick="wizNext(\'parents_father\')">父のみ存命</button><button class="wiz-btn" onclick="wizNext(\'parents_mother\')">母のみ存命</button><button class="wiz-btn" onclick="wizNext(\'parents_none\')">両親とも死亡</button></div>';
+      break;
+    case 'parent_names':{
+      let inputs='';
+      d.parents.forEach((p,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">'+esc(p.rel)+'のお名前'+(p.alive?'':'（死亡）')+'</label><input class="wiz-input" id="wizPar'+j+'" placeholder="例：山田 太郎" value="'+esc(p.name||'')+'"></div>';});
+      bd.innerHTML='<div class="wiz-q">ご両親のお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'parent_names_done\')">次へ →</button>';
+      break;}
+    case 'siblings':
+      bd.innerHTML='<div class="wiz-q">被相続人に兄弟姉妹はいますか？</div><div class="wiz-hint">子も親もいない場合、兄弟姉妹が相続人になります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'siblings_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'siblings_no\')">いいえ</button></div>';
+      break;
+    case 'sibling_count':
+      bd.innerHTML='<div class="wiz-q">兄弟姉妹は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4,5].map(n=>'<button class="wiz-btn" onclick="wizNext(\'sib_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+      break;
+    case 'sib_detail':{
+      const si=wiz.sibIdx,total=d.siblings.length,sb=d.siblings[si];
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(si+1)+'/'+total+'</span><div class="wiz-q">'+(si+1)+'番目の兄弟姉妹について教えてください。</div><div class="fg" style="margin-bottom:12px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">お名前</label><input class="wiz-input" id="wizSibName" placeholder="お名前" value="'+esc(sb.name||'')+'"></div><div class="wiz-q" style="font-size:14px;margin-bottom:8px">ご存命ですか？</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'sib_alive\')">存命</button><button class="wiz-btn" onclick="wizNext(\'sib_dead\')">死亡</button></div>';
+      break;}
+    case 'sib_before_after':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(wiz.sibIdx+1)+'</span><div class="wiz-q">'+esc(d.name)+'さんより前に亡くなりましたか？後に亡くなりましたか？</div><div class="wiz-multi"><button class="wiz-btn" onclick="wizNext(\'sib_before\')"><div>被相続人より前に死亡（先死亡）</div><div class="wiz-sub">→ その子（甥姪）がいれば代襲相続</div></button><button class="wiz-btn" onclick="wizNext(\'sib_after\')"><div>被相続人より後に死亡</div></button></div>';
+      break;}
+    case 'sib_has_nephew':{
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(wiz.sibIdx+1)+' → 代襲</span><div class="wiz-q">亡くなった兄弟姉妹に子供（甥・姪）はいますか？</div><div class="wiz-hint">いる場合は代襲相続人となります。</div><div class="wiz-btns"><button class="wiz-btn" onclick="wizNext(\'sib_has_nephew_yes\')">はい</button><button class="wiz-btn" onclick="wizNext(\'sib_has_nephew_no\')">いいえ</button></div>';
+      break;}
+    case 'sib_nephew_names':{
+      const si=wiz.sibIdx,nps=d.siblings[si].nephews;
+      let inputs='';
+      nps.forEach((n,j)=>{inputs+='<div class="fg" style="margin-bottom:8px"><label style="font-size:12px;color:#7f8c8d;font-weight:600">甥姪'+(j+1)+'のお名前</label><input class="wiz-input" id="wizNP'+j+'" placeholder="お名前" value="'+esc(n.name||'')+'"></div>';});
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(si+1)+' → 代襲</span><div class="wiz-q">甥・姪のお名前を教えてください。</div><div class="wiz-hint">分からない場合は空欄でも構いません。</div>'+inputs+'<button class="wiz-btn primary" onclick="wizNext(\'sib_nephew_names_done\')">次へ →</button>';
+      break;}
+    case 'confirm':{
+      const sm=[];
+      sm.push('被相続人：'+d.name+'（'+wizDeathStr(d.deathY,d.deathM,d.deathD)+'死亡）');
+      if(d.spouse)sm.push('配偶者：'+(d.spouse.name||'(未入力)')+'　'+(d.spouse.alive?'存命':'死亡'));else sm.push('配偶者：なし');
+      if(d.children.length){
+        sm.push('子：'+d.children.length+'人');
+        d.children.forEach((c,i)=>{
+          let st=c.alive?'存命':c.waived?'相続放棄':(c.roleOverride==='先死亡'?'先死亡':'相続後死亡（数次）');
+          if(c.grandchildren&&c.grandchildren.length)st+=' → 代襲'+c.grandchildren.length+'人';
+          if(c.suujiSpouse)st+=' → 数次:配偶者あり';
+          if(c.suujiChildren&&c.suujiChildren.length)st+=' → 数次:子'+c.suujiChildren.length+'人';
+          sm.push('  └ '+(c.relation||'子'+(i+1))+'：'+(c.name||'(未入力)')+'　'+st);
+        });
+      }
+      if(d.exSpouse)sm.push('前配偶者：'+(d.exSpouse.name||'(未入力)')+'　'+(d.exSpouse.alive?'存命':'死亡'));
+      if(d.exChildren.length){sm.push('前婚の子：'+d.exChildren.length+'人');d.exChildren.forEach((c,i)=>sm.push('  └ '+(c.name||'(未入力)')));}
+      if(d.adoptees.length){sm.push('養子：'+d.adoptees.length+'人');d.adoptees.forEach((c,i)=>sm.push('  └ '+(c.name||'(未入力)')));}
+      if(d.parents.length)d.parents.forEach(p=>sm.push(p.rel+'：'+(p.name||'(未入力)')+'　'+(p.alive?'存命（相続人）':'先死亡')));
+      if(d.siblings.length){
+        sm.push('兄弟姉妹：'+d.siblings.length+'人');
+        d.siblings.forEach((sb,i)=>{
+          let st=sb.alive?'存命':(sb.roleOverride==='先死亡'?'先死亡':'相続後死亡');
+          if(sb.nephews&&sb.nephews.length)st+=' → 代襲(甥姪)'+sb.nephews.length+'人';
+          sm.push('  └ '+(sb.name||'(未入力)')+'　'+st);
+        });
+      }
+      if(isClientMode){
+        bd.innerHTML='<div class="wiz-q">入力ありがとうございます。内容をご確認ください。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-q" style="font-size:13px;margin-top:16px">よろしければ下のボタンを押して、担当者にデータを送ってください。</div><button class="wiz-copy-btn" id="wizCopyBtn" onclick="wizCopyCode()">データをコピーして送る</button><div style="margin-top:12px"><button class="wiz-btn" onclick="wizBack()">← 修正する</button></div>';
+      } else {
+        bd.innerHTML='<div class="wiz-q">以下の内容で相続関係説明図を作成します。</div><div class="wiz-summary">'+esc(sm.join('\n'))+'</div><div class="wiz-btns"><button class="wiz-btn primary" onclick="wizApply()">図面を作成 →</button><button class="wiz-btn" onclick="wizBack()">修正する</button></div>';
+      }
+      ft.innerHTML='';
+      break;}
+  }
+}
+
+function wizDeathStr(y,m,dd){if(!y)return'';const pv=parseYearVal(y);if(!pv.y)return'';const es=pv.era?pv.era:warekiYear(pv.y).replace('年','');return es+'年'+(m?m+'月':'')+(dd?dd+'日':'');}
+function wizToggleSC(id){const sc=wiz.data.specialCircumstances;const i=sc.indexOf(id);if(i>=0)sc.splice(i,1);else sc.push(id);wizRender();}
+function wizHasAnyChildren(){const d=wiz.data;return d.hasChildren||d.exChildren.length>0||d.adoptees.length>0;}
+function wizAfterSpecial(){const d=wiz.data;if(d.specialCircumstances.includes('ex'))wiz.step='ex_spouse_status';else if(d.specialCircumstances.includes('adoptee'))wiz.step='adoptee_count';else if(!d.hasChildren)wiz.step='parents';else wiz.step='confirm';}
+function wizAfterEx(){const d=wiz.data;if(d.specialCircumstances.includes('adoptee'))wiz.step='adoptee_count';else if(!wizHasAnyChildren())wiz.step='parents';else wiz.step='confirm';}
+
+function wizSaveChildInput(){
+  const ci=wiz.childIdx,c=wiz.data.children[ci];
+  const nameEl=document.getElementById('wizCName');
+  const relEl=document.getElementById('wizCRel');
+  if(nameEl)c.name=nameEl.value.trim();
+  if(relEl)c.relation=relEl.value;
+}
+function wizSaveSibInput(){
+  const si=wiz.sibIdx,sb=wiz.data.siblings[si];
+  const nameEl=document.getElementById('wizSibName');
+  if(nameEl)sb.name=nameEl.value.trim();
+}
+function wizHighlight(id){const el=document.getElementById(id);if(el){el.style.borderColor='#e74c3c';el.focus();el.addEventListener('input',function h(){el.style.borderColor='';el.removeEventListener('input',h);},{once:true});}}
+function wizSaveSpouseName(){
+  if(wiz.data.spouse){
+    const el=document.getElementById('wizSpName');
+    if(el)wiz.data.spouse.name=el.value.trim();
+  }
+}
+
+function wizNext(action,val){
+  const d=wiz.data;
+  wizPush();
+  switch(action){
+    case 'name':
+      d.name=(document.getElementById('wizIn').value||'').trim();
+      if(!d.name){wiz.history.pop();return;}
+      wiz.step='death';break;
+    case 'death':
+      d.deathY=document.getElementById('wizDY').value;d.deathM=document.getElementById('wizDM').value;d.deathD=document.getElementById('wizDD').value;
+      wiz.step='spouse';break;
+    case 'spouse_yes':d.spouse={alive:true,name:'',deathY:'',deathM:'',deathD:''};wiz.step='spouse_status';break;
+    case 'spouse_no':d.spouse=null;wiz.step='children';break;
+    case 'spouse_alive':wizSaveSpouseName();if(!d.spouse.name){wiz.history.pop();wizHighlight('wizSpName');return;}d.spouse.alive=true;wiz.step='children';break;
+    case 'spouse_dead':wizSaveSpouseName();if(!d.spouse.name){wiz.history.pop();wizHighlight('wizSpName');return;}d.spouse.alive=false;wiz.step='spouse_death';break;
+    case 'spouse_death_done':
+      d.spouse.deathY=document.getElementById('wizSDY').value;d.spouse.deathM=document.getElementById('wizSDM').value;d.spouse.deathD=document.getElementById('wizSDD').value;
+      wiz.step='children';break;
+    case 'children_yes':d.hasChildren=true;wiz.step='child_count';break;
+    case 'children_no':d.hasChildren=false;wiz.step='special';break;
+    case 'child_n':
+      d.children=Array.from({length:val},()=>({alive:true,waived:false,name:'',relation:'',roleOverride:'',grandchildren:[],suujiSpouse:null,suujiChildren:[]}));
+      wiz.childIdx=0;wiz.step='child_detail';break;
+    case 'child_alive':wizSaveChildInput();if(!d.children[wiz.childIdx].name){wiz.history.pop();wizHighlight('wizCName');return;}d.children[wiz.childIdx].alive=true;wizChildNext();return;
+    case 'child_dead':wizSaveChildInput();if(!d.children[wiz.childIdx].name){wiz.history.pop();wizHighlight('wizCName');return;}d.children[wiz.childIdx].alive=false;wiz.step='child_before_after';break;
+    case 'child_waived':wizSaveChildInput();if(!d.children[wiz.childIdx].name){wiz.history.pop();wizHighlight('wizCName');return;}d.children[wiz.childIdx].waived=true;wizChildNext();return;
+    case 'child_before':d.children[wiz.childIdx].roleOverride='先死亡';wiz.step='child_has_gc';break;
+    case 'child_after':d.children[wiz.childIdx].roleOverride='相続後死亡';wiz.step='child_suuji_spouse';break;
+    case 'child_has_gc_yes':wiz.step='child_gc_count';break;
+    case 'child_has_gc_no':wizChildNext();return;
+    case 'child_gc_count':break;
+    case 'child_gc_n':d.children[wiz.childIdx].grandchildren=Array.from({length:val},()=>({name:''}));wiz.step='child_gc_names';break;
+    case 'child_gc_names_done':{
+      const gcs=d.children[wiz.childIdx].grandchildren;
+      gcs.forEach((g,j)=>{const el=document.getElementById('wizGC'+j);if(el)g.name=el.value.trim();});
+      const emptyGC=gcs.findIndex(g=>!g.name);if(emptyGC>=0){wiz.history.pop();wizHighlight('wizGC'+emptyGC);return;}
+      wizChildNext();return;}
+    case 'suuji_spouse_yes':d.children[wiz.childIdx].suujiSpouse={exists:true,name:''};wiz.step='child_suuji_spouse_name';break;
+    case 'suuji_spouse_name_done':{const el=document.getElementById('wizSuujiSpName');const ss=d.children[wiz.childIdx].suujiSpouse;if(el)ss.name=el.value.trim();if(!ss.name){wiz.history.pop();wizHighlight('wizSuujiSpName');return;}wiz.step='child_suuji_children';break;}
+    case 'suuji_spouse_no':d.children[wiz.childIdx].suujiSpouse=null;wiz.step='child_suuji_children';break;
+    case 'suuji_children_yes':wiz.step='child_suuji_child_count';break;
+    case 'suuji_children_no':wizChildNext();return;
+    case 'suuji_child_count':break;
+    case 'suuji_child_n':d.children[wiz.childIdx].suujiChildren=Array.from({length:val},()=>({name:''}));wiz.step='child_suuji_child_names';break;
+    case 'suuji_child_names_done':{
+      const scs=d.children[wiz.childIdx].suujiChildren;
+      scs.forEach((c,j)=>{const el=document.getElementById('wizSC'+j);if(el)c.name=el.value.trim();});
+      const emptySC=scs.findIndex(c=>!c.name);if(emptySC>=0){wiz.history.pop();wizHighlight('wizSC'+emptySC);return;}
+      wizChildNext();return;}
+    case 'special_done':wizAfterSpecial();break;
+    case 'ex_spouse_alive':d.exSpouse={alive:true,name:''};wiz.step='ex_spouse_name';break;
+    case 'ex_spouse_dead':d.exSpouse={alive:false,name:''};wiz.step='ex_spouse_name';break;
+    case 'ex_spouse_name_done':{const el=document.getElementById('wizExSpName');if(el)d.exSpouse.name=el.value.trim();if(!d.exSpouse.name){wiz.history.pop();wizHighlight('wizExSpName');return;}wiz.step='ex_count';break;}
+    case 'ex_spouse_skip':d.exSpouse=null;wiz.step='ex_count';break;
+    case 'ex_n':d.exChildren=Array.from({length:val},()=>({name:''}));wiz.step='ex_names';break;
+    case 'ex_names_done':
+      d.exChildren.forEach((c,j)=>{const el=document.getElementById('wizEX'+j);if(el)c.name=el.value.trim();});
+      {const emptyEX=d.exChildren.findIndex(c=>!c.name);if(emptyEX>=0){wiz.history.pop();wizHighlight('wizEX'+emptyEX);return;}}
+      wizAfterEx();break;
+    case 'adoptee_n':d.adoptees=Array.from({length:val},()=>({name:''}));wiz.step='adoptee_names';break;
+    case 'adoptee_names_done':
+      d.adoptees.forEach((c,j)=>{const el=document.getElementById('wizAD'+j);if(el)c.name=el.value.trim();});
+      {const emptyAD=d.adoptees.findIndex(c=>!c.name);if(emptyAD>=0){wiz.history.pop();wizHighlight('wizAD'+emptyAD);return;}}
+      if(!wizHasAnyChildren())wiz.step='parents';else wiz.step='confirm';break;
+    case 'parents_both':d.parents=[{rel:'父',alive:true,name:''},{rel:'母',alive:true,name:''}];wiz.step='parent_names';break;
+    case 'parents_father':d.parents=[{rel:'父',alive:true,name:''},{rel:'母',alive:false,name:''}];wiz.step='parent_names';break;
+    case 'parents_mother':d.parents=[{rel:'父',alive:false,name:''},{rel:'母',alive:true,name:''}];wiz.step='parent_names';break;
+    case 'parents_none':d.parents=[{rel:'父',alive:false,name:''},{rel:'母',alive:false,name:''}];wiz.step='parent_names';break;
+    case 'parent_names_done':
+      d.parents.forEach((p,j)=>{const el=document.getElementById('wizPar'+j);if(el)p.name=el.value.trim();});
+      {const emptyPar=d.parents.findIndex(p=>!p.name);if(emptyPar>=0){wiz.history.pop();wizHighlight('wizPar'+emptyPar);return;}}
+      if(d.parents.every(p=>!p.alive))wiz.step='siblings';else wiz.step='confirm';break;
+    case 'siblings_yes':wiz.step='sibling_count';break;
+    case 'siblings_no':wiz.step='confirm';break;
+    case 'sib_n':
+      d.siblings=Array.from({length:val},()=>({alive:true,name:'',roleOverride:'',nephews:[]}));
+      wiz.sibIdx=0;wiz.step='sib_detail';break;
+    case 'sib_alive':wizSaveSibInput();if(!d.siblings[wiz.sibIdx].name){wiz.history.pop();wizHighlight('wizSibName');return;}d.siblings[wiz.sibIdx].alive=true;wizSibNext();return;
+    case 'sib_dead':wizSaveSibInput();if(!d.siblings[wiz.sibIdx].name){wiz.history.pop();wizHighlight('wizSibName');return;}d.siblings[wiz.sibIdx].alive=false;wiz.step='sib_before_after';break;
+    case 'sib_before':d.siblings[wiz.sibIdx].roleOverride='先死亡';wiz.step='sib_has_nephew';break;
+    case 'sib_after':d.siblings[wiz.sibIdx].roleOverride='相続後死亡';wizSibNext();return;
+    case 'sib_has_nephew_yes':wiz.step='sib_nephew_count';break;
+    case 'sib_has_nephew_no':wizSibNext();return;
+    case 'sib_nephew_count':break;
+    case 'sib_nephew_n':d.siblings[wiz.sibIdx].nephews=Array.from({length:val},()=>({name:''}));wiz.step='sib_nephew_names';break;
+    case 'sib_nephew_names_done':{
+      const nps=d.siblings[wiz.sibIdx].nephews;
+      nps.forEach((n,j)=>{const el=document.getElementById('wizNP'+j);if(el)n.name=el.value.trim();});
+      const emptyNP=nps.findIndex(n=>!n.name);if(emptyNP>=0){wiz.history.pop();wizHighlight('wizNP'+emptyNP);return;}
+      wizSibNext();return;}
+  }
+  wizRender();
+}
+
+// gc/nephew/suuji count steps (need to render inline since they go to name steps)
+(function(){
+  const origRender=wizRender;
+  wizRender=function(){
+    origRender();
+    const bd=document.getElementById('wizBody');
+    if(wiz.step==='child_gc_count'){
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 代襲</span><div class="wiz-q">お孫さん（代襲相続人）は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'child_gc_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+    }
+    if(wiz.step==='child_suuji_child_count'){
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">子 '+(wiz.childIdx+1)+' → 数次相続</span><div class="wiz-q">お孫さん（数次相続の当事者）は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'suuji_child_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+    }
+    if(wiz.step==='sib_nephew_count'){
+      bd.innerHTML='<span class="wiz-tag wiz-tag-blue">兄弟姉妹 '+(wiz.sibIdx+1)+' → 代襲</span><div class="wiz-q">甥・姪（代襲相続人）は何人ですか？</div><div class="wiz-btns">'+[1,2,3,4].map(n=>'<button class="wiz-btn" onclick="wizNext(\'sib_nephew_n\','+n+')">'+n+'人</button>').join('')+'</div>';
+    }
+  };
+})();
+
+function getClientUrl(){
+  const u=new URL(location.href);u.search='?client';
+  return u.toString();
+}
+function openShareClient(){
+  let ov=document.getElementById('shareOverlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='shareOverlay';ov.className='import-overlay';
+    ov.innerHTML='<div class="share-box"><h3>📤 お客様に入力用リンクを送る</h3><p>下のURLをコピーして、お客様にお送りください。<br>お客様がリンクを開くと入力画面が表示されます。</p><div class="share-url-row"><input id="shareUrlInput" readonly><button onclick="shareClipboard()">コピー</button></div><div style="margin-top:16px;text-align:right"><button class="wiz-btn" onclick="closeShareClient()">閉じる</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  const si=document.getElementById('shareUrlInput');si.value=getClientUrl();
+  setTimeout(()=>{si.focus();si.select();},100);
+  ov.classList.add('active');
+}
+function closeShareClient(){document.getElementById('shareOverlay').classList.remove('active');}
+function shareClipboard(){
+  const inp=document.getElementById('shareUrlInput');
+  inp.focus();inp.select();inp.setSelectionRange(0,99999);
+  const btn=document.querySelector('.share-url-row button');
+  try{
+    if(document.execCommand('copy')){btn.textContent='✓ コピー済';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);return;}
+  }catch(e){}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(inp.value).then(()=>{btn.textContent='✓ コピー済';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);});
+  }else{btn.textContent='Ctrl+C でコピーしてください';setTimeout(()=>{btn.textContent='コピー';},3000);}
+}
+
+function openLoadDialog(){
+  let ov=document.getElementById('loadOverlay');
+  if(!ov){
+    ov=document.createElement('div');ov.id='loadOverlay';ov.className='import-overlay';
+    ov.innerHTML='<div class="import-box"><h3>読み込み</h3><div class="wiz-multi" style="margin-bottom:16px"><button class="wiz-btn" onclick="doLoadFile()" style="padding:16px"><div style="font-weight:700">📁 ファイルから読込</div><div class="wiz-sub">保存したJSONファイルを選択</div></button><button class="wiz-btn" onclick="showCodeInput()" style="padding:16px"><div style="font-weight:700">📋 お客様コードを読込</div><div class="wiz-sub">お客様から受け取ったコードを貼り付け</div></button></div><div id="codeInputArea" style="display:none"><textarea class="wiz-code-area" id="importArea" placeholder="お客様から受け取ったコードを貼り付け..."></textarea><div class="wiz-btns"><button class="wiz-btn primary" onclick="doClientImport()">読み込む</button></div><div class="import-err" id="importErr">コードが正しくありません。お客様に再度お送りいただくようお伝えください。</div></div><div style="margin-top:12px;text-align:right"><button class="wiz-btn" onclick="closeLoadDialog()">キャンセル</button></div></div>';
+    document.body.appendChild(ov);
+  }
+  document.getElementById('codeInputArea').style.display='none';
+  document.getElementById('importErr').style.display='none';
+  ov.classList.add('active');
+}
+function closeLoadDialog(){document.getElementById('loadOverlay').classList.remove('active');}
+function doLoadFile(){closeLoadDialog();document.getElementById('fi').click();}
+function showCodeInput(){document.getElementById('codeInputArea').style.display='block';setTimeout(()=>document.getElementById('importArea').focus(),50);}
+function doClientImport(){
+  const code=document.getElementById('importArea').value.trim();
+  try{
+    const json=decodeURIComponent(escape(atob(code)));
+    const d=JSON.parse(json);
+    if(!d.name)throw new Error('invalid');
+    closeLoadDialog();openWizard();
+    wiz.data=Object.assign(wizInitData(),d);
+    wiz.step='confirm';wiz.history=[];wiz.forward=[];wiz.childIdx=0;wiz.sibIdx=0;
+    wizRender();
+  }catch(e){document.getElementById('importErr').style.display='block';}
+}
+
+function wizCopyCode(){
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(wiz.data))));
+  const btn=document.getElementById('wizCopyBtn');
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='✓ コピーしました！担当者に貼り付けて送ってください';btn.classList.add('wiz-copied');
+    setTimeout(()=>{btn.textContent='もう一度コピーする';btn.classList.remove('wiz-copied');},3000);
+  }).catch(()=>{
+    // フォールバック
+    const t=document.createElement('textarea');t.value=code;t.style.cssText='position:fixed;opacity:0';
+    document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    btn.textContent='✓ コピーしました！担当者に貼り付けて送ってください';btn.classList.add('wiz-copied');
+    setTimeout(()=>{btn.textContent='もう一度コピーする';btn.classList.remove('wiz-copied');},3000);
+  });
+}
+
+function wizApply(){
+  const d=wiz.data;
+  P=[];uid=1;cardPositions={};cardPositionsV={};cardPositionsH={};footerPos=null;hdrPos=null;
+
+  const bsz={id:uid++,name:d.name,relation:'',role:'被相続人',roleOverride:'',isBSZ:true,
+    birthY:'',birthM:'',birthD:'',deathY:d.deathY,deathM:d.deathM,deathD:d.deathD,
+    father:'',mother:'',spouse:'',exSpouses:[],address:''};
+  P.push(bsz);
+
+  let spouseId=null;
+  if(d.spouse){
+    const sp={id:uid++,name:d.spouse.name||'',relation:'妻',role:'',roleOverride:'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:d.spouse.deathY||'',deathM:d.spouse.deathM||'',deathD:d.spouse.deathD||'',
+      father:'',mother:'',spouse:String(bsz.id),exSpouses:[],address:''};
+    P.push(sp);bsz.spouse=String(sp.id);spouseId=sp.id;
+  }
+
+  let exSpouseId=null;
+  if(d.exSpouse){
+    const ex={id:uid++,name:d.exSpouse.name||'',relation:'前妻',role:'',roleOverride:d.exSpouse.alive?'元配偶者':'死亡',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:'',mother:'',spouse:'',exSpouses:[],address:''};
+    P.push(ex);exSpouseId=ex.id;bsz.exSpouses.push(String(ex.id));
+  }
+
+  d.children.forEach((c,i)=>{
+    const rel=c.relation||CHILD_REL_M[i]||('子'+(i+1));
+    const kid={id:uid++,name:c.name||'',relation:rel,role:'',roleOverride:c.waived?'遺産分割':(c.roleOverride||''),isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:String(bsz.id),mother:spouseId?String(spouseId):'',spouse:'',exSpouses:[],address:''};
+    P.push(kid);
+    if(c.grandchildren&&c.grandchildren.length){
+      c.grandchildren.forEach(g=>{
+        P.push({id:uid++,name:g.name||'',relation:'孫',role:'',roleOverride:'',isBSZ:false,
+          birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+          father:String(kid.id),mother:'',spouse:'',exSpouses:[],address:''});
+      });
+    }
+    if(c.suujiSpouse&&c.suujiSpouse.exists){
+      const suujiSp={id:uid++,name:c.suujiSpouse.name||'',relation:'妻',role:'',roleOverride:'',isBSZ:false,
+        birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+        father:'',mother:'',spouse:String(kid.id),exSpouses:[],address:''};
+      P.push(suujiSp);kid.spouse=String(suujiSp.id);
+    }
+    if(c.suujiChildren&&c.suujiChildren.length){
+      c.suujiChildren.forEach(sc=>{
+        P.push({id:uid++,name:sc.name||'',relation:'孫',role:'',roleOverride:'',isBSZ:false,
+          birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+          father:String(kid.id),mother:kid.spouse||'',spouse:'',exSpouses:[],address:''});
+      });
+    }
+  });
+
+  d.exChildren.forEach(c=>{
+    P.push({id:uid++,name:c.name||'',relation:'子',role:'',roleOverride:'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:String(bsz.id),mother:exSpouseId?String(exSpouseId):'',spouse:'',exSpouses:[],address:''});
+  });
+
+  d.adoptees.forEach(c=>{
+    P.push({id:uid++,name:c.name||'',relation:'養子',role:'',roleOverride:'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:String(bsz.id),mother:spouseId?String(spouseId):'',spouse:'',exSpouses:[],address:''});
+  });
+
+  let fatherId=null,motherId=null;
+  d.parents.forEach(p=>{
+    const par={id:uid++,name:p.name||'',relation:p.rel,role:'',roleOverride:p.alive?'':'先死亡',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:'',mother:'',spouse:'',exSpouses:[],address:''};
+    P.push(par);
+    if(p.rel==='父'){bsz.father=String(par.id);fatherId=par.id;}
+    if(p.rel==='母'){bsz.mother=String(par.id);motherId=par.id;}
+  });
+  if(fatherId&&motherId){
+    const f=P.find(x=>x.id===fatherId),m=P.find(x=>x.id===motherId);
+    if(f&&m){f.spouse=String(motherId);m.spouse=String(fatherId);}
+  }
+
+  d.siblings.forEach((sb,i)=>{
+    const sib={id:uid++,name:sb.name||'',relation:i===0?'兄':'弟',role:'',roleOverride:sb.roleOverride||'',isBSZ:false,
+      birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+      father:bsz.father||'',mother:bsz.mother||'',spouse:'',exSpouses:[],address:''};
+    P.push(sib);
+    if(sb.nephews&&sb.nephews.length){
+      sb.nephews.forEach(n=>{
+        P.push({id:uid++,name:n.name||'',relation:'甥',role:'',roleOverride:'',isBSZ:false,
+          birthY:'',birthM:'',birthD:'',deathY:'',deathM:'',deathD:'',
+          father:String(sib.id),mother:'',spouse:'',exSpouses:[],address:''});
+      });
+    }
+  });
+
+  document.getElementById('inHonseki').value=d.honseki||'';
+  document.getElementById('inLastAddr').value=d.lastAddr||'';
+  document.getElementById('inRegAddr').value=d.regAddr||'';
+  autoRoles();renderList(0);draw();closeWizard();
+}
+
+const isClientMode=new URLSearchParams(location.search).has('client');
+if(isClientMode){document.body.classList.add('client-mode');openWizard();}
+</script>
 </body>
 </html>
