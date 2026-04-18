@@ -13,9 +13,12 @@
 <style>
   html, body, #root { height:100%; width:100%; overflow:hidden; margin:0; }
   .v2 { height:100%; }
-  /* .v2-shell, .v2-body come from app-v2.css */
-  .v2-canvas { min-width:0; }
-  .v2-canvas__scroll > div { position:relative; padding:24px; }
+  .v2-shell { height:100%; display:flex; flex-direction:column; }
+  .v2-body { flex:1; display:flex; overflow:hidden; min-height:0; }
+  .v2-side { flex-shrink:0; overflow-y:auto; }
+  .v2-canvas { flex:1; display:flex; flex-direction:column; min-width:0; }
+  .v2-canvas__scroll { flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+  .v2-canvas__scroll > div { position:relative; }
   /* Inputs we add on top of v2 base */
   .v2-input-text, .v2-input-select, .v2-input-area { width:100%; padding:6px 10px; border:1px solid var(--m-border); border-radius:var(--m-r-sm); font-size:12.5px; color:var(--m-ink-800); background:var(--m-surface); font-family:inherit; box-sizing:border-box; }
   .v2-input-area { resize:vertical; min-height:48px; padding:8px 10px; }
@@ -28,7 +31,9 @@
   .v2-dcard.dragging { cursor:grabbing; opacity:.95; z-index:50; box-shadow: 0 8px 24px rgba(16,24,40,.18); }
   .v2-dlines { position:absolute; top:0; left:0; pointer-events:none; }
   .v2-add-row { margin-top:8px; }
-  /* .v2-side, .v2-side__sec, .v2-plist, .v2-plist__head are provided by app-v2.css */
+  .v2-side__sec { padding:14px 16px; border-bottom:1px solid var(--m-border); }
+  .v2-plist__head { padding:14px 16px 6px; display:flex; justify-content:space-between; align-items:baseline; }
+  .v2-plist { padding:0 10px 12px; }
   /* Preview overlay */
   .pv-overlay { position:fixed; inset:0; background:rgba(10,13,18,.72); z-index:200; display:flex; flex-direction:column; align-items:center; overflow:auto; }
   .pv-a4 { position:relative; background:#fff; width:210mm; height:297mm; margin:20px auto 80px; box-shadow:0 20px 48px rgba(0,0,0,.4); overflow:hidden; flex-shrink:0; }
