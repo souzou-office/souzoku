@@ -4,171 +4,143 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>相続関係説明図</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  /* Ink palette (warm black neutrals) */
-  --ink-900:#14110e; --ink-800:#2a2620; --ink-700:#4a433b; --ink-600:#6e665b;
-  --ink-500:#928878; --ink-400:#b5ac9c; --ink-300:#d5cdbd; --ink-200:#e8e1d2;
-  --ink-150:#f0ead9; --ink-100:#f7f2e3; --ink-50:#fbf8ee;
-  --paper:#fdfaf1; --white:#ffffff;
-  /* Brand (sumi-navy + enji) */
-  --brand-900:#1a2332; --brand-800:#253449; --brand-700:#334a66;
-  --brand-600:#4a6585; --brand-500:#6b84a3;
-  --accent:#8c2a2b; --accent-soft:#b85457;
-  /* Role colors (desaturated, legal-document tone) */
-  --role-bsz:#8c2a2b;    --role-bsz-bg:#f5e8e4;
-  --role-heir:#3d6e4f;   --role-heir-bg:#e4ede3;
-  --role-waiver:#a86b1f; --role-waiver-bg:#f4ead6;
-  --role-pre:#786d5f;    --role-pre-bg:#ede8dd;
-  --role-post:#583f6b;   --role-post-bg:#ebe3f0;
-  --role-suuji:#2f5977;  --role-suuji-bg:#dde7ef;
-  --role-both:#2a6860;   --role-both-bg:#dfece8;
-  --role-none:#8c8478;   --role-none-bg:#eae4d8;
-  /* Backwards-compat aliases (existing selectors) */
-  --primary:var(--brand-700); --primary-l:var(--brand-600);
-  --bg:var(--ink-50); --card:var(--white);
-  --border:var(--ink-200); --txt:var(--ink-800); --txtL:var(--ink-600);
-  --r:10px;
-  --danger:#8c2a2b;
-  --shadow-1:0 1px 2px rgba(20,17,14,.04),0 1px 3px rgba(20,17,14,.06);
-  --shadow-2:0 2px 4px rgba(20,17,14,.05),0 4px 12px rgba(20,17,14,.08);
-  --ff-ui:'Noto Sans JP','Hiragino Sans','Yu Gothic UI','Meiryo',system-ui,sans-serif;
-  --ff-doc:'Shippori Mincho','Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;
+  --primary: #1a5276;
+  --primary-l: #2980b9;
+  --bg: #eef1f5;
+  --card: #fff;
+  --border: #d5dbe3;
+  --txt: #2c3e50;
+  --txtL: #7f8c8d;
+  --r: 8px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--ff-ui);background:var(--bg);color:var(--txt);font-size:13px;font-feature-settings:'palt' 1;-webkit-font-smoothing:antialiased}
+body{font-family:'Yu Gothic UI','Meiryo',sans-serif;background:var(--bg);color:var(--txt);font-size:13px}
 button{cursor:pointer;font-family:inherit;font-size:13px}
 
-.header{background:var(--ink-900);color:var(--ink-100);padding:0 16px;height:52px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #000;font-size:12.5px}
-.header h1{font-size:13px;font-weight:600;letter-spacing:.04em;color:var(--ink-100)}
-.hdr-btns .btn-undo,.hdr-btns .btn-redo{padding:0 10px!important;height:30px!important;font-size:14px!important;min-width:0;display:inline-flex;align-items:center;justify-content:center}
-.hdr-btns .btn-undo{background:rgba(255,255,255,.06)!important;color:var(--ink-200)!important;font-weight:600;border:1px solid rgba(255,255,255,.14)!important}
-.hdr-btns .btn-undo:hover{background:rgba(255,255,255,.12)!important;color:var(--ink-100)!important}
-.hdr-btns .btn-redo{background:rgba(255,255,255,.06)!important;color:var(--ink-200)!important;font-weight:600;border:1px solid rgba(255,255,255,.14)!important}
-.hdr-btns .btn-redo:hover{background:rgba(255,255,255,.12)!important;color:var(--ink-100)!important}
-.hdr-sep{width:1px;height:22px;background:rgba(255,255,255,.1);margin:0 4px}
-.hdr-btns{display:flex;gap:6px;align-items:center}
-.hdr-btns button{height:30px;padding:0 12px;border:none;border-radius:6px;font-weight:500;font-size:12px;background:transparent;color:var(--ink-200);cursor:pointer;letter-spacing:.02em;transition:background .12s,color .12s;display:inline-flex;align-items:center;gap:6px}
-.hdr-btns button:hover{background:rgba(255,255,255,.08);color:var(--ink-100)}
+.header{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:10px 24px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.header h1{font-size:17px;font-weight:600}
+.hdr-btns .btn-undo,.hdr-btns .btn-redo{padding:6px 10px!important;font-size:14px!important;min-width:0}
+.hdr-btns .btn-undo{background:rgba(255,255,255,.85)!important;color:#1a5276!important;font-weight:700}
+.hdr-btns .btn-undo:hover{background:#fff!important}
+.hdr-btns .btn-redo{background:#f0c040!important;color:#1a5276!important;font-weight:700}
+.hdr-btns .btn-redo:hover{background:#e6b030!important}
+.hdr-sep{width:1px;background:rgba(255,255,255,.3);align-self:stretch;margin:2px 4px}
+.hdr-btns{display:flex;gap:6px}
+.hdr-btns button{padding:6px 16px;border:none;border-radius:6px;font-weight:600;font-size:12px;background:rgba(255,255,255,.2);color:#fff;cursor:pointer}
+.hdr-btns button:hover{background:rgba(255,255,255,.35)}
 
-.wrap{display:flex;height:calc(100vh - 52px)}
+.wrap{display:flex;height:calc(100vh - 46px)}
 
-.side{width:400px;min-width:400px;background:var(--white);border-right:1px solid var(--ink-200);display:flex;flex-direction:column}
-.side-head{padding:16px 18px 14px;border-bottom:1px solid var(--ink-200);background:linear-gradient(180deg,var(--ink-50),var(--white))}
-.side-head label{font-size:10.5px;color:var(--ink-600);font-weight:500;display:block;margin-bottom:3px;margin-top:10px;letter-spacing:.04em}
+.side{width:400px;min-width:400px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column}
+.side-head{padding:12px 16px 14px;border-bottom:1px solid var(--border)}
+.side-head label{font-size:11px;color:var(--txtL);font-weight:600;display:block;margin-bottom:3px;margin-top:10px}
 .side-head label:first-child{margin-top:0}
-.side-head input{width:100%;height:30px;padding:0 10px;border:1px solid var(--ink-200);border-radius:6px;font-size:13px;margin-bottom:2px;color:var(--ink-800);background:var(--white);font-family:inherit}
-.side-head input:focus{border-color:var(--brand-700);outline:none;box-shadow:0 0 0 3px rgba(51,74,102,.1)}
+.side-head input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:2px}
+.side-head input:focus{border-color:var(--primary-l);outline:none}
 
-.plist{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px}
+.plist{flex:1;overflow-y:auto;padding:10px}
 
-.pc{position:relative;background:var(--white);border:1px solid var(--ink-200);border-radius:var(--r);overflow:hidden;transition:border-color .12s,box-shadow .12s}
-.pc:hover{border-color:var(--ink-300)}
-.pc.open{box-shadow:var(--shadow-1)}
-.pc::before{content:"";position:absolute;top:0;bottom:0;left:0;width:3px;background:var(--ink-300)}
-.pc.r-被相続人::before{background:var(--role-bsz)}
-.pc.r-相続人::before{background:var(--role-heir)}
-.pc.r-遺産分割::before{background:var(--role-waiver)}
-.pc.r-先死亡::before{background:var(--role-pre)}
-.pc.r-相続後死亡::before{background:var(--role-post)}
-.pc.r-数次相続人::before{background:var(--role-suuji)}
-.pc.r-無関係::before{background:var(--role-none)}
-.pc.r-相続人兼数次相続人::before{background:var(--role-both)}
+.pc{background:#fff;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;border-left:4px solid #bdc3c7}
+.pc.r-被相続人{border-left-color:#e91e63}
+.pc.r-相続人{border-left-color:#27ae60}
+.pc.r-遺産分割{border-left-color:#f39c12}
+.pc.r-先死亡{border-left-color:#95a5a6}
+.pc.r-相続後死亡{border-left-color:#8e44ad}
+.pc.r-数次相続人{border-left-color:#2980b9}
+.pc.r-無関係{border-left-color:#95a5a6}
+.pc.r-相続人兼数次相続人{border-left-color:#16a085}
 
-.pc-hd{display:flex;justify-content:space-between;align-items:center;padding:10px 12px 10px 16px;cursor:pointer;user-select:none}
-.pc-hd:hover{background:var(--ink-50)}
-.pc.open .pc-hd{background:var(--ink-50)}
-.pc-nm{font-weight:600;font-size:13.5px;color:var(--ink-900);letter-spacing:.01em}
-.pc-sub{font-size:11px;color:var(--ink-600);margin-left:8px}
-.pc-badge{font-size:10px;padding:2px 8px;border-radius:3px;font-weight:600;margin-left:6px;letter-spacing:.04em}
-.bg-被相続人{background:var(--role-bsz-bg);color:var(--role-bsz)}
-.bg-相続人{background:var(--role-heir-bg);color:var(--role-heir)}
-.bg-遺産分割{background:var(--role-waiver-bg);color:var(--role-waiver)}
-.bg-先死亡{background:var(--role-pre-bg);color:var(--role-pre)}
-.bg-相続後死亡{background:var(--role-post-bg);color:var(--role-post)}
-.bg-数次相続人{background:var(--role-suuji-bg);color:var(--role-suuji)}
-.bg-無関係{background:var(--role-none-bg);color:var(--role-none)}
-.bg-相続人兼数次相続人{background:var(--role-both-bg);color:var(--role-both)}
-.pc-tgl{font-size:16px;color:var(--ink-400);transition:transform .2s}
+.pc-hd{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;cursor:pointer;user-select:none}
+.pc-hd:hover{background:#f8f9fa}
+.pc-nm{font-weight:700;font-size:13px}
+.pc-sub{font-size:11px;color:var(--txtL);margin-left:8px}
+.pc-badge{font-size:10px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:700;margin-left:6px}
+.bg-被相続人{background:#e91e63}
+.bg-相続人{background:#27ae60}
+.bg-遺産分割{background:#f39c12}
+.bg-先死亡{background:#95a5a6}
+.bg-相続後死亡{background:#8e44ad}
+.bg-数次相続人{background:#2980b9}
+.bg-無関係{background:#95a5a6}
+.bg-相続人兼数次相続人{background:#16a085}
+.pc-tgl{font-size:16px;color:#aaa;transition:transform .2s}
 .pc.open .pc-tgl{transform:rotate(180deg)}
 
-.pc-bd{display:none;border-top:1px solid var(--ink-200);background:var(--ink-50)}
+.pc-bd{display:none;border-top:1px solid #f0f0f0;background:#fafbfc}
 .pc.open .pc-bd{display:block}
 
-.tabs{display:flex;gap:2px;background:var(--white);border:1px solid var(--ink-200);border-radius:7px;padding:2px;margin:10px 12px 4px}
-.tab{flex:1;height:26px;padding:0;text-align:center;font-size:11.5px;font-weight:500;color:var(--ink-600);border:none;background:transparent;border-radius:5px;letter-spacing:.02em;transition:all .15s}
-.tab:hover{color:var(--ink-800)}
-.tab.active{color:var(--ink-900);background:var(--ink-100);font-weight:600}
+.tabs{display:flex;border-bottom:2px solid #e0e0e0;background:#f5f6f8}
+.tab{flex:1;padding:8px 0;text-align:center;font-size:12px;font-weight:600;color:var(--txtL);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 .tab-body{padding:10px 12px 12px}
 .tab-pane{display:none}
 .tab-pane.active{display:block}
 
 .fg{margin-bottom:6px}
-.fg label{font-size:10.5px;color:var(--ink-600);font-weight:500;display:block;margin-bottom:3px;letter-spacing:.02em}
-.fg input,.fg select{width:100%;height:30px;padding:0 10px;border:1px solid var(--ink-200);border-radius:6px;font-size:12px;background:var(--white);color:var(--ink-800);font-family:inherit}
-.fg input:focus,.fg select:focus{border-color:var(--brand-700);outline:none;box-shadow:0 0 0 3px rgba(51,74,102,.1)}
+.fg label{font-size:11px;color:var(--txtL);font-weight:600;display:block;margin-bottom:2px}
+.fg input,.fg select{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:#fff}
+.fg input:focus,.fg select:focus{border-color:var(--primary-l);outline:none}
 .fg-row{display:flex;gap:8px}
 .fg-row .fg{flex:1}
 
 .date-row{display:flex;gap:4px;align-items:center}
-.date-row select{height:30px;padding:0 6px;font-size:12px;border:1px solid var(--ink-200);border-radius:6px;background:var(--white);color:var(--ink-800)}
+.date-row select{padding:4px 2px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:#fff}
 .date-row .y-sel{width:120px}
 .date-row .m-sel{width:55px}
 .date-row .d-sel{width:55px}
-.date-row span{font-size:11px;color:var(--ink-500)}
+.date-row span{font-size:11px;color:var(--txtL)}
 
-.pc-ft{display:flex;justify-content:flex-end;padding:8px 12px 10px;background:var(--ink-50);border-top:1px solid var(--ink-200)}
-.btn-del{background:transparent;border:none;color:var(--danger);padding:0 10px;height:26px;border-radius:6px;font-size:11.5px;font-weight:500}
-.btn-del:hover{background:rgba(140,42,43,.08)}
+.pc-ft{display:flex;justify-content:flex-end;padding:6px 12px 10px;background:#fafbfc}
+.btn-del{background:none;border:1px solid #e74c3c;color:#e74c3c;padding:3px 14px;border-radius:5px;font-size:11px;font-weight:600}
+.btn-del:hover{background:#e74c3c;color:#fff}
 
-.btn-add{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:40px;margin-top:4px;background:var(--white);color:var(--brand-800);border:1.5px dashed var(--ink-300);border-radius:6px;font-weight:600;font-size:13px;transition:all .12s;font-family:inherit}
-.btn-add:hover{border-color:var(--brand-700);background:#f0f4f8;color:var(--brand-900);border-style:solid}
+.btn-add{display:block;width:100%;padding:11px;margin-top:4px;background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;border:none;border-radius:var(--r);font-weight:700;font-size:13px}
+.btn-add:hover{opacity:.85}
 
-.auto-note{font-size:10px;color:var(--ink-500);padding:4px 12px 8px;background:var(--ink-50)}
+.auto-note{font-size:10px;color:#999;padding:4px 12px 8px;background:#fafbfc}
 
 /* 右: 図 */
-.main{flex:1;overflow:auto;background:var(--ink-100);position:relative}
-.diagram{position:relative;width:3000px;height:3000px;padding:30px 40px;background:var(--paper);margin:10px;box-shadow:var(--shadow-2),0 0 0 1px var(--ink-200);font-family:var(--ff-doc);color:var(--ink-900);transform-origin:0 0;border-radius:2px}
+.main{flex:1;overflow:auto;background:#eee;position:relative}
+.diagram{position:relative;width:3000px;height:3000px;padding:30px 40px;background:#fff;margin:10px;box-shadow:0 1px 6px rgba(0,0,0,.1);font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;transform-origin:0 0}
 .diagram svg{position:absolute;top:0;left:0;pointer-events:none}
-.dhdr{position:absolute;z-index:1;font-family:var(--ff-doc);cursor:grab}
+.dhdr{position:absolute;z-index:1;font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;cursor:grab}
 .dhdr.dragging{cursor:grabbing;opacity:.7}
-.dhdr.selected{outline:3px solid var(--brand-700);outline-offset:4px;border-radius:4px}
-.dtitle{font-size:26px;font-weight:600;color:var(--ink-900);margin-bottom:16px;letter-spacing:.08em}
-.dsub{font-size:16px;font-weight:400;color:var(--ink-800);line-height:2.0;letter-spacing:.04em}
-.dsub .dlabel{display:inline-block;width:9em;text-align-last:justify;margin-right:1em;color:var(--ink-700)}
+.dhdr.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
+.dtitle{font-size:26px;font-weight:700;color:#000;margin-bottom:16px;letter-spacing:2px}
+.dsub{font-size:16px;font-weight:400;color:#000;line-height:2.0}
+.dsub .dlabel{display:inline-block;width:9em;text-align-last:justify;margin-right:1em}
 
-.dfooter{font-family:var(--ff-doc);font-size:18px;text-align:center;color:var(--ink-800);position:absolute;z-index:1;cursor:grab;letter-spacing:.2em}
+.dfooter{font-family:'Yu Mincho','MS Mincho','Hiragino Mincho ProN',serif;font-size:18px;text-align:center;color:#000;position:absolute;z-index:1;cursor:grab}
 .dfooter.dragging{cursor:grabbing;opacity:.7}
-.dfooter.selected{outline:3px solid var(--brand-700);outline-offset:4px;border-radius:4px}
+.dfooter.selected{outline:3px solid #2980b9;outline-offset:4px;border-radius:4px}
 
 /* カード */
-.card{position:absolute;min-width:220px;width:max-content;max-width:400px;border:1px solid var(--ink-300);border-radius:4px;background:var(--white);font-size:14px;z-index:1;box-shadow:var(--shadow-1);cursor:grab;user-select:none;font-family:var(--ff-doc);color:var(--ink-900);overflow:hidden;transition:box-shadow .14s,border-color .14s}
-.card:hover{box-shadow:var(--shadow-2);border-color:var(--ink-400)}
-.card.selected{outline:2px solid var(--brand-700);outline-offset:0;box-shadow:0 0 0 3px rgba(51,74,102,.15),var(--shadow-2)}
-.card.dragging{cursor:grabbing;box-shadow:0 8px 24px rgba(20,17,14,.18);z-index:10;opacity:.95}
-.card-h{padding:5px 10px;font-weight:600;font-size:13px;border-bottom:1px dashed var(--ink-200);letter-spacing:.1em;font-family:var(--ff-ui);background:var(--ink-50);color:var(--ink-800)}
-.card-b{padding:8px 12px;line-height:1.5}
-.card-b .f{display:flex;margin-bottom:2px}
-.card-b .l{width:38px;color:var(--ink-600);font-weight:500;flex-shrink:0;font-family:var(--ff-ui);font-size:11px;letter-spacing:.08em;align-self:center}
-.card-b .v{flex:1;white-space:nowrap;color:var(--ink-900)}
-.card-b .v-addr{flex:1;white-space:pre-wrap;color:var(--ink-900)}
-.card-d{display:flex;gap:3px;padding:6px 10px 8px;border-top:1px solid var(--ink-200);background:var(--ink-50);flex-wrap:wrap;font-family:var(--ff-ui)}
-.tag{padding:1px 6px;border:1px solid var(--ink-300);border-radius:2px;font-size:10px;font-weight:600;color:var(--ink-700);background:var(--white);letter-spacing:.08em}
+.card{position:absolute;min-width:220px;width:max-content;max-width:400px;border:2px solid #bbb;border-radius:var(--r);background:#fff;font-size:14px;z-index:1;box-shadow:0 2px 10px rgba(0,0,0,.07);cursor:grab;user-select:none}
+.card.selected{outline:3px solid #2980b9;outline-offset:2px}
+.card.dragging{cursor:grabbing;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:10;opacity:.9}
+.card-h{padding:4px 8px;font-weight:700;font-size:14px;border-bottom:1px solid #ddd;border-radius:6px 6px 0 0;letter-spacing:.5px}
+.card-b{padding:4px 8px;line-height:1.5}
+.card-b .f{display:flex}
+.card-b .l{width:38px;color:var(--txtL);font-weight:700;flex-shrink:0}
+.card-b .v{flex:1;white-space:nowrap}
+.card-b .v-addr{flex:1;white-space:pre-wrap}
+.card-d{display:flex;gap:4px;padding:5px 10px;border-top:1px solid #eee;flex-wrap:wrap}
+.tag{padding:2px 7px;border:1px solid #aaa;border-radius:4px;font-size:12px;font-weight:700;background:#f8f9fa}
 
-.c-被相続人{border-color:var(--ink-300);background:var(--white)} .c-被相続人 .card-h{background:var(--role-bsz-bg);color:var(--role-bsz);border-bottom-color:var(--role-bsz)}
-.c-相続人{border-color:var(--ink-300);background:var(--white)} .c-相続人 .card-h{background:var(--role-heir-bg);color:var(--role-heir);border-bottom-color:var(--role-heir)}
-.c-遺産分割{border-color:var(--ink-300);background:var(--white)} .c-遺産分割 .card-h{background:var(--role-waiver-bg);color:var(--role-waiver);border-bottom-color:var(--role-waiver)}
-.c-先死亡{border-color:var(--ink-300);background:var(--white)} .c-先死亡 .card-h{background:var(--role-pre-bg);color:var(--role-pre);border-bottom-color:var(--role-pre)}
-.c-相続後死亡{border-color:var(--ink-300);background:var(--white)} .c-相続後死亡 .card-h{background:var(--role-post-bg);color:var(--role-post);border-bottom-color:var(--role-post)}
-.c-数次相続人{border-color:var(--ink-300);background:var(--white)} .c-数次相続人 .card-h{background:var(--role-suuji-bg);color:var(--role-suuji);border-bottom-color:var(--role-suuji)}
-.c-無関係{border-color:var(--ink-300);background:var(--white)} .c-無関係 .card-h{background:var(--role-none-bg);color:var(--role-none);border-bottom-color:var(--role-none)}
-.c-相続人兼数次相続人{border-color:var(--ink-300);background:var(--white)} .c-相続人兼数次相続人 .card-h{background:var(--role-both-bg);color:var(--role-both);border-bottom-color:var(--role-both)}
+.c-被相続人{border-color:#e91e63;background:#fce4ec} .c-被相続人 .card-h{background:#e91e63;color:#fff}
+.c-相続人{border-color:#27ae60;background:#e8f5e9} .c-相続人 .card-h{background:#27ae60;color:#fff}
+.c-遺産分割{border-color:#f39c12;background:#fff8e1} .c-遺産分割 .card-h{background:#fef5e7;color:#b7770a}
+.c-先死亡{border-color:#95a5a6;background:#f5f5f5} .c-先死亡 .card-h{background:#f0f0f0;color:#555}
+.c-相続後死亡{border-color:#8e44ad;background:#f3e5f5} .c-相続後死亡 .card-h{background:#f4ecf7;color:#6c3483}
+.c-数次相続人{border-color:#2980b9;background:#e8f4fd} .c-数次相続人 .card-h{background:#2980b9;color:#fff}
+.c-無関係{border-color:#95a5a6;background:#f5f5f5} .c-無関係 .card-h{background:#f0f0f0;color:#555}
+.c-相続人兼数次相続人{border-color:#16a085;background:#e8f6f3} .c-相続人兼数次相続人 .card-h{background:#16a085;color:#fff}
 
 /* 範囲選択 */
-.sel-rect{position:absolute;border:2px dashed var(--brand-700);background:rgba(51,74,102,.1);z-index:50;pointer-events:none}
+.sel-rect{position:absolute;border:2px dashed #2980b9;background:rgba(41,128,185,.1);z-index:50;pointer-events:none}
 
 /* プレビューモード */
 .preview-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#555;z-index:200;overflow:auto}
@@ -181,8 +153,7 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .preview-ctrl button{padding:8px 20px;border:none;border-radius:6px;font-weight:700;font-size:14px;cursor:pointer}
 .preview-ctrl button:hover{opacity:.85}
 .pv-btn-back{background:#fff;color:#333}
-.pv-btn-print{background:var(--brand-800);color:var(--ink-100)}
-.pv-btn-print:hover{background:var(--brand-900);color:#fff}
+.pv-btn-print{background:#2980b9;color:#fff}
 
 @page{size:A4;margin:0mm}
 @media print{
@@ -201,30 +172,30 @@ button{cursor:pointer;font-family:inherit;font-size:13px}
 .wiz-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;justify-content:center;align-items:center}
 .wiz-overlay.active{display:flex}
 .wiz-box{background:#fff;border-radius:12px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.3)}
-.wiz-hd{background:var(--ink-900);color:var(--ink-100);padding:16px 24px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
-.wiz-hd h2{font-size:15px;margin:0;font-weight:600;letter-spacing:.04em}
-.wiz-hd .wiz-close{background:none;border:none;color:rgba(255,255,255,.55);font-size:20px;cursor:pointer;padding:0 4px}
-.wiz-hd .wiz-close:hover{color:var(--ink-100)}
-.wiz-progress{height:3px;background:var(--ink-200)}.wiz-progress-bar{height:3px;background:var(--brand-700);transition:width .3s}
+.wiz-hd{background:linear-gradient(135deg,var(--primary),var(--primary-l));color:#fff;padding:16px 24px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
+.wiz-hd h2{font-size:16px;margin:0;font-weight:700}
+.wiz-hd .wiz-close{background:none;border:none;color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;padding:0 4px}
+.wiz-hd .wiz-close:hover{color:#fff}
+.wiz-progress{height:4px;background:#e0e0e0}.wiz-progress-bar{height:4px;background:var(--primary-l);transition:width .3s}
 .wiz-body{padding:24px}
-.wiz-q{font-size:15px;font-weight:600;color:var(--ink-900);margin-bottom:6px;line-height:1.6;letter-spacing:.01em}
-.wiz-hint{font-size:12px;color:var(--ink-600);margin-bottom:16px;line-height:1.5}
+.wiz-q{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:6px;line-height:1.6}
+.wiz-hint{font-size:12px;color:var(--txtL);margin-bottom:16px;line-height:1.5}
 .wiz-btns{display:flex;gap:8px;flex-wrap:wrap}
-.wiz-btn{padding:10px 22px;border-radius:8px;border:1px solid var(--ink-200);background:var(--white);color:var(--ink-800);font-weight:500;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
-.wiz-btn:hover{border-color:var(--brand-700);background:#f0f4f8;color:var(--brand-900)}
-.wiz-btn.primary{background:var(--brand-800);color:var(--ink-100);border-color:var(--brand-800);font-weight:600}
-.wiz-btn.primary:hover{background:var(--brand-900);border-color:var(--brand-900);color:#fff}
-.wiz-input{width:100%;padding:10px 14px;border:1px solid var(--ink-200);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box;color:var(--ink-800);background:var(--white)}
-.wiz-input:focus{border-color:var(--brand-700);outline:none;box-shadow:0 0 0 3px rgba(51,74,102,.1)}
-.wiz-tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;margin-bottom:8px;letter-spacing:.04em}
-.wiz-tag-blue{background:#dde7ef;color:var(--brand-800)}
-.wiz-ft{padding:12px 24px;border-top:1px solid var(--ink-200);display:flex;justify-content:space-between}
-.wiz-back{background:none;border:none;color:var(--ink-600);font-size:13px;cursor:pointer;font-family:inherit;padding:6px 0}
-.wiz-back:hover{color:var(--ink-800)}
+.wiz-btn{padding:10px 22px;border-radius:8px;border:1.5px solid var(--border);background:#fff;color:var(--txt);font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;transition:all .15s}
+.wiz-btn:hover{border-color:var(--primary-l);background:#eaf2f8}
+.wiz-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.wiz-btn.primary:hover{opacity:.85}
+.wiz-input{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:8px;box-sizing:border-box}
+.wiz-input:focus{border-color:var(--primary-l);outline:none}
+.wiz-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;margin-bottom:8px}
+.wiz-tag-blue{background:#eaf2f8;color:var(--primary)}
+.wiz-ft{padding:12px 24px;border-top:1px solid #eee;display:flex;justify-content:space-between}
+.wiz-back{background:none;border:none;color:var(--txtL);font-size:13px;cursor:pointer;font-family:inherit;padding:6px 0}
+.wiz-back:hover{color:var(--txt)}
 .wiz-multi{display:flex;flex-direction:column;gap:8px}
 .wiz-multi button{text-align:left;padding:12px 16px;line-height:1.5}
-.wiz-multi .wiz-sub{font-size:11px;color:var(--ink-600);margin-top:2px;font-weight:400}
-.wiz-summary{background:var(--ink-50);border:1px solid var(--ink-200);border-radius:8px;padding:14px;font-size:13px;line-height:2;white-space:pre-line;margin-bottom:16px;color:var(--ink-800)}
+.wiz-multi .wiz-sub{font-size:11px;color:var(--txtL);margin-top:2px;font-weight:400}
+.wiz-summary{background:#f8f9fa;border-radius:8px;padding:14px;font-size:13px;line-height:2;white-space:pre-line;margin-bottom:16px}
 /* お客様モード */
 body.client-mode .header,body.client-mode .wrap,body.client-mode .share-fab{display:none!important}
 body.client-mode .wiz-overlay{display:flex!important;background:linear-gradient(135deg,#f5f7fa,#e4e9f0)}
@@ -235,26 +206,25 @@ body.client-mode .wiz-hint{font-size:13px}
 body.client-mode .wiz-btn{padding:12px 26px;font-size:14px}
 body.client-mode .wiz-input{padding:12px 16px;font-size:15px}
 body.client-mode .wiz-hd .wiz-close{display:none}
-.wiz-client-banner{background:var(--ink-50);border:1px solid var(--ink-200);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--ink-800);line-height:1.6;border-left:4px solid var(--brand-700)}
-.wiz-code-area{width:100%;min-height:80px;padding:10px;border:1px solid var(--ink-200);border-radius:8px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;word-break:break-all;resize:none;box-sizing:border-box;margin-bottom:12px;background:var(--white);color:var(--ink-800)}
-.wiz-copy-btn{padding:12px 24px;border-radius:8px;border:none;background:var(--brand-800);color:var(--ink-100);font-weight:600;font-size:14px;cursor:pointer;width:100%;transition:all .15s;font-family:inherit}
-.wiz-copy-btn:hover{background:var(--brand-900);color:#fff}
-.wiz-copied{background:var(--role-heir)!important}
-.import-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(20,17,14,.5);z-index:300;justify-content:center;align-items:center}
+.wiz-client-banner{background:#eaf2f8;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:#2c3e50;line-height:1.6;border-left:4px solid var(--primary)}
+.wiz-code-area{width:100%;min-height:80px;padding:10px;border:1.5px solid var(--border);border-radius:8px;font-family:monospace;font-size:11px;word-break:break-all;resize:none;box-sizing:border-box;margin-bottom:12px}
+.wiz-copy-btn{padding:12px 24px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-weight:700;font-size:14px;cursor:pointer;width:100%;transition:all .15s}
+.wiz-copy-btn:hover{opacity:.85}
+.wiz-copied{background:#27ae60!important}
+.import-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;justify-content:center;align-items:center}
 .import-overlay.active{display:flex}
-.import-box{background:var(--white);border-radius:12px;width:480px;max-width:95vw;padding:24px;box-shadow:0 20px 48px rgba(20,17,14,.18),0 4px 12px rgba(20,17,14,.08)}
-.import-box h3{margin:0 0 8px;font-size:15px;color:var(--ink-900);font-weight:600;letter-spacing:.02em}
-.import-box p{font-size:13px;color:var(--ink-600);margin:0 0 16px;line-height:1.5}
-.import-err{color:var(--danger);font-size:12px;margin-top:8px;display:none}
-.share-box{background:var(--white);border-radius:12px;width:420px;max-width:95vw;padding:24px;box-shadow:0 20px 48px rgba(20,17,14,.18),0 4px 12px rgba(20,17,14,.08)}
-.share-box h3{margin:0 0 6px;font-size:15px;color:var(--ink-900);font-weight:600;letter-spacing:.02em}
-.share-box p{font-size:13px;color:var(--ink-600);margin:0 0 16px;line-height:1.5}
-.share-fab{position:fixed;bottom:20px;right:20px;z-index:200;padding:12px 20px;border:none;border-radius:10px;background:var(--role-heir);color:#fff;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(20,17,14,.2);transition:all .15s;font-family:inherit;letter-spacing:.02em}
-.share-fab:hover{background:#305943;box-shadow:0 6px 20px rgba(20,17,14,.3)}
+.import-box{background:#fff;border-radius:12px;width:480px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.import-box h3{margin:0 0 8px;font-size:16px;color:var(--txt)}
+.import-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.import-err{color:#e74c3c;font-size:12px;margin-top:8px;display:none}
+.share-box{background:#fff;border-radius:12px;width:420px;max-width:95vw;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.3)}
+.share-box h3{margin:0 0 6px;font-size:16px;color:var(--txt)}
+.share-box p{font-size:13px;color:var(--txtL);margin:0 0 16px;line-height:1.5}
+.share-fab{position:fixed;bottom:20px;right:20px;z-index:200;padding:12px 20px;border:none;border-radius:10px;background:#27ae60;color:#fff;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:all .15s;font-family:inherit}
+.share-fab:hover{background:#219a52;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .share-url-row{display:flex;gap:6px;margin-top:4px}
-.share-url-row input{flex:1;padding:8px 12px;border:1px solid var(--ink-200);border-radius:8px;font-size:12px;font-family:'JetBrains Mono',ui-monospace,monospace;color:var(--ink-800);background:var(--white)}
-.share-url-row button{padding:8px 16px;border:none;border-radius:8px;background:var(--brand-800);color:var(--ink-100);font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;font-family:inherit}
-.share-url-row button:hover{background:var(--brand-900);color:#fff}
+.share-url-row input{flex:1;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:monospace}
+.share-url-row button{padding:8px 16px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -265,7 +235,7 @@ body.client-mode .wiz-hd .wiz-close{display:none}
     <button class="btn-undo" onclick="undo()" title="Ctrl+Z">↩</button>
     <button class="btn-redo" onclick="redo()" title="Ctrl+Y">↪</button>
     <span class="hdr-sep"></span>
-    <button onclick="openWizard()" style="background:var(--ink-100);color:var(--ink-900);font-weight:600">⚡ かんたん入力</button>
+    <button onclick="openWizard()" style="background:rgba(255,255,255,.9);color:#1a5276;font-weight:700">⚡ かんたん入力</button>
     <button onclick="saveJSON()">保存</button>
     <button onclick="openLoadDialog()">読込</button>
     <span class="hdr-sep"></span>
@@ -288,7 +258,7 @@ body.client-mode .wiz-hd .wiz-close{display:none}
       <input id="inRegAddr" placeholder="登記簿上の住所..." onchange="draw()">
     </div>
     <div class="plist" id="plist"></div>
-    <div style="padding:12px 14px 14px;border-top:1px solid var(--ink-200);background:var(--white)">
+    <div style="padding:10px">
       <button class="btn-add" onclick="addPerson()">+ 人物を追加</button>
     </div>
   </div>
@@ -1848,10 +1818,10 @@ function shareClipboard(){
   inp.focus();inp.select();inp.setSelectionRange(0,99999);
   const btn=document.querySelector('.share-url-row button');
   try{
-    if(document.execCommand('copy')){btn.textContent='✓ コピー済';btn.style.background='#3d6e4f';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);return;}
+    if(document.execCommand('copy')){btn.textContent='✓ コピー済';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);return;}
   }catch(e){}
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(inp.value).then(()=>{btn.textContent='✓ コピー済';btn.style.background='#3d6e4f';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);});
+    navigator.clipboard.writeText(inp.value).then(()=>{btn.textContent='✓ コピー済';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent='コピー';btn.style.background='';},2000);});
   }else{btn.textContent='Ctrl+C でコピーしてください';setTimeout(()=>{btn.textContent='コピー';},3000);}
 }
 
