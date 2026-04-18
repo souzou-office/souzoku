@@ -47,7 +47,7 @@ function Wizard({ isClient, onClose, onApply }) {
           {isClient && <div className="client-banner">相続の手続きに必要な情報をおうかがいします。<br/>質問に順番にお答えください。</div>}
           <div className="q-title">亡くなった方のお名前を教えてください。</div>
           <div className="q-hint">戸籍に記載されているお名前をご記入ください。</div>
-          <input className="inp-text" style={{marginBottom:12}} autoFocus
+          <input className="v2-input-text" style={{marginBottom:12}} autoFocus
             value={data.name} onChange={e=>setData({...data,name:e.target.value})} placeholder="例：山田 太郎"/>
           <button className="q-btn primary" onClick={()=>{ push(); setStep('death'); }}>次へ →</button>
         </>
@@ -56,14 +56,14 @@ function Wizard({ isClient, onClose, onApply }) {
         <>
           <div className="q-title">{data.name}さんがお亡くなりになった日を教えてください。</div>
           <div className="q-hint">年月日をそれぞれ選択してください。</div>
-          <div className="pd__date-row" style={{marginBottom:14, gap:6}}>
-            <select className="inp-select" style={{flex:2.2}} value={data.deathY} onChange={e=>setData({...data,deathY:e.target.value})}>
+          <div className="v2-date-row" style={{marginBottom:14, gap:6}}>
+            <select className="v2-input-select" style={{flex:2.2}} value={data.deathY} onChange={e=>setData({...data,deathY:e.target.value})}>
               {YEAR_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <select className="inp-select" style={{flex:1}} value={data.deathM} onChange={e=>setData({...data,deathM:e.target.value})}>
+            <select className="v2-input-select" style={{flex:1}} value={data.deathM} onChange={e=>setData({...data,deathM:e.target.value})}>
               {MONTH_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <select className="inp-select" style={{flex:1}} value={data.deathD} onChange={e=>setData({...data,deathD:e.target.value})}>
+            <select className="v2-input-select" style={{flex:1}} value={data.deathD} onChange={e=>setData({...data,deathD:e.target.value})}>
               {DAY_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
@@ -83,8 +83,8 @@ function Wizard({ isClient, onClose, onApply }) {
       case 'spouse_status': return (
         <>
           <div className="q-title">配偶者の方について教えてください。</div>
-          <label className="lbl">配偶者のお名前</label>
-          <input className="inp-text" style={{marginBottom:14}}
+          <label className="v2-field__label" style={{marginBottom:4}}>配偶者のお名前</label>
+          <input className="v2-input-text" style={{marginBottom:14}}
             value={data.spouse?.name||''} onChange={e=>setData({...data, spouse:{...data.spouse, name:e.target.value}})} placeholder="例：山田 花子"/>
           <div className="q-title" style={{fontSize:14, marginBottom:8}}>現在ご存命ですか？</div>
           <div className="q-btns">
@@ -96,14 +96,14 @@ function Wizard({ isClient, onClose, onApply }) {
       case 'spouse_death': return (
         <>
           <div className="q-title">配偶者の方がお亡くなりになった日を教えてください。</div>
-          <div className="pd__date-row" style={{marginBottom:14, gap:6}}>
-            <select className="inp-select" style={{flex:2.2}} value={data.spouse?.deathY||''} onChange={e=>setData({...data, spouse:{...data.spouse, deathY:e.target.value}})}>
+          <div className="v2-date-row" style={{marginBottom:14, gap:6}}>
+            <select className="v2-input-select" style={{flex:2.2}} value={data.spouse?.deathY||''} onChange={e=>setData({...data, spouse:{...data.spouse, deathY:e.target.value}})}>
               {YEAR_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <select className="inp-select" style={{flex:1}} value={data.spouse?.deathM||''} onChange={e=>setData({...data, spouse:{...data.spouse, deathM:e.target.value}})}>
+            <select className="v2-input-select" style={{flex:1}} value={data.spouse?.deathM||''} onChange={e=>setData({...data, spouse:{...data.spouse, deathM:e.target.value}})}>
               {MONTH_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
-            <select className="inp-select" style={{flex:1}} value={data.spouse?.deathD||''} onChange={e=>setData({...data, spouse:{...data.spouse, deathD:e.target.value}})}>
+            <select className="v2-input-select" style={{flex:1}} value={data.spouse?.deathD||''} onChange={e=>setData({...data, spouse:{...data.spouse, deathD:e.target.value}})}>
               {DAY_OPTS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
@@ -141,11 +141,11 @@ function Wizard({ isClient, onClose, onApply }) {
           <>
             <span className="q-tag">子 {ci+1}/{total}</span>
             <div className="q-title">{ci+1}番目のお子さんについて教えてください。</div>
-            <label className="lbl">お名前</label>
-            <input className="inp-text" style={{marginBottom:10}} value={c.name||''}
+            <label className="v2-field__label" style={{marginBottom:4}}>お名前</label>
+            <input className="v2-input-text" style={{marginBottom:10}} value={c.name||''}
               onChange={e=>{const nc=[...data.children]; nc[ci]={...c, name:e.target.value}; setData({...data,children:nc});}} placeholder="例：山田 一郎"/>
-            <label className="lbl">続柄</label>
-            <select className="inp-select" style={{marginBottom:14}} value={c.relation||''}
+            <label className="v2-field__label" style={{marginBottom:4}}>続柄</label>
+            <select className="v2-input-select" style={{marginBottom:14}} value={c.relation||''}
               onChange={e=>{const nc=[...data.children]; nc[ci]={...c, relation:e.target.value}; setData({...data,children:nc});}}>
               <option value="">-- 選択 --</option>
               {ZOKUGARA.filter(z=>['長男','二男','三男','四男','五男','長女','二女','三女','四女','五女','子'].includes(z)||z==='').map(z=>(
@@ -346,7 +346,7 @@ function ShareModal({ onClose }) {
         <div className="modal-bd">
           <p style={{margin:'0 0 14px', fontSize:13, color:'var(--ink-600)'}}>お客様にこのURLをお送りすると、相続関係のヒアリング入力画面が開きます。</p>
           <div style={{display:'flex', gap:6, marginBottom:10}}>
-            <input readOnly value={url} className="inp-text" style={{flex:1, fontFamily:"'JetBrains Mono',monospace",fontSize:11}}/>
+            <input readOnly value={url} className="v2-input-text" style={{flex:1, fontFamily:"'JetBrains Mono',monospace",fontSize:11}}/>
             <button className={`copy-btn ${copied?'done':''}`} style={{width:110}} onClick={copy}>{copied?'✓ コピー済':'コピー'}</button>
           </div>
         </div>
